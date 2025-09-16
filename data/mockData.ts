@@ -17,7 +17,7 @@ export const mockUsers: User[] = [
     name: 'Pierre Martin',
     bio: 'Amateur de bonne cuisine et de convivialité',
     photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    isAdmin: false,
+    isAdmin: true, // Changed to admin for demo
     createdAt: new Date('2024-01-15'),
   },
 ];
@@ -105,7 +105,40 @@ export const mockReviews: Review[] = [
     userName: 'Pierre Martin',
     userPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
   },
+  {
+    id: '2',
+    userId: '1',
+    eventId: '1',
+    rating: 4,
+    comment: 'Très belle expérience culinaire, mais le service était un peu lent. Les plats étaient délicieux cependant.',
+    status: 'pending',
+    createdAt: new Date('2024-01-25'),
+    userName: 'Marie Dubois',
+    userPhoto: 'https://images.unsplash.com/photo-1494790108755-2616c9c0e8e0?w=150&h=150&fit=crop&crop=face',
+  },
+  {
+    id: '3',
+    userId: '2',
+    eventId: '2',
+    rating: 5,
+    comment: 'Atelier fantastique ! J\'ai appris énormément de techniques et l\'ambiance était très détendue. Merci !',
+    status: 'pending',
+    createdAt: new Date('2024-01-28'),
+    userName: 'Pierre Martin',
+    userPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+  },
+  {
+    id: '4',
+    userId: '1',
+    eventId: '3',
+    rating: 3,
+    comment: 'Bonne soirée dans l\'ensemble, mais certains fromages n\'étaient pas à la hauteur de mes attentes.',
+    status: 'pending',
+    createdAt: new Date('2024-01-30'),
+    userName: 'Marie Dubois',
+    userPhoto: 'https://images.unsplash.com/photo-1494790108755-2616c9c0e8e0?w=150&h=150&fit=crop&crop=face',
+  },
 ];
 
 // Current user for demo purposes
-export const currentUser: User = mockUsers[1]; // Pierre Martin
+export const currentUser: User = mockUsers[1]; // Pierre Martin (now admin)

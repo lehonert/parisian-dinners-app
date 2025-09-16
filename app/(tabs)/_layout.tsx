@@ -3,8 +3,11 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { colors } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function TabLayout() {
+  const { user } = useAuth();
+
   return (
     <Tabs
       screenOptions={{
@@ -43,6 +46,17 @@ export default function TabLayout() {
           ),
         }}
       />
+      {user?.isAdmin && (
+        <Tabs.Screen
+          name="admin"
+          options={{
+            title: 'Admin',
+            tabBarIcon: ({ color, size }) => (
+              <Icon name="settings-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
       <Tabs.Screen
         name="profile"
         options={{
