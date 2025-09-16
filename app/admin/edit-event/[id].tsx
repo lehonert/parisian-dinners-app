@@ -158,7 +158,7 @@ export default function EditEventScreen() {
     price: '',
   });
 
-  // Fix: Move useEffect before the conditional return
+  // Fix: Always call useEffect at the top level
   useEffect(() => {
     if (id) {
       // Load event data
@@ -181,7 +181,7 @@ export default function EditEventScreen() {
     }
   }, [id]);
 
-  // Redirect if not admin
+  // Redirect if not admin - moved after hooks
   if (!user?.isAdmin) {
     return <Redirect href="/(tabs)/events" />;
   }

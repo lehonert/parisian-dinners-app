@@ -40,6 +40,7 @@ const SimpleBottomSheet: React.FC<SimpleBottomSheetProps> = ({
   const lastGestureY = useRef(0);
   const startPositionY = useRef(0);
 
+  // Fix: Add gestureTranslateY to dependency array
   useEffect(() => {
     if (isVisible) {
       setCurrentSnapPoint(SNAP_POINTS.HALF);
@@ -75,10 +76,12 @@ const SimpleBottomSheet: React.FC<SimpleBottomSheetProps> = ({
   }, [isVisible, translateY, backdropOpacity, gestureTranslateY]);
 
   const handleBackdropPress = () => {
+    console.log('Backdrop pressed, closing bottom sheet');
     onClose?.();
   };
 
   const snapToPoint = (point: number) => {
+    console.log('Snapping to point:', point);
     setCurrentSnapPoint(point);
     gestureTranslateY.setValue(0);
     Animated.timing(translateY, {
@@ -131,7 +134,9 @@ const SimpleBottomSheet: React.FC<SimpleBottomSheetProps> = ({
 
     if (state === State.BEGAN) {
       startPositionY.current = SCREEN_HEIGHT - currentSnapPoint;
+      console.log('Gesture began');
     } else if (state === State.END) {
+      console.log('Gesture ended');
       const currentBasePosition = SCREEN_HEIGHT - currentSnapPoint;
       const intendedPosition = currentBasePosition + translationY;
 

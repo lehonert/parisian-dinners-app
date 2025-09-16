@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { setupErrorLogging } from '../utils/errorLogger';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from '../contexts/AuthContext';
+import { DataProvider } from '../contexts/DataContext';
 
 const STORAGE_KEY = 'emulated_device';
 
@@ -50,12 +51,14 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <AuthProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: 'default',
-            }}
-          />
+          <DataProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                animation: 'default',
+              }}
+            />
+          </DataProvider>
         </AuthProvider>
       </GestureHandlerRootView>
     </SafeAreaProvider>
