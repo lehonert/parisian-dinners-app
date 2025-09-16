@@ -158,30 +158,33 @@ export default function EditEventScreen() {
     price: '',
   });
 
+  // Fix: Move useEffect before the conditional return
+  useEffect(() => {
+    if (id) {
+      // Load event data
+      const event = mockEvents.find(e => e.id === id);
+      if (event) {
+        console.log('Loading event data:', event);
+        const eventDate = new Date(event.date);
+        setFormData({
+          title: event.title,
+          description: event.description,
+          chef: event.chef,
+          image: event.image,
+          date: eventDate.toLocaleDateString('fr-FR'),
+          time: eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+          location: event.location,
+          capacity: event.capacity.toString(),
+          price: event.price.toString(),
+        });
+      }
+    }
+  }, [id]);
+
   // Redirect if not admin
   if (!user?.isAdmin) {
     return <Redirect href="/(tabs)/events" />;
   }
-
-  useEffect(() => {
-    // Load event data
-    const event = mockEvents.find(e => e.id === id);
-    if (event) {
-      console.log('Loading event data:', event);
-      const eventDate = new Date(event.date);
-      setFormData({
-        title: event.title,
-        description: event.description,
-        chef: event.chef,
-        image: event.image,
-        date: eventDate.toLocaleDateString('fr-FR'),
-        time: eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-        location: event.location,
-        capacity: event.capacity.toString(),
-        price: event.price.toString(),
-      });
-    }
-  }, [id]);
 
   const handleInputChange = (field: string, value: string) => {
     console.log(`Updating ${field}:`, value);
