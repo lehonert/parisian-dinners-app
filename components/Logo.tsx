@@ -10,8 +10,8 @@ interface LogoProps {
 
 export default function Logo({ size = 'medium', textColor = colors.text }: LogoProps) {
   const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-  // Made the text larger as requested
-  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
+  // Text size similar to tab bar labels (12px)
+  const textSize = 12;
 
   return (
     <View style={styles.container}>
@@ -29,15 +29,15 @@ export default function Logo({ size = 'medium', textColor = colors.text }: LogoP
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row', // Changed from column to row to position text next to logo
+    flexDirection: 'column', // Text positioned below the logo
     alignItems: 'center',
     justifyContent: 'center',
   },
   logo: {
-    marginRight: 12, // Changed from marginBottom to marginRight for horizontal spacing
+    marginBottom: 8, // Spacing between logo and text
   },
   text: {
-    fontWeight: '400', // Slightly increased weight for better readability
+    fontWeight: '500', // Similar weight to tab bar labels
     textAlign: 'center',
     letterSpacing: 0.5,
     fontStyle: 'normal',
