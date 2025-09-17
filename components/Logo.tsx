@@ -10,8 +10,8 @@ interface LogoProps {
 
 export default function Logo({ size = 'medium', textColor = colors.text }: LogoProps) {
   const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-  // Made the text smaller and more elegant
-  const textSize = size === 'small' ? 12 : size === 'medium' ? 14 : 16;
+  // Made the text larger as requested
+  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
 
   return (
     <View style={styles.container}>
@@ -29,15 +29,17 @@ export default function Logo({ size = 'medium', textColor = colors.text }: LogoP
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row', // Changed from column to row to position text next to logo
     alignItems: 'center',
+    justifyContent: 'center',
   },
   logo: {
-    marginBottom: 8,
+    marginRight: 12, // Changed from marginBottom to marginRight for horizontal spacing
   },
   text: {
-    fontWeight: '300', // Changed from '700' to '300' for a more elegant, lighter font
+    fontWeight: '400', // Slightly increased weight for better readability
     textAlign: 'center',
-    letterSpacing: 0.5, // Added letter spacing for elegance
+    letterSpacing: 0.5,
     fontStyle: 'normal',
   },
 });
