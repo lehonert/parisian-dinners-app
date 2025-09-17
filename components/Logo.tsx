@@ -5,13 +5,13 @@ import { colors } from '../styles/commonStyles';
 
 interface LogoProps {
   size?: 'small' | 'medium' | 'large';
+  showText?: boolean;
   textColor?: string;
 }
 
-export default function Logo({ size = 'medium', textColor = colors.text }: LogoProps) {
+export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
   const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-  // Text size similar to tab bar labels (12px)
-  const textSize = 12;
+  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
 
   return (
     <View style={styles.container}>
@@ -20,26 +20,24 @@ export default function Logo({ size = 'medium', textColor = colors.text }: LogoP
         style={[styles.logo, { width: logoSize, height: logoSize }]}
         resizeMode="contain"
       />
-      <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
-        Les Dîners Parisiens
-      </Text>
+      {showText && (
+        <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
+          Les Dîners Parisiens
+        </Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column', // Text positioned below the logo
     alignItems: 'center',
-    justifyContent: 'center',
   },
   logo: {
-    marginBottom: 8, // Spacing between logo and text
+    marginBottom: 8,
   },
   text: {
-    fontWeight: '500', // Similar weight to tab bar labels
+    fontWeight: '700',
     textAlign: 'center',
-    letterSpacing: 0.5,
-    fontStyle: 'normal',
   },
 });
