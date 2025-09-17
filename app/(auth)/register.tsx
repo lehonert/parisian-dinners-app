@@ -67,7 +67,7 @@ export default function RegisterScreen() {
             <Icon name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <View style={styles.logoHeader}>
-            <Logo size="small" showText={false} />
+            <Logo size="small" />
           </View>
           <View style={styles.spacer} />
         </View>

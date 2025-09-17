@@ -5,13 +5,13 @@ import { colors } from '../styles/commonStyles';
 
 interface LogoProps {
   size?: 'small' | 'medium' | 'large';
-  showText?: boolean;
   textColor?: string;
 }
 
-export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
+export default function Logo({ size = 'medium', textColor = colors.text }: LogoProps) {
   const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
+  // Made the text smaller and more elegant
+  const textSize = size === 'small' ? 12 : size === 'medium' ? 14 : 16;
 
   return (
     <View style={styles.container}>
@@ -20,11 +20,9 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
         style={[styles.logo, { width: logoSize, height: logoSize }]}
         resizeMode="contain"
       />
-      {showText && (
-        <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
-          Les Dîners Parisiens
-        </Text>
-      )}
+      <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
+        Les Dîners Parisiens
+      </Text>
     </View>
   );
 }
@@ -37,7 +35,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   text: {
-    fontWeight: '700',
+    fontWeight: '300', // Changed from '700' to '300' for a more elegant, lighter font
     textAlign: 'center',
+    letterSpacing: 0.5, // Added letter spacing for elegance
+    fontStyle: 'normal',
   },
 });

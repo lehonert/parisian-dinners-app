@@ -45,7 +45,7 @@ export default function ProfileSetupScreen() {
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Logo size="medium" showText={false} />
+          <Logo size="medium" />
           <Text style={styles.title}>Complétez votre profil</Text>
           <Text style={styles.subtitle}>
             Ajoutez une photo et une bio pour vous présenter à la communauté
