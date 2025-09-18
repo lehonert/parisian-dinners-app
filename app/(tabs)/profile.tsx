@@ -41,7 +41,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Logo size="small" />
+          <Logo size="small" showText={false} />
           <Text style={styles.title}>Profil</Text>
         </View>
 
