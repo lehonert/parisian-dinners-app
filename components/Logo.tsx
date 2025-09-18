@@ -10,21 +10,24 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
+  // Doubler les tailles du logo
+  const logoSize = size === 'small' ? 112 : size === 'medium' ? 156 : 192;
   const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={require('../assets/images/cafbfb80-1bd8-4ff8-9042-d8018ae531d9.png')}
-        style={[styles.logo, { width: logoSize, height: logoSize }]}
-        resizeMode="contain"
-      />
-      {showText && (
-        <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
-          Les Dîners Parisiens
-        </Text>
-      )}
+      <View style={styles.titleContainer}>
+        <Image 
+          source={require('../assets/images/fb9eedbc-d9ea-4eba-9b37-6a1fff129442.png')}
+          style={[styles.logo, { width: logoSize, height: logoSize }]}
+          resizeMode="contain"
+        />
+        {showText && (
+          <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
+            Les Dîners Parisiens
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -33,8 +36,13 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
   },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   logo: {
-    marginBottom: 8,
+    marginRight: 12,
   },
   text: {
     fontWeight: '700',
