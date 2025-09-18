@@ -10,14 +10,14 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 40 : size === 'medium' ? 56 : 72;
-  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
+  const logoSize = size === 'small' ? 56 : size === 'medium' ? 72 : 88;
+  const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
 
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <Image 
-          source={require('../assets/images/6bcd8f7e-87a7-4cb5-bcf8-4b85940a5294.png')}
+          source={require('../assets/images/92510293-455a-4eb0-b08e-b4694dac60f6.png')}
           style={[styles.logo, { width: logoSize, height: logoSize }]}
           resizeMode="contain"
         />
@@ -41,10 +41,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    marginRight: 12,
+    marginRight: 16,
   },
   text: {
-    fontWeight: '700',
+    fontWeight: '600',
     textAlign: 'center',
+    marginLeft: 8,
   },
 });

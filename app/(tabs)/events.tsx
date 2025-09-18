@@ -26,7 +26,7 @@ export default function EventsScreen() {
         <View style={styles.header}>
           <View style={styles.titleContainer}>
             <Image 
-              source={require('../../assets/images/6bcd8f7e-87a7-4cb5-bcf8-4b85940a5294.png')}
+              source={require('../../assets/images/92510293-455a-4eb0-b08e-b4694dac60f6.png')}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -100,14 +100,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   logo: {
-    width: 48,
-    height: 48,
-    marginRight: 12,
+    width: 64,
+    height: 64,
+    marginRight: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '600',
     color: colors.primary,
+    marginLeft: 8,
   },
   tabContainer: {
     flexDirection: 'row',
