@@ -10,8 +10,8 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 32 : size === 'medium' ? 48 : 64;
-  const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
+  const logoSize = size === 'small' ? 40 : size === 'medium' ? 56 : 72;
+  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
 
   return (
     <View style={styles.container}>
