@@ -12,6 +12,7 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textLight,
         tabBarStyle: {
@@ -22,16 +23,11 @@ export default function TabLayout() {
           paddingBottom: 8,
           height: 60,
         },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
-        },
       }}
     >
       <Tabs.Screen
         name="events"
         options={{
-          title: 'Événements',
           tabBarIcon: ({ color, size }) => (
             <Icon name="calendar-outline" size={size} color={color} />
           ),
@@ -40,7 +36,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="registrations"
         options={{
-          title: 'Mes inscriptions',
           tabBarIcon: ({ color, size }) => (
             <Icon name="bookmark-outline" size={size} color={color} />
           ),
@@ -50,7 +45,6 @@ export default function TabLayout() {
         <Tabs.Screen
           name="admin"
           options={{
-            title: 'Admin',
             tabBarIcon: ({ color, size }) => (
               <Icon name="settings-outline" size={size} color={color} />
             ),
@@ -60,7 +54,6 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profil',
           tabBarIcon: ({ color, size }) => (
             <Icon name="person-outline" size={size} color={color} />
           ),
