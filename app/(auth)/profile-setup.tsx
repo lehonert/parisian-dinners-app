@@ -6,7 +6,6 @@ import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
-import Logo from '../../components/Logo';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function ProfileSetupScreen() {
@@ -45,7 +44,6 @@ export default function ProfileSetupScreen() {
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Logo size="medium" />
           <Text style={styles.title}>Complétez votre profil</Text>
           <Text style={styles.subtitle}>
             Ajoutez une photo et une bio pour vous présenter à la communauté
@@ -114,7 +112,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'center',
     marginBottom: 12,
-    marginTop: 16,
   },
   subtitle: {
     fontSize: 16,

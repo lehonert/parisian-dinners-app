@@ -5,41 +5,46 @@ import { colors } from '../styles/commonStyles';
 
 interface LogoProps {
   size?: 'small' | 'medium' | 'large';
+  showText?: boolean;
   textColor?: string;
 }
 
-export default function Logo({ size = 'medium', textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-  // Text size similar to tab bar labels (12px)
-  const textSize = 12;
+export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
+  const logoSize = size === 'small' ? 32 : size === 'medium' ? 48 : 64;
+  const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={require('../assets/images/cafbfb80-1bd8-4ff8-9042-d8018ae531d9.png')}
-        style={[styles.logo, { width: logoSize, height: logoSize }]}
-        resizeMode="contain"
-      />
-      <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
-        Les Dîners Parisiens
-      </Text>
+      <View style={styles.titleContainer}>
+        <Image 
+          source={require('../assets/images/6bcd8f7e-87a7-4cb5-bcf8-4b85940a5294.png')}
+          style={[styles.logo, { width: logoSize, height: logoSize }]}
+          resizeMode="contain"
+        />
+        {showText && (
+          <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
+            Les Dîners Parisiens
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'column', // Text positioned below the logo
+    alignItems: 'center',
+  },
+  titleContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   logo: {
-    marginBottom: 8, // Spacing between logo and text
+    marginRight: 12,
   },
   text: {
-    fontWeight: '500', // Similar weight to tab bar labels
+    fontWeight: '700',
     textAlign: 'center',
-    letterSpacing: 0.5,
-    fontStyle: 'normal',
   },
 });

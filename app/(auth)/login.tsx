@@ -6,7 +6,6 @@ import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
-import Logo from '../../components/Logo';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function LoginScreen() {
@@ -53,15 +52,7 @@ export default function LoginScreen() {
           >
             <Icon name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
-          <View style={styles.logoHeader}>
-            <Logo size="small" />
-          </View>
-          <View style={styles.spacer} />
-        </View>
-
-        <View style={styles.titleSection}>
           <Text style={styles.title}>Connexion</Text>
-          <Text style={styles.subtitle}>Bon retour parmi nous !</Text>
         </View>
 
         <View style={styles.form}>
@@ -150,35 +141,19 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingVertical: 20,
   },
   backButton: {
-    width: 40,
-  },
-  logoHeader: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  spacer: {
-    width: 40,
-  },
-  titleSection: {
-    alignItems: 'center',
-    marginBottom: 40,
+    marginRight: 16,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textLight,
   },
   form: {
     flex: 1,
+    paddingTop: 40,
   },
   inputContainer: {
     marginBottom: 20,
