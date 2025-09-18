@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
+import Logo from '../../components/Logo';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function RegisterScreen() {
@@ -65,7 +66,15 @@ export default function RegisterScreen() {
           >
             <Icon name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
+          <View style={styles.logoHeader}>
+            <Logo size="small" />
+          </View>
+          <View style={styles.spacer} />
+        </View>
+
+        <View style={styles.titleSection}>
           <Text style={styles.title}>Créer un compte</Text>
+          <Text style={styles.subtitle}>Rejoignez notre communauté culinaire</Text>
         </View>
 
         <View style={styles.form}>
@@ -192,19 +201,35 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: 20,
   },
   backButton: {
-    marginRight: 16,
+    width: 40,
+  },
+  logoHeader: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  spacer: {
+    width: 40,
+  },
+  titleSection: {
+    alignItems: 'center',
+    marginBottom: 30,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textLight,
   },
   form: {
     flex: 1,
-    paddingTop: 20,
   },
   inputContainer: {
     marginBottom: 20,

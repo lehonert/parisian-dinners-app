@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
+import Logo from '../../components/Logo';
 
 export default function WelcomeScreen() {
   return (
@@ -11,11 +12,7 @@ export default function WelcomeScreen() {
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.logoContainer}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
-              style={styles.logo}
-            />
-            <Text style={styles.title}>Les Dîners Parisiens</Text>
+            <Logo size="large" textColor={colors.primary} />
             <Text style={styles.subtitle}>Découvrez l'art culinaire parisien</Text>
           </View>
           
@@ -62,24 +59,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 60,
   },
-  logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 24,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: colors.primary,
-    textAlign: 'center',
-    marginBottom: 8,
-  },
   subtitle: {
     fontSize: 18,
     fontWeight: '400',
     color: colors.textLight,
     textAlign: 'center',
+    marginTop: 16,
   },
   description: {
     paddingHorizontal: 20,

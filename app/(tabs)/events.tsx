@@ -1,20 +1,19 @@
 
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, commonStyles } from '../../styles/commonStyles';
 import { mockEvents } from '../../data/mockData';
 import EventCard from '../../components/EventCard';
+import Logo from '../../components/Logo';
 
 export default function EventsScreen() {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
 
   const now = new Date();
-  const upcomingEvents = mockEvents.filter(event => event.date > now);
-  const pastEvents = mockEvents.filter(event => event.date <= now);
-
-  const currentEvents = activeTab === 'upcoming' ? upcomingEvents : pastEvents;
+  const upcomingEvents = mockEvents.filter(event => new Date(event.date) >= now);
+  const pastEvents = mockEvents.filter(event => new Date(event.date) < now);
 
   const handleEventPress = (eventId: string) => {
     router.push(`/event/${eventId}`);
@@ -24,59 +23,63 @@ export default function EventsScreen() {
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <View style={styles.titleContainer}>
-            <Image 
-              source={require('../../assets/images/6bcd8f7e-87a7-4cb5-bcf8-4b85940a5294.png')}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Text style={styles.title}>Les Dîners Parisiens</Text>
-          </View>
-          
-          <View style={styles.tabContainer}>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
-              onPress={() => setActiveTab('upcoming')}
-            >
-              <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>
-                À venir
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'past' && styles.activeTab]}
-              onPress={() => setActiveTab('past')}
-            >
-              <Text style={[styles.tabText, activeTab === 'past' && styles.activeTabText]}>
-                Passés
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <Logo size="small" />
+          <Text style={styles.title}>Événements</Text>
         </View>
 
-        <ScrollView 
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-        >
-          {currentEvents.length > 0 ? (
-            currentEvents.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onPress={() => handleEventPress(event.id)}
-              />
-            ))
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
+            onPress={() => setActiveTab('upcoming')}
+          >
+            <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>
+              À venir ({upcomingEvents.length})
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'past' && styles.activeTab]}
+            onPress={() => setActiveTab('past')}
+          >
+            <Text style={[styles.tabText, activeTab === 'past' && styles.activeTabText]}>
+              Passés ({pastEvents.length})
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          {activeTab === 'upcoming' ? (
+            upcomingEvents.length > 0 ? (
+              upcomingEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onPress={() => handleEventPress(event.id)}
+                />
+              ))
+            ) : (
+              <View style={commonStyles.emptyState}>
+                <Text style={commonStyles.emptyStateText}>
+                  Aucun événement à venir pour le moment
+                </Text>
+              </View>
+            )
           ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>
-                {activeTab === 'upcoming' 
-                  ? 'Aucun événement à venir pour le moment'
-                  : 'Aucun événement passé'
-                }
-              </Text>
-            </View>
+            pastEvents.length > 0 ? (
+              pastEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onPress={() => handleEventPress(event.id)}
+                />
+              ))
+            ) : (
+              <View style={commonStyles.emptyState}>
+                <Text style={commonStyles.emptyStateText}>
+                  Aucun événement passé
+                </Text>
+              </View>
+            )
           )}
-          
-          <View style={styles.bottomPadding} />
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -88,38 +91,33 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 16,
     backgroundColor: colors.background,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-  },
-  logo: {
-    width: 48,
-    height: 48,
-    marginRight: 12,
+    gap: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.text,
   },
   tabContainer: {
     flexDirection: 'row',
+    paddingHorizontal: 20,
+    marginBottom: 20,
     backgroundColor: colors.grey,
     borderRadius: 25,
+    marginHorizontal: 20,
     padding: 4,
   },
   tab: {
     flex: 1,
     paddingVertical: 12,
     alignItems: 'center',
-    borderRadius: 21,
+    borderRadius: 20,
   },
   activeTab: {
     backgroundColor: colors.white,
@@ -127,7 +125,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   tabText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '500',
     color: colors.textLight,
   },
@@ -135,23 +133,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '600',
   },
-  scrollView: {
+  content: {
     flex: 1,
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 40,
-    paddingTop: 100,
-  },
-  emptyStateText: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: colors.textLight,
-    textAlign: 'center',
-  },
-  bottomPadding: {
-    height: 20,
+    paddingHorizontal: 20,
   },
 });
