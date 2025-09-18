@@ -15,7 +15,13 @@ export default function WelcomeScreen() {
               source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
               style={styles.logo}
             />
-            <Text style={styles.title}>Les Dîners Parisiens</Text>
+            <View style={styles.titleContainer}>
+              <Image 
+                source={require('../../assets/images/251dace7-2fc8-40d4-b06e-609d6092fcb2.png')}
+                style={styles.brandLogo}
+              />
+              <Text style={styles.title}>Les Dîners Parisiens</Text>
+            </View>
             <Text style={styles.subtitle}>Découvrez l'art culinaire parisien</Text>
           </View>
           
@@ -68,12 +74,23 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     marginBottom: 24,
   },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  brandLogo: {
+    width: 32,
+    height: 32,
+    marginRight: 12,
+    resizeMode: 'contain',
+  },
   title: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: '700',
     color: colors.primary,
     textAlign: 'center',
-    marginBottom: 8,
   },
   subtitle: {
     fontSize: 18,
