@@ -34,18 +34,22 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 20,
   },
   logo: {
-    marginRight: 16,
+    marginRight: 12,
   },
   text: {
     fontWeight: '600',
     textAlign: 'center',
+    flex: 1,
     marginLeft: 8,
   },
 });
