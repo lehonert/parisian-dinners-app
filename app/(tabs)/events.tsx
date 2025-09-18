@@ -96,12 +96,12 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     marginBottom: 20,
   },
   logo: {
-    width: 32,
-    height: 32,
+    width: 48,
+    height: 48,
     marginRight: 12,
   },
   title: {
