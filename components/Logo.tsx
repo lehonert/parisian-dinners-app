@@ -10,22 +10,22 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 56 : size === 'medium' ? 78 : 96;
-  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
+  const logoSize = size === 'small' ? 40 : size === 'medium' ? 50 : 60;
+  const textSize = size === 'small' ? 14 : size === 'medium' ? 16 : 18;
 
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Image 
-          source={require('../assets/images/f7e470d9-77bb-4dba-8675-5f1879e22ded.png')}
-          style={[styles.logo, { width: logoSize, height: logoSize }]}
-          resizeMode="contain"
-        />
         {showText && (
           <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
             Les Dîners Parisiens
           </Text>
         )}
+        <Image 
+          source={require('../assets/images/f35ea56a-3345-48e6-80e2-d5bf5cf93081.png')}
+          style={[styles.logo, { width: logoSize, height: logoSize }]}
+          resizeMode="contain"
+        />
       </View>
     </View>
   );
@@ -41,10 +41,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    marginRight: 12,
+    marginLeft: 12,
   },
   text: {
-    fontWeight: '700',
+    fontWeight: '600',
     textAlign: 'center',
   },
 });
