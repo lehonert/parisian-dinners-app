@@ -11,11 +11,13 @@ export default function WelcomeScreen() {
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.logoContainer}>
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
-              style={styles.logo}
-            />
-            <Text style={styles.title}>Les Dîners Parisiens</Text>
+            <View style={styles.titleWithLogo}>
+              <Image 
+                source={require('../../assets/images/1211d479-298d-41f7-ac4d-cfe044c255c3.png')}
+                style={styles.logoImage}
+              />
+              <Text style={styles.title}>Les Dîners Parisiens</Text>
+            </View>
             <Text style={styles.subtitle}>Découvrez l'art culinaire parisien</Text>
           </View>
           
@@ -62,18 +64,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 60,
   },
-  logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+  titleWithLogo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 24,
   },
+  logoImage: {
+    width: 50,
+    height: 50,
+    marginRight: 16,
+  },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: '700',
     color: colors.primary,
     textAlign: 'center',
-    marginBottom: 8,
   },
   subtitle: {
     fontSize: 18,
