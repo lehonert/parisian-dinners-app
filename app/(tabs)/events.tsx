@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, commonStyles } from '../../styles/commonStyles';
@@ -24,7 +24,14 @@ export default function EventsScreen() {
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>Les Dîners Parisiens</Text>
+          <View style={styles.titleContainer}>
+            <Image 
+              source={require('../../assets/images/6bcd8f7e-87a7-4cb5-bcf8-4b85940a5294.png')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Text style={styles.title}>Les Dîners Parisiens</Text>
+          </View>
           
           <View style={styles.tabContainer}>
             <TouchableOpacity
@@ -86,11 +93,21 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: colors.background,
   },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginBottom: 20,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    marginRight: 12,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
     color: colors.primary,
-    marginBottom: 20,
   },
   tabContainer: {
     flexDirection: 'row',
