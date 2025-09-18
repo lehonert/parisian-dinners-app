@@ -5,31 +5,24 @@ import { colors } from '../styles/commonStyles';
 
 interface LogoProps {
   size?: 'small' | 'medium' | 'large';
-  showText?: boolean;
   textColor?: string;
 }
 
-export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  console.log('Logo component rendered with size:', size, 'showText:', showText);
-  
-  // Tailles ajustées pour un meilleur affichage
+export default function Logo({ size = 'medium', textColor = colors.text }: LogoProps) {
   const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-  const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
+  // Made the text smaller and more elegant
+  const textSize = size === 'small' ? 12 : size === 'medium' ? 14 : 16;
 
   return (
     <View style={styles.container}>
-      <View style={styles.titleContainer}>
-        <Image 
-          source={require('../assets/images/fb9eedbc-d9ea-4eba-9b37-6a1fff129442.png')}
-          style={[styles.logo, { width: logoSize, height: logoSize }]}
-          resizeMode="contain"
-        />
-        {showText && (
-          <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
-            Les Dîners Parisiens
-          </Text>
-        )}
-      </View>
+      <Image 
+        source={require('../assets/images/cafbfb80-1bd8-4ff8-9042-d8018ae531d9.png')}
+        style={[styles.logo, { width: logoSize, height: logoSize }]}
+        resizeMode="contain"
+      />
+      <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
+        Les Dîners Parisiens
+      </Text>
     </View>
   );
 }
@@ -37,20 +30,14 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
   },
   logo: {
-    marginRight: 12,
+    marginBottom: 8,
   },
   text: {
-    fontWeight: '700',
+    fontWeight: '300', // Changed from '700' to '300' for a more elegant, lighter font
     textAlign: 'center',
-    flexShrink: 1,
+    letterSpacing: 0.5, // Added letter spacing for elegance
+    fontStyle: 'normal',
   },
 });

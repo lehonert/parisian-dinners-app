@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
+import Logo from '../../components/Logo';
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -40,6 +41,7 @@ export default function ProfileScreen() {
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.header}>
+          <Logo size="small" />
           <Text style={styles.title}>Profil</Text>
         </View>
 
@@ -108,10 +110,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 16,
     backgroundColor: colors.background,
+    gap: 16,
   },
   title: {
     fontSize: 28,

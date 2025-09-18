@@ -7,14 +7,12 @@ import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Logo from '../../components/Logo';
 
 export default function WelcomeScreen() {
-  console.log('WelcomeScreen rendered');
-  
   return (
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.logoContainer}>
-            <Logo size="large" showText={true} textColor={colors.primary} />
+            <Logo size="large" textColor={colors.primary} />
             <Text style={styles.subtitle}>Découvrez l'art culinaire parisien</Text>
           </View>
           
@@ -28,20 +26,14 @@ export default function WelcomeScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
             style={[buttonStyles.primary, styles.button]}
-            onPress={() => {
-              console.log('Login button pressed');
-              router.push('/(auth)/login');
-            }}
+            onPress={() => router.push('/(auth)/login')}
           >
             <Text style={styles.buttonText}>Se connecter</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={[buttonStyles.secondary, styles.button]}
-            onPress={() => {
-              console.log('Register button pressed');
-              router.push('/(auth)/register');
-            }}
+            onPress={() => router.push('/(auth)/register')}
           >
             <Text style={styles.buttonTextSecondary}>Créer un compte</Text>
           </TouchableOpacity>
@@ -66,7 +58,6 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 60,
-    width: '100%',
   },
   subtitle: {
     fontSize: 18,
@@ -77,7 +68,6 @@ const styles = StyleSheet.create({
   },
   description: {
     paddingHorizontal: 20,
-    width: '100%',
   },
   descriptionText: {
     fontSize: 16,
@@ -88,7 +78,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     gap: 16,
-    width: '100%',
   },
   button: {
     width: '100%',
@@ -98,12 +87,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.white,
-    textAlign: 'center',
   },
   buttonTextSecondary: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.primary,
-    textAlign: 'center',
   },
 });
