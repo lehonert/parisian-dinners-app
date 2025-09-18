@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
+import Logo from '../../components/Logo';
 
 export default function WelcomeScreen() {
   return (
@@ -11,13 +12,7 @@ export default function WelcomeScreen() {
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.logoContainer}>
-            <View style={styles.titleWithLogo}>
-              <Image 
-                source={require('../../assets/images/1211d479-298d-41f7-ac4d-cfe044c255c3.png')}
-                style={styles.logoImage}
-              />
-              <Text style={styles.title}>Les Dîners Parisiens</Text>
-            </View>
+            <Logo size="large" textColor={colors.primary} />
             <Text style={styles.subtitle}>Découvrez l'art culinaire parisien</Text>
           </View>
           
@@ -64,28 +59,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 60,
   },
-  titleWithLogo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
-  },
-  logoImage: {
-    width: 50,
-    height: 50,
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: colors.primary,
-    textAlign: 'center',
-  },
   subtitle: {
     fontSize: 18,
     fontWeight: '400',
     color: colors.textLight,
     textAlign: 'center',
+    marginTop: 16,
   },
   description: {
     paddingHorizontal: 20,
