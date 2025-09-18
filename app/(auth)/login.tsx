@@ -54,7 +54,7 @@ export default function LoginScreen() {
             <Icon name="arrow-back" size={24} color={colors.text} />
           </TouchableOpacity>
           <View style={styles.logoHeader}>
-            <Logo size="small" />
+            <Logo size="small" showText={false} />
           </View>
           <View style={styles.spacer} />
         </View>
