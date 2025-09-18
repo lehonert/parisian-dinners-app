@@ -1,20 +1,27 @@
 
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
-import Logo from '../../components/Logo';
 
 export default function WelcomeScreen() {
-  console.log('WelcomeScreen rendered');
-  
   return (
     <SafeAreaView style={commonStyles.wrapper}>
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.logoContainer}>
-            <Logo size="large" showText={true} textColor={colors.primary} />
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
+              style={styles.logo}
+            />
+            <View style={styles.titleContainer}>
+              <Image 
+                source={require('../../assets/images/251dace7-2fc8-40d4-b06e-609d6092fcb2.png')}
+                style={styles.brandLogo}
+              />
+              <Text style={styles.title}>Les Dîners Parisiens</Text>
+            </View>
             <Text style={styles.subtitle}>Découvrez l'art culinaire parisien</Text>
           </View>
           
@@ -28,20 +35,14 @@ export default function WelcomeScreen() {
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
             style={[buttonStyles.primary, styles.button]}
-            onPress={() => {
-              console.log('Login button pressed');
-              router.push('/(auth)/login');
-            }}
+            onPress={() => router.push('/(auth)/login')}
           >
             <Text style={styles.buttonText}>Se connecter</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
             style={[buttonStyles.secondary, styles.button]}
-            onPress={() => {
-              console.log('Register button pressed');
-              router.push('/(auth)/register');
-            }}
+            onPress={() => router.push('/(auth)/register')}
           >
             <Text style={styles.buttonTextSecondary}>Créer un compte</Text>
           </TouchableOpacity>
@@ -66,18 +67,39 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 60,
-    width: '100%',
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 24,
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  brandLogo: {
+    width: 32,
+    height: 32,
+    marginRight: 12,
+    resizeMode: 'contain',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 18,
     fontWeight: '400',
     color: colors.textLight,
     textAlign: 'center',
-    marginTop: 16,
   },
   description: {
     paddingHorizontal: 20,
-    width: '100%',
   },
   descriptionText: {
     fontSize: 16,
@@ -88,7 +110,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     gap: 16,
-    width: '100%',
   },
   button: {
     width: '100%',
@@ -98,12 +119,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.white,
-    textAlign: 'center',
   },
   buttonTextSecondary: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.primary,
-    textAlign: 'center',
   },
 });

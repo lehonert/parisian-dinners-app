@@ -10,11 +10,9 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  console.log('Logo component rendered with size:', size, 'showText:', showText);
-  
-  // Tailles ajustées pour un meilleur affichage
-  const logoSize = size === 'small' ? 40 : size === 'medium' ? 60 : 80;
-  const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
+  // Doubler les tailles du logo
+  const logoSize = size === 'small' ? 112 : size === 'medium' ? 156 : 192;
+  const textSize = size === 'small' ? 16 : size === 'medium' ? 20 : 24;
 
   return (
     <View style={styles.container}>
@@ -37,13 +35,11 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    justifyContent: 'center',
   },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    flexWrap: 'wrap',
   },
   logo: {
     marginRight: 12,
@@ -51,6 +47,5 @@ const styles = StyleSheet.create({
   text: {
     fontWeight: '700',
     textAlign: 'center',
-    flexShrink: 1,
   },
 });
