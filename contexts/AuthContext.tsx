@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AuthContextType, User } from '../types';
+import { AuthContextType, User, Subscription } from '../types';
 import { currentUser } from '../data/mockData';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -58,6 +58,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const hasActiveSubscription = (): boolean => {
+    if (!user?.subscription) return false;
+    
+    const now = new Date();
+    const endDate = new Date(user.subscription.endDate);
+    
+    return user.subscription.status === 'active' && endDate > now;
+  };
+
+  const subscribeUser = async (plan: 'monthly' | 'yearly') => {
+    console.log('Subscribing user to plan:', plan);
+    if (!user) return;
+
+    const price = plan === 'monthly' ? 19.99 : 199.99;
+    const endDate = new Date();
+    if (plan === 'monthly') {
+      endDate.setMonth(endDate.getMonth() + 1);
+    } else {
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    }
+
+    const subscription: Subscription = {
+      id: Date.now().toString(),
+      userId: user.id,
+      plan,
+      status: 'active',
+      startDate: new Date(),
+      endDate,
+      price,
+      paymentMethod: 'Carte bancaire',
+    };
+
+    setUser({
+      ...user,
+      subscription,
+    });
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -66,6 +104,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       signUp,
       signOut,
       updateProfile,
+      hasActiveSubscription,
+      subscribeUser,
     }}>
       {children}
     </AuthContext.Provider>

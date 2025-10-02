@@ -1,250 +1,53 @@
 
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
-import Icon from '../../components/Icon';
+import { useAuth } from '../../contexts/AuthContext';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import LoadingSpinner from '../../components/LoadingSpinner';
-
-export default function RegisterScreen() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signUp, isLoading } = useAuth();
-
-  const handleRegister = async () => {
-    if (!name || !email || !password || !confirmPassword) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
-      return;
-    }
-
-    if (password.length < 6) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
-      return;
-    }
-
-    try {
-      await signUp(email, password, name);
-      router.replace('/(auth)/profile-setup');
-    } catch (error) {
-      console.log('Register error:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'inscription');
-    }
-  };
-
-  const handleGoogleRegister = () => {
-    console.log('Google register pressed');
-    Alert.alert('Bientôt disponible', 'L\'inscription avec Google sera bientôt disponible');
-  };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={commonStyles.wrapper}>
-        <LoadingSpinner />
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView style={commonStyles.wrapper}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Icon name="arrow-back" size={24} color={colors.text} />
-          </TouchableOpacity>
-          <Text style={styles.title}>Créer un compte</Text>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Nom complet</Text>
-            <TextInput
-              style={styles.input}
-              value={name}
-              onChangeText={setName}
-              placeholder="Votre nom complet"
-              placeholderTextColor={colors.textLight}
-              autoCapitalize="words"
-              autoComplete="name"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="votre@email.com"
-              placeholderTextColor={colors.textLight}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Mot de passe</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                value={password}
-                onChangeText={setPassword}
-                placeholder="Au moins 6 caractères"
-                placeholderTextColor={colors.textLight}
-                secureTextEntry={!showPassword}
-                autoComplete="new-password"
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowPassword(!showPassword)}
-              >
-                <Icon 
-                  name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
-                  color={colors.textLight} 
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Confirmer le mot de passe</Text>
-            <View style={styles.passwordContainer}>
-              <TextInput
-                style={[styles.input, styles.passwordInput]}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                placeholder="Confirmez votre mot de passe"
-                placeholderTextColor={colors.textLight}
-                secureTextEntry={!showConfirmPassword}
-                autoComplete="new-password"
-              />
-              <TouchableOpacity
-                style={styles.eyeButton}
-                onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
-                <Icon 
-                  name={showConfirmPassword ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
-                  color={colors.textLight} 
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <TouchableOpacity 
-            style={[buttonStyles.primary, styles.registerButton]}
-            onPress={handleRegister}
-          >
-            <Text style={styles.buttonText}>Créer mon compte</Text>
-          </TouchableOpacity>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity 
-            style={[buttonStyles.outline, styles.googleButton]}
-            onPress={handleGoogleRegister}
-          >
-            <Icon name="logo-google" size={20} color={colors.text} />
-            <Text style={styles.googleButtonText}>Continuer avec Google</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Déjà un compte ?{' '}
-            <Text 
-              style={styles.linkText}
-              onPress={() => router.push('/(auth)/login')}
-            >
-              Se connecter
-            </Text>
-          </Text>
-        </View>
-      </View>
-    </SafeAreaView>
-  );
-}
+import React, { useState } from 'react';
+import Icon from '../../components/Icon';
+import { router } from 'expo-router';
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
     paddingHorizontal: 20,
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 20,
-  },
-  backButton: {
-    marginRight: 16,
+    paddingVertical: 40,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
+    fontSize: 28,
+    fontWeight: 'bold',
     color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
   form: {
     flex: 1,
     paddingTop: 20,
   },
-  inputContainer: {
+  inputGroup: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.text,
-    marginBottom: 8,
+    ...commonStyles.label,
   },
   input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: colors.white,
-    color: colors.text,
-  },
-  passwordContainer: {
-    position: 'relative',
-  },
-  passwordInput: {
-    paddingRight: 50,
-  },
-  eyeButton: {
-    position: 'absolute',
-    right: 16,
-    top: 12,
-    padding: 4,
+    ...commonStyles.input,
   },
   registerButton: {
+    ...buttonStyles.primary,
     marginTop: 20,
-    paddingVertical: 16,
   },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.white,
+  registerButtonText: {
+    ...buttonStyles.primaryText,
   },
   divider: {
     flexDirection: 'row',
@@ -259,30 +62,164 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 16,
     fontSize: 14,
-    color: colors.textLight,
+    color: colors.textSecondary,
   },
   googleButton: {
+    ...buttonStyles.secondary,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 12,
   },
   googleButtonText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.text,
+    ...buttonStyles.secondaryText,
+    marginLeft: 12,
   },
   footer: {
-    paddingVertical: 20,
     alignItems: 'center',
+    paddingVertical: 20,
   },
   footerText: {
     fontSize: 14,
-    color: colors.textLight,
+    color: colors.textSecondary,
   },
-  linkText: {
+  loginLink: {
+    fontSize: 14,
     color: colors.primary,
-    fontWeight: '500',
+    fontWeight: '600',
   },
 });
+
+export default function RegisterScreen() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const { signUp, isLoading } = useAuth();
+
+  const handleRegister = async () => {
+    if (!name.trim() || !email.trim() || !password.trim()) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+
+    try {
+      await signUp(email, password, name);
+      Alert.alert(
+        'Inscription réussie !',
+        'Votre compte a été créé avec succès. Pour accéder aux événements, vous devez souscrire à un abonnement.',
+        [
+          {
+            text: 'Découvrir les abonnements',
+            onPress: () => router.replace('/subscription'),
+          },
+        ]
+      );
+    } catch (error) {
+      console.log('Registration error:', error);
+      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'inscription.');
+    }
+  };
+
+  const handleGoogleRegister = () => {
+    Alert.alert('Google', 'Inscription avec Google en cours de développement.');
+  };
+
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Créer un compte</Text>
+        <Text style={styles.subtitle}>
+          Rejoignez la communauté des Dîners Parisiens
+        </Text>
+      </View>
+
+      <View style={styles.form}>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Nom complet</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={setName}
+            placeholder="Votre nom complet"
+            autoCapitalize="words"
+            autoComplete="name"
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
+            placeholder="votre@email.com"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Mot de passe</Text>
+          <TextInput
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+            placeholder="Votre mot de passe"
+            secureTextEntry
+            autoComplete="new-password"
+          />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Confirmer le mot de passe</Text>
+          <TextInput
+            style={styles.input}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            placeholder="Confirmez votre mot de passe"
+            secureTextEntry
+            autoComplete="new-password"
+          />
+        </View>
+
+        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+          <Text style={styles.registerButtonText}>Créer mon compte</Text>
+        </TouchableOpacity>
+
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>ou</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleRegister}>
+          <Icon name="globe" size={20} color={colors.text} />
+          <Text style={styles.googleButtonText}>Continuer avec Google</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          Vous avez déjà un compte ?{' '}
+          <Text style={styles.loginLink} onPress={() => router.replace('/(auth)/login')}>
+            Se connecter
+          </Text>
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+}

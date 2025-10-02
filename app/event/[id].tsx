@@ -1,27 +1,215 @@
 
-import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import { mockEvents, mockRegistrations, mockReviews, currentUser } from '../../data/mockData';
+import React, { useState } from 'react';
 import Icon from '../../components/Icon';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useAuth } from '../../contexts/AuthContext';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  eventImage: {
+    width: '100%',
+    height: 250,
+  },
+  content: {
+    padding: 20,
+  },
+  eventTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  chefName: {
+    fontSize: 16,
+    color: colors.primary,
+    marginBottom: 16,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoIcon: {
+    marginRight: 12,
+  },
+  infoText: {
+    fontSize: 14,
+    color: colors.text,
+    flex: 1,
+  },
+  priceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  description: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 22,
+    marginVertical: 20,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  ratingText: {
+    fontSize: 14,
+    color: colors.text,
+    marginLeft: 8,
+  },
+  participantsSection: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  participantsList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  participantAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  reviewsSection: {
+    marginBottom: 20,
+  },
+  reviewItem: {
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reviewAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 12,
+  },
+  reviewerName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  reviewRating: {
+    flexDirection: 'row',
+  },
+  reviewComment: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
+  registerButton: {
+    ...buttonStyles.primary,
+    flex: 1,
+  },
+  registerButtonText: {
+    ...buttonStyles.primaryText,
+  },
+  unregisterButton: {
+    ...buttonStyles.secondary,
+    flex: 1,
+  },
+  unregisterButtonText: {
+    ...buttonStyles.secondaryText,
+  },
+  reviewButton: {
+    ...buttonStyles.outline,
+    flex: 1,
+  },
+  reviewButtonText: {
+    ...buttonStyles.outlineText,
+  },
+  subscriptionRequired: {
+    backgroundColor: colors.primaryLight,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  subscriptionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  subscriptionText: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  subscribeButton: {
+    ...buttonStyles.primary,
+    paddingVertical: 12,
+  },
+  subscribeButtonText: {
+    ...buttonStyles.primaryText,
+    fontSize: 14,
+  },
+});
 
 export default function EventDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const [isRegistered, setIsRegistered] = useState(
-    mockRegistrations.some(reg => reg.eventId === id && reg.userId === currentUser.id)
-  );
+  const { id } = useLocalSearchParams();
+  const { user, hasActiveSubscription } = useAuth();
+  const [isRegistered, setIsRegistered] = useState(false);
 
   const event = mockEvents.find(e => e.id === id);
-  const eventReviews = mockReviews.filter(review => review.eventId === id && review.status === 'approved');
+  const eventReviews = mockReviews.filter(r => r.eventId === id && r.status === 'approved');
+  const userRegistration = mockRegistrations.find(r => r.eventId === id && r.userId === currentUser.id);
+
+  React.useEffect(() => {
+    setIsRegistered(!!userRegistration);
+  }, [userRegistration]);
 
   if (!event) {
     return (
-      <SafeAreaView style={commonStyles.wrapper}>
-        <View style={commonStyles.centerContent}>
-          <Text style={commonStyles.text}>Événement non trouvé</Text>
-        </View>
+      <SafeAreaView style={styles.container}>
+        <Text>Événement non trouvé</Text>
       </SafeAreaView>
     );
   }
@@ -41,138 +229,169 @@ export default function EventDetailScreen() {
     return `${price}€`;
   };
 
-  const isEventFull = event.registeredCount >= event.capacity;
-  const spotsLeft = event.capacity - event.registeredCount;
-  const isPastEvent = event.date < new Date();
-
   const handleRegistration = () => {
+    if (!hasActiveSubscription()) {
+      Alert.alert(
+        'Abonnement requis',
+        'Vous devez avoir un abonnement actif pour vous inscrire aux événements.',
+        [
+          {
+            text: 'Annuler',
+            style: 'cancel',
+          },
+          {
+            text: 'S\'abonner',
+            onPress: () => router.push('/subscription'),
+          },
+        ]
+      );
+      return;
+    }
+
     if (isRegistered) {
       Alert.alert(
         'Se désinscrire',
         'Êtes-vous sûr de vouloir vous désinscrire de cet événement ?',
         [
           { text: 'Annuler', style: 'cancel' },
-          { 
-            text: 'Se désinscrire', 
+          {
+            text: 'Se désinscrire',
             style: 'destructive',
             onPress: () => {
               setIsRegistered(false);
-              console.log('User unregistered from event:', id);
-            }
+              Alert.alert('Succès', 'Vous êtes maintenant désinscrit de cet événement.');
+            },
           },
         ]
       );
     } else {
-      if (isEventFull) {
+      if (event.registeredCount >= event.capacity) {
         Alert.alert(
           'Liste d\'attente',
           'Cet événement est complet. Souhaitez-vous rejoindre la liste d\'attente ?',
           [
             { text: 'Annuler', style: 'cancel' },
-            { 
-              text: 'Rejoindre', 
+            {
+              text: 'Rejoindre',
               onPress: () => {
-                console.log('User joined waitlist for event:', id);
-                Alert.alert('Succès', 'Vous avez été ajouté à la liste d\'attente');
-              }
+                setIsRegistered(true);
+                Alert.alert('Succès', 'Vous avez été ajouté à la liste d\'attente.');
+              },
             },
           ]
         );
       } else {
         setIsRegistered(true);
-        console.log('User registered for event:', id);
         Alert.alert('Succès', 'Vous êtes maintenant inscrit à cet événement !');
       }
     }
   };
 
   const handleReview = () => {
-    router.push(`/review/${id}`);
+    Alert.alert('Avis', 'Fonctionnalité d\'avis en cours de développement.');
   };
 
   const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(
-        <Icon
-          key={i}
-          name={i <= rating ? "star" : "star-outline"}
-          size={16}
-          color={colors.accent}
-        />
-      );
-    }
-    return stars;
+    return Array.from({ length: 5 }, (_, i) => (
+      <Icon
+        key={i}
+        name="star"
+        size={16}
+        color={i < rating ? colors.primary : colors.border}
+      />
+    ));
+  };
+
+  const handleSubscribe = () => {
+    router.push('/subscription');
   };
 
   return (
-    <SafeAreaView style={commonStyles.wrapper}>
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: event.image }} style={styles.image} />
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Icon name="arrow-back" size={24} color={colors.white} />
-          </TouchableOpacity>
-        </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Icon name="arrow-left" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {event.title}
+        </Text>
+      </View>
 
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Image source={{ uri: event.image }} style={styles.eventImage} />
+        
         <View style={styles.content}>
-          <View style={styles.header}>
-            <View style={styles.titleSection}>
-              <Text style={styles.title}>{event.title}</Text>
-              <Text style={styles.price}>{formatPrice(event.price)}</Text>
-            </View>
-            <Text style={styles.chef}>Chef {event.chef}</Text>
-          </View>
+          <Text style={styles.eventTitle}>{event.title}</Text>
+          <Text style={styles.chefName}>Par {event.chef}</Text>
 
-          <View style={styles.infoSection}>
-            <View style={styles.infoRow}>
-              <Icon name="time-outline" size={20} color={colors.textLight} />
-              <Text style={styles.infoText}>{formatDate(event.date)}</Text>
-            </View>
-            
-            <View style={styles.infoRow}>
-              <Icon name="location-outline" size={20} color={colors.textLight} />
-              <Text style={styles.infoText}>{event.location}</Text>
-            </View>
-            
-            <View style={styles.infoRow}>
-              <Icon name="people-outline" size={20} color={colors.textLight} />
-              <Text style={styles.infoText}>
-                {event.registeredCount}/{event.capacity} participants
-                {spotsLeft > 0 && !isPastEvent && ` • ${spotsLeft} place${spotsLeft > 1 ? 's' : ''} restante${spotsLeft > 1 ? 's' : ''}`}
+          {!hasActiveSubscription() && (
+            <View style={styles.subscriptionRequired}>
+              <Text style={styles.subscriptionTitle}>
+                Abonnement requis
               </Text>
-            </View>
-
-            {event.ratingCount > 0 && (
-              <View style={styles.infoRow}>
-                <Icon name="star" size={20} color={colors.accent} />
-                <Text style={styles.infoText}>
-                  {event.ratingAvg.toFixed(1)} ({event.ratingCount} avis)
+              <Text style={styles.subscriptionText}>
+                Pour vous inscrire à cet événement, vous devez avoir un abonnement actif aux Dîners Parisiens. 
+                Découvrez tous nos événements culinaires exclusifs !
+              </Text>
+              <TouchableOpacity
+                style={styles.subscribeButton}
+                onPress={handleSubscribe}
+              >
+                <Text style={styles.subscribeButtonText}>
+                  Découvrir nos abonnements
                 </Text>
-              </View>
-            )}
+              </TouchableOpacity>
+            </View>
+          )}
+
+          <View style={styles.infoRow}>
+            <Icon name="calendar" size={20} color={colors.textSecondary} style={styles.infoIcon} />
+            <Text style={styles.infoText}>{formatDate(event.date)}</Text>
           </View>
 
-          <View style={styles.descriptionSection}>
-            <Text style={styles.sectionTitle}>Description</Text>
-            <Text style={styles.description}>{event.description}</Text>
+          <View style={styles.infoRow}>
+            <Icon name="map-pin" size={20} color={colors.textSecondary} style={styles.infoIcon} />
+            <Text style={styles.infoText}>{event.location}</Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Icon name="users" size={20} color={colors.textSecondary} style={styles.infoIcon} />
+            <Text style={styles.infoText}>
+              {event.registeredCount}/{event.capacity} participants
+              {event.waitlistCount > 0 && ` • ${event.waitlistCount} en attente`}
+            </Text>
+          </View>
+
+          <View style={styles.infoRow}>
+            <Icon name="credit-card" size={20} color={colors.textSecondary} style={styles.infoIcon} />
+            <Text style={[styles.infoText, styles.priceText]}>{formatPrice(event.price)}</Text>
+          </View>
+
+          <Text style={styles.description}>{event.description}</Text>
+
+          <View style={styles.ratingContainer}>
+            <View style={{ flexDirection: 'row' }}>
+              {renderStars(Math.round(event.ratingAvg))}
+            </View>
+            <Text style={styles.ratingText}>
+              {event.ratingAvg.toFixed(1)} ({event.ratingCount} avis)
+            </Text>
           </View>
 
           {eventReviews.length > 0 && (
             <View style={styles.reviewsSection}>
               <Text style={styles.sectionTitle}>Avis des participants</Text>
-              {eventReviews.map((review) => (
-                <View key={review.id} style={styles.reviewCard}>
+              {eventReviews.slice(0, 3).map((review) => (
+                <View key={review.id} style={styles.reviewItem}>
                   <View style={styles.reviewHeader}>
-                    <View style={styles.reviewUser}>
-                      {review.userPhoto && (
-                        <Image source={{ uri: review.userPhoto }} style={styles.reviewAvatar} />
-                      )}
-                      <Text style={styles.reviewUserName}>{review.userName}</Text>
-                    </View>
+                    <Image
+                      source={{ uri: review.userPhoto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' }}
+                      style={styles.reviewAvatar}
+                    />
+                    <Text style={styles.reviewerName}>{review.userName}</Text>
                     <View style={styles.reviewRating}>
                       {renderStars(review.rating)}
                     </View>
@@ -183,34 +402,36 @@ export default function EventDetailScreen() {
             </View>
           )}
 
-          <View style={styles.actionSection}>
-            {!isPastEvent ? (
-              <TouchableOpacity 
-                style={[
-                  buttonStyles.primary, 
-                  styles.actionButton,
-                  isRegistered && styles.unregisterButton
-                ]}
-                onPress={handleRegistration}
+          <View style={styles.actionButtons}>
+            {hasActiveSubscription() ? (
+              <>
+                <TouchableOpacity
+                  style={isRegistered ? styles.unregisterButton : styles.registerButton}
+                  onPress={handleRegistration}
+                >
+                  <Text style={isRegistered ? styles.unregisterButtonText : styles.registerButtonText}>
+                    {isRegistered ? 'Se désinscrire' : 'S\'inscrire'}
+                  </Text>
+                </TouchableOpacity>
+
+                {isRegistered && new Date() > event.date && (
+                  <TouchableOpacity
+                    style={styles.reviewButton}
+                    onPress={handleReview}
+                  >
+                    <Text style={styles.reviewButtonText}>Laisser un avis</Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            ) : (
+              <TouchableOpacity
+                style={styles.subscribeButton}
+                onPress={handleSubscribe}
               >
-                <Text style={[styles.actionButtonText, isRegistered && styles.unregisterButtonText]}>
-                  {isRegistered 
-                    ? 'Se désinscrire' 
-                    : isEventFull 
-                      ? 'Rejoindre la liste d\'attente'
-                      : 'S\'inscrire'
-                  }
+                <Text style={styles.subscribeButtonText}>
+                  S'abonner pour s'inscrire
                 </Text>
               </TouchableOpacity>
-            ) : (
-              isRegistered && (
-                <TouchableOpacity 
-                  style={[buttonStyles.primary, styles.actionButton]}
-                  onPress={handleReview}
-                >
-                  <Text style={styles.actionButtonText}>Laisser un avis</Text>
-                </TouchableOpacity>
-              )
             )}
           </View>
         </View>
@@ -218,145 +439,3 @@ export default function EventDetailScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  imageContainer: {
-    position: 'relative',
-  },
-  image: {
-    width: '100%',
-    height: 300,
-    backgroundColor: colors.grey,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    padding: 20,
-  },
-  header: {
-    marginBottom: 24,
-  },
-  titleSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.text,
-    flex: 1,
-    marginRight: 16,
-  },
-  price: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.primary,
-  },
-  chef: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: colors.textLight,
-  },
-  infoSection: {
-    marginBottom: 24,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  infoText: {
-    fontSize: 16,
-    color: colors.text,
-    marginLeft: 12,
-    flex: 1,
-  },
-  descriptionSection: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  description: {
-    fontSize: 16,
-    color: colors.text,
-    lineHeight: 24,
-  },
-  reviewsSection: {
-    marginBottom: 24,
-  },
-  reviewCard: {
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  reviewUser: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  reviewAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 8,
-  },
-  reviewUserName: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: colors.text,
-  },
-  reviewRating: {
-    flexDirection: 'row',
-    gap: 2,
-  },
-  reviewComment: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-  },
-  actionSection: {
-    paddingTop: 20,
-  },
-  actionButton: {
-    paddingVertical: 16,
-  },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.white,
-  },
-  unregisterButton: {
-    backgroundColor: colors.backgroundAlt,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  unregisterButtonText: {
-    color: colors.text,
-  },
-});

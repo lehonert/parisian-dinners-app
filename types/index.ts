@@ -7,6 +7,18 @@ export interface User {
   photo?: string;
   isAdmin: boolean;
   createdAt: Date;
+  subscription?: Subscription;
+}
+
+export interface Subscription {
+  id: string;
+  userId: string;
+  plan: 'monthly' | 'yearly';
+  status: 'active' | 'expired' | 'cancelled';
+  startDate: Date;
+  endDate: Date;
+  price: number;
+  paymentMethod?: string;
 }
 
 export interface Event {
@@ -54,4 +66,6 @@ export interface AuthContextType {
   signUp: (email: string, password: string, name: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
+  hasActiveSubscription: () => boolean;
+  subscribeUser: (plan: 'monthly' | 'yearly') => Promise<void>;
 }

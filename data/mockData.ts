@@ -1,5 +1,18 @@
 
-import { Event, User, Registration, Review } from '../types';
+import { Event, User, Registration, Review, Subscription } from '../types';
+
+export const mockSubscriptions: Subscription[] = [
+  {
+    id: '1',
+    userId: '2',
+    plan: 'monthly',
+    status: 'active',
+    startDate: new Date('2024-01-01'),
+    endDate: new Date('2024-02-01'),
+    price: 19.99,
+    paymentMethod: 'Carte bancaire',
+  },
+];
 
 export const mockUsers: User[] = [
   {
@@ -19,6 +32,7 @@ export const mockUsers: User[] = [
     photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     isAdmin: true, // Changed to admin for demo
     createdAt: new Date('2024-01-15'),
+    subscription: mockSubscriptions[0],
   },
 ];
 
