@@ -1,25 +1,22 @@
 
 # Configuration Firebase pour Les Dîners Parisiens
 
-## Étapes de configuration
+## Étapes de configuration pour Expo
 
-### 1. Remplacer la configuration Firebase
+### 1. Placer le fichier google-services.json
 
-Dans le fichier `config/firebase.ts`, remplacez les valeurs de `firebaseConfig` par celles de votre fichier JSON Firebase :
+1. Créez un dossier `google-services` à la racine de votre projet
+2. Placez votre fichier `google-services.json` (fourni par Firebase) dans ce dossier
+3. Pour iOS, placez également le fichier `GoogleService-Info.plist` dans le même dossier
 
-```typescript
-const firebaseConfig = {
-  apiKey: "votre-api-key",
-  authDomain: "votre-projet.firebaseapp.com",
-  projectId: "votre-projet-id",
-  storageBucket: "votre-projet.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef123456",
-  measurementId: "G-XXXXXXXXXX" // optionnel pour Analytics
-};
-```
+### 2. Configuration automatique avec Expo
 
-### 2. Structure Firestore requise
+Expo gère automatiquement la configuration des plugins Gradle Firebase. Les plugins suivants sont déjà configurés dans `app.json` :
+- `@react-native-firebase/app`
+- `@react-native-firebase/auth` 
+- `@react-native-firebase/firestore`
+
+### 3. Structure Firestore requise
 
 Créez ces collections dans votre base de données Firestore :
 
@@ -33,7 +30,13 @@ users/{userId}
 ├── isAdmin: boolean
 ├── createdAt: timestamp
 ├── updatedAt: timestamp
-└── hasCompletedProfile: boolean
+├── hasCompletedProfile: boolean
+└── subscription: {
+    ├── isActive: boolean
+    ├── plan: string
+    ├── startDate: timestamp
+    └── endDate: timestamp
+}
 ```
 
 #### Collection `events`
@@ -75,7 +78,7 @@ events/{eventId}/reviews/{reviewId}
 └── approvedAt: timestamp (optionnel)
 ```
 
-### 3. Règles de sécurité Firestore
+### 4. Règles de sécurité Firestore
 
 Ajoutez ces règles dans la console Firebase :
 
@@ -114,20 +117,50 @@ service cloud.firestore {
 }
 ```
 
-### 4. Configuration de l'authentification
+### 5. Configuration de l'authentification
 
 Dans la console Firebase, activez les méthodes d'authentification :
-- Email/Password
+- Email/Password ✅
 - Google (optionnel)
 
-### 5. Test de la configuration
+### 6. Commandes pour tester
+
+```bash
+# Développement
+npm run dev
+
+# Build Android (nécessite le fichier google-services.json)
+npm run build:android
+
+# Build iOS (nécessite le fichier GoogleService-Info.plist)
+expo build:ios
+```
+
+### 7. Vérification de la configuration
 
 Une fois configuré, l'application devrait :
-- Permettre l'inscription et la connexion
-- Synchroniser les données avec Firestore
-- Gérer les inscriptions aux événements
-- Permettre la création d'avis
+- ✅ Permettre l'inscription et la connexion
+- ✅ Synchroniser les données avec Firestore
+- ✅ Gérer les inscriptions aux événements
+- ✅ Permettre la création d'avis
+- ✅ Gérer les abonnements utilisateurs
 
-### 6. Données de test (optionnel)
+### 8. Troubleshooting
 
-Vous pouvez importer quelques événements de test dans Firestore pour commencer.
+Si vous rencontrez des erreurs :
+
+1. **Erreur "google-services.json not found"** : Vérifiez que le fichier est dans `google-services/google-services.json`
+2. **Erreur d'authentification** : Vérifiez que les méthodes d'auth sont activées dans Firebase Console
+3. **Erreur Firestore** : Vérifiez les règles de sécurité Firestore
+
+### 9. Structure des fichiers
+
+```
+votre-projet/
+├── google-services/
+│   ├── google-services.json (Android)
+│   └── GoogleService-Info.plist (iOS)
+├── config/
+│   └── firebase.ts
+└── app.json (avec plugins Firebase)
+```

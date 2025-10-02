@@ -18,7 +18,8 @@
       "bundleIdentifier": "les.diners.parisiens",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "googleServicesFile": "./google-services/GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +27,8 @@
         "backgroundColor": "#8B0000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "les.diners.parisiens"
+      "package": "les.diners.parisiens",
+      "googleServicesFile": "./google-services/google-services.json"
     },
     "web": {
       "favicon": "./assets/images/final_quest_240x240.png",
@@ -35,7 +37,10 @@
     "plugins": [
       "expo-font",
       "expo-router",
-      "expo-web-browser"
+      "expo-web-browser",
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth",
+      "@react-native-firebase/firestore"
     ],
     "scheme": "les-diners-parisiens",
     "experiments": {
