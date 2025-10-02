@@ -19,7 +19,7 @@ export default function WelcomeScreen() {
             <Text style={styles.subtitle}>Découvrez l'art culinaire parisien</Text>
           </View>
           
-          <View style={styles.description}>
+          <View style={styles.centerSection}>
             <Text style={styles.descriptionText}>
               Rejoignez notre communauté de passionnés de gastronomie et participez à des expériences culinaires uniques dans la capitale.
             </Text>
@@ -55,12 +55,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 60,
+    flex: 1,
+    justifyContent: 'center',
   },
   logo: {
     width: 120,
@@ -81,8 +82,12 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     textAlign: 'center',
   },
-  description: {
+  centerSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
     paddingHorizontal: 20,
+    paddingVertical: 40,
   },
   descriptionText: {
     fontSize: 16,
