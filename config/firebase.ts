@@ -5,15 +5,14 @@ import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 
-// Configuration Firebase - remplacez par vos valeurs du fichier JSON
+// Configuration Firebase - Les Dîners Parisiens
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID" // optionnel
+  apiKey: "AIzaSyAPJQ-KaudBnAQRcDe70IEuFa9nKort-6s",
+  authDomain: "les-diners-parisiens-70cd4.firebaseapp.com",
+  projectId: "les-diners-parisiens-70cd4",
+  storageBucket: "les-diners-parisiens-70cd4.firebasestorage.app",
+  messagingSenderId: "198421275271",
+  appId: "1:198421275271:android:2df5e598f84801a553ce22"
 };
 
 // Initialiser Firebase
