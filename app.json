@@ -1,34 +1,31 @@
-
 {
   "expo": {
-    "name": "Les Dîners Parisiens",
-    "slug": "les-diners-parisiens",
+    "name": "Natively",
+    "slug": "Natively",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/natively-dark.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/natively-dark.png",
       "resizeMode": "contain",
-      "backgroundColor": "#8B0000"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "les.diners.parisiens",
+      "bundleIdentifier": "com.anonymous.Natively",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      },
-      "googleServicesFile": "./google-services/GoogleService-Info.plist"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/natively-dark.png",
-        "backgroundColor": "#8B0000"
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "les.diners.parisiens",
-      "googleServicesFile": "./google-services/google-services.json"
+      "package": "com.anonymous.Natively"
     },
     "web": {
       "favicon": "./assets/images/final_quest_240x240.png",
@@ -37,10 +34,9 @@
     "plugins": [
       "expo-font",
       "expo-router",
-      "expo-web-browser",
-      "@react-native-firebase/app"
+      "expo-web-browser"
     ],
-    "scheme": "les-diners-parisiens",
+    "scheme": "natively",
     "experiments": {
       "typedRoutes": true
     },
