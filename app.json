@@ -1,42 +1,31 @@
-
 {
   "expo": {
-    "name": "Les Dîners Parisiens",
-    "slug": "les-diners-parisiens",
+    "name": "Natively",
+    "slug": "Natively",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/natively-dark.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/images/natively-dark.png",
       "resizeMode": "contain",
-      "backgroundColor": "#8B0000"
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "les.diners.parisiens",
+      "bundleIdentifier": "com.anonymous.Natively",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      },
-      "googleServicesFile": "./google-services/GoogleService-Info.plist"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/natively-dark.png",
-        "backgroundColor": "#8B0000"
+        "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "les.diners.parisiens",
-      "googleServicesFile": "./google-services/google-services.json",
-      "versionCode": 1,
-      "permissions": [
-        "INTERNET",
-        "ACCESS_NETWORK_STATE",
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
-      ]
+      "package": "com.anonymous.Natively"
     },
     "web": {
       "favicon": "./assets/images/final_quest_240x240.png",
@@ -45,25 +34,14 @@
     "plugins": [
       "expo-font",
       "expo-router",
-      "expo-web-browser",
-      "@react-native-firebase/app",
-      [
-        "expo-image-picker",
-        {
-          "photosPermission": "L'application accède à vos photos pour vous permettre de sélectionner des images de profil et d'événements.",
-          "cameraPermission": "L'application accède à votre appareil photo pour vous permettre de prendre des photos de profil et d'événements."
-        }
-      ]
+      "expo-web-browser"
     ],
-    "scheme": "les-diners-parisiens",
+    "scheme": "natively",
     "experiments": {
       "typedRoutes": true
     },
     "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "your-project-id-here"
-      }
+      "router": {}
     }
   }
 }

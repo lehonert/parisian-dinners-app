@@ -1,4 +1,3 @@
-
 node_modules/
 
 .git/
@@ -38,6 +37,3 @@ netlify.toml
 
 pnpm-lock.yaml
 package-lock.json
-
-# Firebase configuration (keep secure)
-config/firebaseConfig.json
