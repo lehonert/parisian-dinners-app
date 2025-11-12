@@ -1,18 +1,20 @@
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { useResponsive } from '../../hooks/useResponsive';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, isLoading } = useAuth();
+  const { isTablet, spacing } = useResponsive();
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -42,24 +44,26 @@ export default function LoginScreen() {
     );
   }
 
+  const contentMaxWidth = isTablet ? 600 : undefined;
+
   return (
     <SafeAreaView style={commonStyles.wrapper}>
-      <View style={styles.container}>
-        <View style={styles.header}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingHorizontal: spacing }}>
+        <View style={[styles.header, isTablet && styles.headerTablet]}>
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Icon name="arrow-back" size={24} color={colors.text} />
+            <Icon name="arrow-back" size={isTablet ? 28 : 24} color={colors.text} />
           </TouchableOpacity>
-          <Text style={styles.title}>Connexion</Text>
+          <Text style={[styles.title, isTablet && styles.titleTablet]}>Connexion</Text>
         </View>
 
-        <View style={styles.form}>
+        <View style={[styles.form, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={[styles.label, isTablet && styles.labelTablet]}>Email</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, isTablet && styles.inputTablet]}
               value={email}
               onChangeText={setEmail}
               placeholder="votre@email.com"
@@ -71,10 +75,10 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Mot de passe</Text>
+            <Text style={[styles.label, isTablet && styles.labelTablet]}>Mot de passe</Text>
             <View style={styles.passwordContainer}>
               <TextInput
-                style={[styles.input, styles.passwordInput]}
+                style={[styles.input, styles.passwordInput, isTablet && styles.inputTablet]}
                 value={password}
                 onChangeText={setPassword}
                 placeholder="Votre mot de passe"
@@ -88,7 +92,7 @@ export default function LoginScreen() {
               >
                 <Icon 
                   name={showPassword ? "eye-off-outline" : "eye-outline"} 
-                  size={20} 
+                  size={isTablet ? 22 : 20} 
                   color={colors.textLight} 
                 />
               </TouchableOpacity>
@@ -96,29 +100,29 @@ export default function LoginScreen() {
           </View>
 
           <TouchableOpacity 
-            style={[buttonStyles.primary, styles.loginButton]}
+            style={[buttonStyles.primary, styles.loginButton, isTablet && styles.loginButtonTablet]}
             onPress={handleLogin}
           >
-            <Text style={styles.buttonText}>Se connecter</Text>
+            <Text style={[styles.buttonText, isTablet && styles.buttonTextTablet]}>Se connecter</Text>
           </TouchableOpacity>
 
           <View style={styles.divider}>
             <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>ou</Text>
+            <Text style={[styles.dividerText, isTablet && styles.dividerTextTablet]}>ou</Text>
             <View style={styles.dividerLine} />
           </View>
 
           <TouchableOpacity 
-            style={[buttonStyles.outline, styles.googleButton]}
+            style={[buttonStyles.outline, styles.googleButton, isTablet && styles.googleButtonTablet]}
             onPress={handleGoogleLogin}
           >
-            <Icon name="logo-google" size={20} color={colors.text} />
-            <Text style={styles.googleButtonText}>Continuer avec Google</Text>
+            <Icon name="logo-google" size={isTablet ? 22 : 20} color={colors.text} />
+            <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>Continuer avec Google</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
+        <View style={[styles.footer, isTablet && styles.footerTablet]}>
+          <Text style={[styles.footerText, isTablet && styles.footerTextTablet]}>
             Pas encore de compte ?{' '}
             <Text 
               style={styles.linkText}
@@ -128,7 +132,7 @@ export default function LoginScreen() {
             </Text>
           </Text>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -136,12 +140,14 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 20,
+  },
+  headerTablet: {
+    paddingVertical: 30,
   },
   backButton: {
     marginRight: 16,
@@ -150,6 +156,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: colors.text,
+  },
+  titleTablet: {
+    fontSize: 32,
   },
   form: {
     flex: 1,
@@ -164,6 +173,9 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: 8,
   },
+  labelTablet: {
+    fontSize: 18,
+  },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -173,6 +185,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: colors.white,
     color: colors.text,
+  },
+  inputTablet: {
+    fontSize: 18,
+    paddingVertical: 14,
   },
   passwordContainer: {
     position: 'relative',
@@ -190,10 +206,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
     paddingVertical: 16,
   },
+  loginButtonTablet: {
+    paddingVertical: 18,
+  },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.white,
+  },
+  buttonTextTablet: {
+    fontSize: 18,
   },
   divider: {
     flexDirection: 'row',
@@ -210,6 +232,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textLight,
   },
+  dividerTextTablet: {
+    fontSize: 16,
+  },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -217,18 +242,30 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     gap: 12,
   },
+  googleButtonTablet: {
+    paddingVertical: 18,
+  },
   googleButtonText: {
     fontSize: 16,
     fontWeight: '500',
     color: colors.text,
   },
+  googleButtonTextTablet: {
+    fontSize: 18,
+  },
   footer: {
     paddingVertical: 20,
     alignItems: 'center',
   },
+  footerTablet: {
+    paddingVertical: 30,
+  },
   footerText: {
     fontSize: 14,
     color: colors.textLight,
+  },
+  footerTextTablet: {
+    fontSize: 16,
   },
   linkText: {
     color: colors.primary,

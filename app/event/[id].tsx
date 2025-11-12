@@ -7,195 +7,12 @@ import Icon from '../../components/Icon';
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    flex: 1,
-  },
-  eventImage: {
-    width: '100%',
-    height: 250,
-  },
-  content: {
-    padding: 20,
-  },
-  eventTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  chefName: {
-    fontSize: 16,
-    color: colors.primary,
-    marginBottom: 16,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  infoIcon: {
-    marginRight: 12,
-  },
-  infoText: {
-    fontSize: 14,
-    color: colors.text,
-    flex: 1,
-  },
-  priceText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  description: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 22,
-    marginVertical: 20,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  ratingText: {
-    fontSize: 14,
-    color: colors.text,
-    marginLeft: 8,
-  },
-  participantsSection: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  participantsList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  participantAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  reviewsSection: {
-    marginBottom: 20,
-  },
-  reviewItem: {
-    backgroundColor: colors.surface,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  reviewAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 12,
-  },
-  reviewerName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    flex: 1,
-  },
-  reviewRating: {
-    flexDirection: 'row',
-  },
-  reviewComment: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  registerButton: {
-    ...buttonStyles.primary,
-    flex: 1,
-  },
-  registerButtonText: {
-    ...buttonStyles.primaryText,
-  },
-  unregisterButton: {
-    ...buttonStyles.secondary,
-    flex: 1,
-  },
-  unregisterButtonText: {
-    ...buttonStyles.secondaryText,
-  },
-  reviewButton: {
-    ...buttonStyles.outline,
-    flex: 1,
-  },
-  reviewButtonText: {
-    ...buttonStyles.outlineText,
-  },
-  subscriptionRequired: {
-    backgroundColor: colors.primaryLight,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  subscriptionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: 8,
-  },
-  subscriptionText: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  subscribeButton: {
-    ...buttonStyles.primary,
-    paddingVertical: 12,
-  },
-  subscribeButtonText: {
-    ...buttonStyles.primaryText,
-    fontSize: 14,
-  },
-});
+import { useResponsive } from '../../hooks/useResponsive';
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
   const { user, hasActiveSubscription } = useAuth();
+  const { isTablet, spacing } = useResponsive();
   const [isRegistered, setIsRegistered] = useState(false);
 
   const event = mockEvents.find(e => e.id === id);
@@ -296,7 +113,7 @@ export default function EventDetailScreen() {
       <Icon
         key={i}
         name="star"
-        size={16}
+        size={isTablet ? 18 : 16}
         color={i < rating ? colors.primary : colors.border}
       />
     ));
@@ -306,33 +123,42 @@ export default function EventDetailScreen() {
     router.push('/subscription');
   };
 
+  const contentMaxWidth = isTablet ? 800 : undefined;
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <View style={[styles.header, { paddingHorizontal: spacing }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <Icon name="arrow-left" size={24} color={colors.text} />
+          <Icon name="arrow-left" size={isTablet ? 28 : 24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet]} numberOfLines={1}>
           {event.title}
         </Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Image source={{ uri: event.image }} style={styles.eventImage} />
+        <Image 
+          source={{ uri: event.image }} 
+          style={[styles.eventImage, isTablet && styles.eventImageTablet]} 
+        />
         
-        <View style={styles.content}>
-          <Text style={styles.eventTitle}>{event.title}</Text>
-          <Text style={styles.chefName}>Par {event.chef}</Text>
+        <View style={[styles.content, { paddingHorizontal: spacing, maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
+          <Text style={[styles.eventTitle, isTablet && styles.eventTitleTablet]}>
+            {event.title}
+          </Text>
+          <Text style={[styles.chefName, isTablet && styles.chefNameTablet]}>
+            Par {event.chef}
+          </Text>
 
           {!hasActiveSubscription() && (
-            <View style={styles.subscriptionRequired}>
-              <Text style={styles.subscriptionTitle}>
+            <View style={[styles.subscriptionRequired, isTablet && styles.subscriptionRequiredTablet]}>
+              <Text style={[styles.subscriptionTitle, isTablet && styles.subscriptionTitleTablet]}>
                 Abonnement requis
               </Text>
-              <Text style={styles.subscriptionText}>
+              <Text style={[styles.subscriptionText, isTablet && styles.subscriptionTextTablet]}>
                 Pour vous inscrire à cet événement, vous devez avoir un abonnement actif aux Dîners Parisiens. 
                 Découvrez tous nos événements culinaires exclusifs !
               </Text>
@@ -348,55 +174,89 @@ export default function EventDetailScreen() {
           )}
 
           <View style={styles.infoRow}>
-            <Icon name="calendar" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={styles.infoText}>{formatDate(event.date)}</Text>
+            <Icon 
+              name="calendar" 
+              size={isTablet ? 24 : 20} 
+              color={colors.textSecondary} 
+              style={styles.infoIcon} 
+            />
+            <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>
+              {formatDate(event.date)}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Icon name="map-pin" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={styles.infoText}>{event.location}</Text>
+            <Icon 
+              name="map-pin" 
+              size={isTablet ? 24 : 20} 
+              color={colors.textSecondary} 
+              style={styles.infoIcon} 
+            />
+            <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>
+              {event.location}
+            </Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Icon name="users" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={styles.infoText}>
+            <Icon 
+              name="users" 
+              size={isTablet ? 24 : 20} 
+              color={colors.textSecondary} 
+              style={styles.infoIcon} 
+            />
+            <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>
               {event.registeredCount}/{event.capacity} participants
               {event.waitlistCount > 0 && ` • ${event.waitlistCount} en attente`}
             </Text>
           </View>
 
           <View style={styles.infoRow}>
-            <Icon name="credit-card" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={[styles.infoText, styles.priceText]}>{formatPrice(event.price)}</Text>
+            <Icon 
+              name="credit-card" 
+              size={isTablet ? 24 : 20} 
+              color={colors.textSecondary} 
+              style={styles.infoIcon} 
+            />
+            <Text style={[styles.infoText, styles.priceText, isTablet && styles.priceTextTablet]}>
+              {formatPrice(event.price)}
+            </Text>
           </View>
 
-          <Text style={styles.description}>{event.description}</Text>
+          <Text style={[styles.description, isTablet && styles.descriptionTablet]}>
+            {event.description}
+          </Text>
 
           <View style={styles.ratingContainer}>
             <View style={{ flexDirection: 'row' }}>
               {renderStars(Math.round(event.ratingAvg))}
             </View>
-            <Text style={styles.ratingText}>
+            <Text style={[styles.ratingText, isTablet && styles.ratingTextTablet]}>
               {event.ratingAvg.toFixed(1)} ({event.ratingCount} avis)
             </Text>
           </View>
 
           {eventReviews.length > 0 && (
             <View style={styles.reviewsSection}>
-              <Text style={styles.sectionTitle}>Avis des participants</Text>
+              <Text style={[styles.sectionTitle, isTablet && styles.sectionTitleTablet]}>
+                Avis des participants
+              </Text>
               {eventReviews.slice(0, 3).map((review) => (
-                <View key={review.id} style={styles.reviewItem}>
+                <View key={review.id} style={[styles.reviewItem, isTablet && styles.reviewItemTablet]}>
                   <View style={styles.reviewHeader}>
                     <Image
                       source={{ uri: review.userPhoto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' }}
-                      style={styles.reviewAvatar}
+                      style={[styles.reviewAvatar, isTablet && styles.reviewAvatarTablet]}
                     />
-                    <Text style={styles.reviewerName}>{review.userName}</Text>
+                    <Text style={[styles.reviewerName, isTablet && styles.reviewerNameTablet]}>
+                      {review.userName}
+                    </Text>
                     <View style={styles.reviewRating}>
                       {renderStars(review.rating)}
                     </View>
                   </View>
-                  <Text style={styles.reviewComment}>{review.comment}</Text>
+                  <Text style={[styles.reviewComment, isTablet && styles.reviewCommentTablet]}>
+                    {review.comment}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -439,3 +299,242 @@ export default function EventDetailScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    backgroundColor: colors.background,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  backButton: {
+    marginRight: 16,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  headerTitleTablet: {
+    fontSize: 22,
+  },
+  eventImage: {
+    width: '100%',
+    height: 250,
+  },
+  eventImageTablet: {
+    height: 400,
+  },
+  content: {
+    padding: 20,
+  },
+  eventTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  eventTitleTablet: {
+    fontSize: 32,
+  },
+  chefName: {
+    fontSize: 16,
+    color: colors.primary,
+    marginBottom: 16,
+  },
+  chefNameTablet: {
+    fontSize: 20,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  infoIcon: {
+    marginRight: 12,
+  },
+  infoText: {
+    fontSize: 14,
+    color: colors.text,
+    flex: 1,
+  },
+  infoTextTablet: {
+    fontSize: 18,
+  },
+  priceText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  priceTextTablet: {
+    fontSize: 22,
+  },
+  description: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 22,
+    marginVertical: 20,
+  },
+  descriptionTablet: {
+    fontSize: 18,
+    lineHeight: 28,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  ratingText: {
+    fontSize: 14,
+    color: colors.text,
+    marginLeft: 8,
+  },
+  ratingTextTablet: {
+    fontSize: 18,
+  },
+  participantsSection: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  sectionTitleTablet: {
+    fontSize: 20,
+  },
+  participantsList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  participantAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  reviewsSection: {
+    marginBottom: 20,
+  },
+  reviewItem: {
+    backgroundColor: colors.surface,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  reviewItemTablet: {
+    padding: 20,
+    borderRadius: 16,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reviewAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 12,
+  },
+  reviewAvatarTablet: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  reviewerName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  reviewerNameTablet: {
+    fontSize: 18,
+  },
+  reviewRating: {
+    flexDirection: 'row',
+  },
+  reviewComment: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+  },
+  reviewCommentTablet: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+  },
+  registerButton: {
+    ...buttonStyles.primary,
+    flex: 1,
+  },
+  registerButtonText: {
+    ...buttonStyles.primaryText,
+  },
+  unregisterButton: {
+    ...buttonStyles.secondary,
+    flex: 1,
+  },
+  unregisterButtonText: {
+    ...buttonStyles.secondaryText,
+  },
+  reviewButton: {
+    ...buttonStyles.outline,
+    flex: 1,
+  },
+  reviewButtonText: {
+    ...buttonStyles.outlineText,
+  },
+  subscriptionRequired: {
+    backgroundColor: colors.primaryLight,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  subscriptionRequiredTablet: {
+    padding: 20,
+    borderRadius: 16,
+  },
+  subscriptionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  subscriptionTitleTablet: {
+    fontSize: 20,
+  },
+  subscriptionText: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  subscriptionTextTablet: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  subscribeButton: {
+    ...buttonStyles.primary,
+    paddingVertical: 12,
+  },
+  subscribeButtonText: {
+    ...buttonStyles.primaryText,
+    fontSize: 14,
+  },
+});
