@@ -106,7 +106,7 @@ export const buttonStyles = StyleSheet.create({
     justifyContent: 'center',
   } as ViewStyle,
   primaryText: {
-    color: colors.surface,
+    color: colors.white,
     fontSize: isTablet ? 18 : 16,
     fontWeight: '600',
   } as TextStyle,
