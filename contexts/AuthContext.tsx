@@ -44,11 +44,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUserData = async (firebaseUser: FirebaseUser) => {
     try {
+      console.log('Loading user data for:', firebaseUser.uid);
       const userDocRef = doc(db, 'users', firebaseUser.uid);
       const userDoc = await getDoc(userDocRef);
       
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        console.log('User document found:', userData);
         
         // Convert Firestore timestamps to Date objects
         const user: User = {
@@ -66,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } : undefined,
         };
         
-        console.log('User data loaded:', user.email);
+        console.log('User data loaded successfully:', user.email);
         setUser(user);
       } else {
         console.log('User document does not exist, creating...');
@@ -86,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           createdAt: serverTimestamp(),
         });
         
+        console.log('User document created successfully');
         setUser(newUser);
       }
     } catch (error) {
@@ -96,15 +99,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Signing in with email:', email);
+      console.log('Attempting to sign in with email:', email);
       setIsLoading(true);
       
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      console.log('Sign in successful:', userCredential.user.uid);
+      console.log('Sign in successful for user:', userCredential.user.uid);
       
       // User data will be loaded by onAuthStateChanged
     } catch (error: any) {
-      console.error('Sign in error:', error);
+      console.error('Sign in error:', error.code, error.message);
       
       let errorMessage = 'Une erreur est survenue lors de la connexion';
       
@@ -120,6 +123,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard';
       } else if (error.code === 'auth/invalid-credential') {
         errorMessage = 'Email ou mot de passe incorrect';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Erreur de connexion réseau. Vérifiez votre connexion internet';
       }
       
       ErrorService.reportError(error, 'Sign in failed');
@@ -131,13 +136,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, name: string) => {
     try {
-      console.log('Signing up with email:', email);
+      console.log('Attempting to sign up with email:', email);
       setIsLoading(true);
       
+      // Validate inputs
+      if (!email || !password || !name) {
+        throw new Error('Tous les champs sont requis');
+      }
+      
+      if (password.length < 6) {
+        throw new Error('Le mot de passe doit contenir au moins 6 caractères');
+      }
+      
+      // Create user account
+      console.log('Creating Firebase user...');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      console.log('Sign up successful:', userCredential.user.uid);
+      console.log('Firebase user created successfully:', userCredential.user.uid);
       
       // Create user document in Firestore
+      console.log('Creating user document in Firestore...');
       const userDocRef = doc(db, 'users', userCredential.user.uid);
       await setDoc(userDocRef, {
         email,
@@ -146,11 +163,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: serverTimestamp(),
       });
       
-      console.log('User document created');
+      console.log('User document created successfully in Firestore');
       
       // User data will be loaded by onAuthStateChanged
     } catch (error: any) {
-      console.error('Sign up error:', error);
+      console.error('Sign up error:', error.code, error.message);
       
       let errorMessage = 'Une erreur est survenue lors de l\'inscription';
       
@@ -161,7 +178,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
       } else if (error.code === 'auth/operation-not-allowed') {
-        errorMessage = 'L\'inscription par email est désactivée';
+        errorMessage = 'L\'inscription par email est désactivée. Veuillez contacter l\'administrateur';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Erreur de connexion réseau. Vérifiez votre connexion internet';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
       ErrorService.reportError(error, 'Sign up failed');

@@ -17,23 +17,31 @@ export default function LoginScreen() {
   const { isTablet, spacing } = useResponsive();
 
   const handleLogin = async () => {
+    console.log('Login button pressed');
+    
     if (!email || !password) {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
 
     try {
-      await signIn(email, password);
+      console.log('Attempting login...');
+      await signIn(email.trim(), password);
+      console.log('Login successful, navigating to events...');
       router.replace('/(tabs)/events');
-    } catch (error) {
-      console.log('Login error:', error);
-      Alert.alert('Erreur', 'Email ou mot de passe incorrect');
+    } catch (error: any) {
+      console.error('Login error in component:', error);
+      Alert.alert('Erreur de connexion', error.message || 'Email ou mot de passe incorrect');
     }
   };
 
   const handleGoogleLogin = () => {
-    console.log('Google login pressed');
-    Alert.alert('Bientôt disponible', 'La connexion avec Google sera bientôt disponible');
+    console.log('Google login button pressed');
+    Alert.alert(
+      'Connexion Google',
+      'La connexion avec Google n\'est pas encore disponible. Cette fonctionnalité sera ajoutée prochainement.\n\nPour le moment, veuillez vous connecter avec votre email.',
+      [{ text: 'OK' }]
+    );
   };
 
   if (isLoading) {
@@ -102,8 +110,11 @@ export default function LoginScreen() {
           <TouchableOpacity 
             style={[buttonStyles.primary, styles.loginButton, isTablet && styles.loginButtonTablet]}
             onPress={handleLogin}
+            disabled={isLoading}
           >
-            <Text style={[styles.buttonText, isTablet && styles.buttonTextTablet]}>Se connecter</Text>
+            <Text style={[styles.buttonText, isTablet && styles.buttonTextTablet]}>
+              {isLoading ? 'Connexion...' : 'Se connecter'}
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.divider}>
@@ -115,9 +126,12 @@ export default function LoginScreen() {
           <TouchableOpacity 
             style={[buttonStyles.outline, styles.googleButton, isTablet && styles.googleButtonTablet]}
             onPress={handleGoogleLogin}
+            disabled={isLoading}
           >
             <Icon name="logo-google" size={isTablet ? 22 : 20} color={colors.text} />
-            <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>Continuer avec Google</Text>
+            <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>
+              Continuer avec Google
+            </Text>
           </TouchableOpacity>
         </View>
 

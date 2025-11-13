@@ -15,34 +15,56 @@ const firebaseConfig = {
   appId: "1:198421275271:android:2df5e598f84801a553ce22"
 };
 
+console.log('Initializing Firebase...');
+console.log('Project ID:', firebaseConfig.projectId);
+console.log('Platform:', Platform.OS);
+
 // Initialiser Firebase seulement si pas déjà initialisé
 let app;
 if (getApps().length === 0) {
+  console.log('Creating new Firebase app...');
   app = initializeApp(firebaseConfig);
+  console.log('Firebase app created successfully');
 } else {
+  console.log('Using existing Firebase app');
   app = getApps()[0];
 }
 
 // Initialiser Auth avec persistence pour React Native
 let auth;
-if (Platform.OS === 'web') {
-  auth = getAuth(app);
-} else {
-  try {
+try {
+  if (Platform.OS === 'web') {
+    console.log('Initializing auth for web...');
     auth = getAuth(app);
-  } catch (error) {
-    // Si getAuth échoue, utiliser initializeAuth
-    auth = initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage)
-    });
+  } else {
+    console.log('Initializing auth for native with AsyncStorage persistence...');
+    // Pour React Native, utiliser initializeAuth avec persistence
+    const existingAuth = getApps().length > 0 ? getAuth(app) : null;
+    
+    if (existingAuth) {
+      auth = existingAuth;
+    } else {
+      auth = initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage)
+      });
+    }
   }
+  console.log('Auth initialized successfully');
+} catch (error) {
+  console.error('Error initializing auth:', error);
+  // Fallback to getAuth if initializeAuth fails
+  auth = getAuth(app);
+  console.log('Using fallback auth initialization');
 }
 
 // Initialiser Firestore
+console.log('Initializing Firestore...');
 const db = getFirestore(app);
+console.log('Firestore initialized successfully');
 
-console.log('Firebase initialized successfully');
-console.log('Project ID:', firebaseConfig.projectId);
+// Log pour vérifier que tout est bien configuré
+console.log('Firebase configuration complete');
+console.log('Auth domain:', firebaseConfig.authDomain);
 
 export { auth, db };
 export default app;
