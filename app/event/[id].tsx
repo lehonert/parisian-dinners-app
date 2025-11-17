@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useData } from '../../contexts/DataContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
+import BackButton from '../../components/BackButton';
 import { useResponsive } from '../../hooks/useResponsive';
 
 export default function EventDetailScreen() {
@@ -26,6 +27,7 @@ export default function EventDetailScreen() {
     return (
       <SafeAreaView style={commonStyles.wrapper}>
         <View style={[styles.container, { paddingHorizontal: spacing }]}>
+          <BackButton style={styles.errorBackButton} />
           <Text style={styles.errorText}>Événement non trouvé</Text>
         </View>
       </SafeAreaView>
@@ -157,12 +159,7 @@ export default function EventDetailScreen() {
         <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
           <View style={styles.imageContainer}>
             <Image source={{ uri: event.image }} style={styles.image} />
-            <TouchableOpacity
-              style={[styles.backButton, { top: spacing, left: spacing }]}
-              onPress={() => router.back()}
-            >
-              <Icon name="arrow-back" size={isTablet ? 28 : 24} color={colors.text} />
-            </TouchableOpacity>
+            <BackButton style={[styles.floatingBackButton, { top: spacing, left: spacing }]} />
           </View>
 
           <View style={[styles.content, { paddingHorizontal: spacing }]}>
@@ -311,19 +308,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 300,
   },
-  backButton: {
+  floatingBackButton: {
     position: 'absolute',
-    backgroundColor: colors.white,
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+  },
+  errorBackButton: {
+    marginBottom: 20,
   },
   content: {
     flex: 1,
