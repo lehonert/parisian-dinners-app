@@ -24,11 +24,11 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    Alert.alert('Modifier le profil', 'Fonctionnalité en cours de développement.');
+    router.push('/profile/edit-profile');
   };
 
   const handleManageSubscription = () => {
-    Alert.alert('Gérer l\'abonnement', 'Fonctionnalité en cours de développement.');
+    router.push('/subscription');
   };
 
   const formatDate = (date: Date) => {
@@ -46,7 +46,7 @@ export default function ProfileScreen() {
   if (!user) {
     return (
       <SafeAreaView style={styles.container}>
-        <Text>Chargement...</Text>
+        <Text style={styles.loadingText}>Chargement...</Text>
       </SafeAreaView>
     );
   }
@@ -182,7 +182,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
               style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
-              onPress={() => Alert.alert('Notifications', 'Fonctionnalité en cours de développement.')}
+              onPress={() => router.push('/profile/notifications')}
             >
               <Icon 
                 name="bell" 
@@ -203,7 +203,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
               style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
-              onPress={() => Alert.alert('Paramètres', 'Fonctionnalité en cours de développement.')}
+              onPress={() => router.push('/profile/settings')}
             >
               <Icon 
                 name="settings" 
@@ -224,7 +224,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
               style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
-              onPress={() => Alert.alert('Aide', 'Fonctionnalité en cours de développement.')}
+              onPress={() => router.push('/profile/help-support')}
             >
               <Icon 
                 name="help-circle" 
@@ -257,6 +257,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: colors.text,
+    textAlign: 'center',
+    marginTop: 40,
   },
   header: {
     alignItems: 'center',
@@ -295,6 +301,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     textAlign: 'center',
     lineHeight: 20,
+    paddingHorizontal: 20,
   },
   bioTablet: {
     fontSize: 18,

@@ -110,6 +110,11 @@ export default function EditProfileScreen() {
         return;
       }
 
+      if (bio.length > 200) {
+        Alert.alert('Erreur', 'La bio ne peut pas dépasser 200 caractères.');
+        return;
+      }
+
       setIsLoading(true);
 
       await updateProfile({
@@ -206,12 +211,17 @@ export default function EditProfileScreen() {
             <TextInput
               style={[styles.input, styles.textArea, isTablet && styles.inputTablet, isTablet && styles.textAreaTablet]}
               value={bio}
-              onChangeText={setBio}
+              onChangeText={(text) => {
+                if (text.length <= 200) {
+                  setBio(text);
+                }
+              }}
               placeholder="Parlez-nous de vous..."
               placeholderTextColor={colors.textSecondary}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              maxLength={200}
             />
             <Text style={[styles.hint, isTablet && styles.hintTablet]}>
               {bio.length} / 200 caractères

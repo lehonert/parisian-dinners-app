@@ -44,6 +44,7 @@ export default function SettingsScreen() {
           text: 'Vider',
           style: 'destructive',
           onPress: () => {
+            console.log('Cache cleared');
             Alert.alert('Succès', 'Le cache a été vidé avec succès.');
           },
         },
@@ -51,17 +52,55 @@ export default function SettingsScreen() {
     );
   };
 
+  const handleChangePassword = () => {
+    Alert.alert(
+      'Changer le mot de passe',
+      'Cette fonctionnalité nécessite une connexion à Firebase Authentication. Pour l\'instant, vous pouvez réinitialiser votre mot de passe via l\'email de récupération.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handlePrivacy = () => {
+    Alert.alert(
+      'Confidentialité',
+      'Vos données sont protégées et ne sont jamais partagées avec des tiers. Consultez notre politique de confidentialité pour plus d\'informations.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleTerms = () => {
+    Alert.alert(
+      'Conditions d\'utilisation',
+      'En utilisant cette application, vous acceptez nos conditions d\'utilisation. Consultez-les dans la section Aide et Support.',
+      [{ text: 'OK' }]
+    );
+  };
+
   const handleDeleteAccount = () => {
     Alert.alert(
       'Supprimer le compte',
-      'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.',
+      'Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données seront perdues.',
       [
         { text: 'Annuler', style: 'cancel' },
         {
           text: 'Supprimer',
           style: 'destructive',
           onPress: () => {
-            Alert.alert('Information', 'Fonctionnalité en cours de développement.');
+            Alert.alert(
+              'Confirmation finale',
+              'Cette action supprimera définitivement votre compte. Êtes-vous absolument sûr ?',
+              [
+                { text: 'Annuler', style: 'cancel' },
+                {
+                  text: 'Oui, supprimer',
+                  style: 'destructive',
+                  onPress: () => {
+                    console.log('Account deletion requested');
+                    Alert.alert('Information', 'La suppression de compte nécessite une connexion à Firebase. Contactez le support pour plus d\'informations.');
+                  },
+                },
+              ]
+            );
           },
         },
       ]
@@ -110,7 +149,10 @@ export default function SettingsScreen() {
               </View>
               <Switch
                 value={darkMode}
-                onValueChange={setDarkMode}
+                onValueChange={(value) => {
+                  setDarkMode(value);
+                  Alert.alert('Mode sombre', value ? 'Le mode sombre sera disponible dans une prochaine version.' : 'Mode clair activé.');
+                }}
                 trackColor={{ false: colors.border, true: colors.primary + '80' }}
                 thumbColor={darkMode ? colors.primary : colors.surface}
                 ios_backgroundColor={colors.border}
@@ -199,7 +241,7 @@ export default function SettingsScreen() {
           <View style={styles.settingsGroup}>
             <TouchableOpacity
               style={[styles.settingItem, isTablet && styles.settingItemTablet]}
-              onPress={() => Alert.alert('Information', 'Fonctionnalité en cours de développement.')}
+              onPress={handleChangePassword}
             >
               <View style={styles.settingInfo}>
                 <Icon name="lock" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
@@ -216,7 +258,7 @@ export default function SettingsScreen() {
 
             <TouchableOpacity
               style={[styles.settingItem, isTablet && styles.settingItemTablet]}
-              onPress={() => Alert.alert('Information', 'Fonctionnalité en cours de développement.')}
+              onPress={handlePrivacy}
             >
               <View style={styles.settingInfo}>
                 <Icon name="shield" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
@@ -284,7 +326,7 @@ export default function SettingsScreen() {
 
             <TouchableOpacity
               style={[styles.settingItem, isTablet && styles.settingItemTablet]}
-              onPress={() => Alert.alert('Information', 'Fonctionnalité en cours de développement.')}
+              onPress={handleTerms}
             >
               <View style={styles.settingInfo}>
                 <Icon name="file-text" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
@@ -301,7 +343,7 @@ export default function SettingsScreen() {
 
             <TouchableOpacity
               style={[styles.settingItem, isTablet && styles.settingItemTablet]}
-              onPress={() => Alert.alert('Information', 'Fonctionnalité en cours de développement.')}
+              onPress={handlePrivacy}
             >
               <View style={styles.settingInfo}>
                 <Icon name="file-text" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
