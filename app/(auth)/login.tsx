@@ -9,7 +9,7 @@ import Icon from '../../components/Icon';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useResponsive } from '../../hooks/useResponsive';
 import * as WebBrowser from 'expo-web-browser';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { auth } from '../../config/firebase';
 
 // Required for Google Sign-In to work properly
@@ -35,7 +35,7 @@ export default function LoginScreen() {
       console.log('Attempting login...');
       await signIn(email.trim(), password);
       console.log('Login successful, navigating to events...');
-      router.replace('/(tabs)/events');
+      // Navigation will be handled by the index.tsx redirect
     } catch (error: any) {
       console.error('Login error in component:', error);
       Alert.alert('Erreur de connexion', error.message || 'Email ou mot de passe incorrect');
@@ -58,20 +58,30 @@ export default function LoginScreen() {
           const result = await signInWithPopup(auth, provider);
           console.log('Google sign-in successful:', result.user.email);
           
-          // Navigate to events page
-          router.replace('/(tabs)/events');
+          // Navigation will be handled by the index.tsx redirect
         } catch (popupError: any) {
           console.error('Popup error:', popupError);
-          throw popupError;
+          
+          // If popup is blocked, show a helpful message
+          if (popupError.code === 'auth/popup-blocked') {
+            Alert.alert(
+              'Popup bloqué',
+              'Votre navigateur a bloqué la fenêtre de connexion. Veuillez autoriser les popups pour ce site et réessayer.',
+              [{ text: 'OK' }]
+            );
+          } else if (popupError.code !== 'auth/popup-closed-by-user' && popupError.code !== 'auth/cancelled-popup-request') {
+            throw popupError;
+          }
         }
       } else {
         // Mobile: Show instructions for now
         Alert.alert(
           'Connexion Google',
-          'Pour activer la connexion Google sur mobile:\n\n' +
+          'La connexion Google sur mobile nécessite une configuration supplémentaire:\n\n' +
           '1. Configurez OAuth 2.0 dans Google Cloud Console\n' +
-          '2. Ajoutez les SHA-1/SHA-256 de votre app\n' +
-          '3. Installez @react-native-google-signin/google-signin\n\n' +
+          '2. Ajoutez les SHA-1/SHA-256 de votre app Android\n' +
+          '3. Configurez le Bundle ID pour iOS\n' +
+          '4. Installez @react-native-google-signin/google-signin\n\n' +
           'Pour le moment, veuillez utiliser l\'authentification par email.',
           [{ text: 'OK' }]
         );
@@ -89,11 +99,15 @@ export default function LoginScreen() {
         errorMessage = 'Connexion annulée';
       } else if (error.code === 'auth/network-request-failed') {
         errorMessage = 'Erreur de connexion réseau. Vérifiez votre connexion internet.';
-      } else if (error.message) {
+      } else if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = 'Ce domaine n\'est pas autorisé. Veuillez ajouter ce domaine dans la console Firebase.';
+      } else if (error.message && error.code !== 'auth/popup-closed-by-user') {
         errorMessage = error.message;
       }
       
-      Alert.alert('Erreur de connexion Google', errorMessage);
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        Alert.alert('Erreur de connexion Google', errorMessage);
+      }
     } finally {
       setIsGoogleLoading(false);
     }

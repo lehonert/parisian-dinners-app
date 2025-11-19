@@ -1,5 +1,5 @@
 
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 
 export interface AppError {
   code: string;
@@ -25,6 +25,19 @@ export class ErrorService {
     Alert.alert(title, message, [{ text: 'OK' }]);
   }
 
+  static reportError(error: any, context: string = 'Unknown') {
+    console.error(`[${context}]`, error);
+    
+    const appError: AppError = {
+      code: error?.code || 'unknown',
+      message: error?.message || String(error),
+      details: error,
+      timestamp: new Date(),
+    };
+    
+    this.logError(appError);
+  }
+
   static handleAuthError(error: any) {
     console.log('Handling auth error:', error);
     
@@ -34,7 +47,12 @@ export class ErrorService {
       'auth/email-already-in-use': 'Cet email est déjà utilisé.',
       'auth/weak-password': 'Le mot de passe doit contenir au moins 6 caractères.',
       'auth/invalid-email': 'Format d\'email invalide.',
+      'auth/invalid-credential': 'Email ou mot de passe incorrect.',
       'auth/network-request-failed': 'Erreur de connexion. Vérifiez votre connexion internet.',
+      'auth/too-many-requests': 'Trop de tentatives. Veuillez réessayer plus tard.',
+      'auth/popup-closed-by-user': 'Connexion annulée.',
+      'auth/popup-blocked': 'La fenêtre de connexion a été bloquée. Veuillez autoriser les popups.',
+      'auth/cancelled-popup-request': 'Connexion annulée.',
     };
 
     const message = errorMessages[error.code] || 'Une erreur inattendue s\'est produite.';

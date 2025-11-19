@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('Setting up auth state listener...');
     
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('Auth state changed:', firebaseUser?.uid);
+      console.log('Auth state changed:', firebaseUser?.uid || 'No user');
       
       if (firebaseUser) {
         try {
@@ -37,9 +37,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setIsLoading(false);
+    }, (error) => {
+      console.error('Auth state change error:', error);
+      ErrorService.reportError(error, 'Auth state change error');
+      setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log('Cleaning up auth state listener');
+      unsubscribe();
+    };
   }, []);
 
   const loadUserData = async (firebaseUser: FirebaseUser) => {
@@ -50,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log('User document found:', userData);
+        console.log('User document found:', userData.email);
         
         // Convert Firestore timestamps to Date objects
         const user: User = {

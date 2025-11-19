@@ -48,7 +48,7 @@ export default function RegisterScreen() {
       console.log('Attempting registration...');
       await signUp(email.trim(), password, name.trim());
       console.log('Registration successful, navigating to events...');
-      router.replace('/(tabs)/events');
+      // Navigation will be handled by the index.tsx redirect
     } catch (error: any) {
       console.error('Registration error in component:', error);
       Alert.alert('Erreur d\'inscription', error.message || 'Une erreur est survenue');
@@ -71,20 +71,30 @@ export default function RegisterScreen() {
           const result = await signInWithPopup(auth, provider);
           console.log('Google sign-in successful:', result.user.email);
           
-          // Navigate to events page
-          router.replace('/(tabs)/events');
+          // Navigation will be handled by the index.tsx redirect
         } catch (popupError: any) {
           console.error('Popup error:', popupError);
-          throw popupError;
+          
+          // If popup is blocked, show a helpful message
+          if (popupError.code === 'auth/popup-blocked') {
+            Alert.alert(
+              'Popup bloqué',
+              'Votre navigateur a bloqué la fenêtre d\'inscription. Veuillez autoriser les popups pour ce site et réessayer.',
+              [{ text: 'OK' }]
+            );
+          } else if (popupError.code !== 'auth/popup-closed-by-user' && popupError.code !== 'auth/cancelled-popup-request') {
+            throw popupError;
+          }
         }
       } else {
         // Mobile: Show instructions for now
         Alert.alert(
           'Inscription avec Google',
-          'Pour activer l\'inscription avec Google sur mobile:\n\n' +
+          'L\'inscription avec Google sur mobile nécessite une configuration supplémentaire:\n\n' +
           '1. Configurez OAuth 2.0 dans Google Cloud Console\n' +
-          '2. Ajoutez les SHA-1/SHA-256 de votre app\n' +
-          '3. Installez @react-native-google-signin/google-signin\n\n' +
+          '2. Ajoutez les SHA-1/SHA-256 de votre app Android\n' +
+          '3. Configurez le Bundle ID pour iOS\n' +
+          '4. Installez @react-native-google-signin/google-signin\n\n' +
           'Pour le moment, veuillez utiliser l\'inscription par email.',
           [{ text: 'OK' }]
         );
@@ -102,11 +112,15 @@ export default function RegisterScreen() {
         errorMessage = 'Inscription annulée';
       } else if (error.code === 'auth/network-request-failed') {
         errorMessage = 'Erreur de connexion réseau. Vérifiez votre connexion internet.';
-      } else if (error.message) {
+      } else if (error.code === 'auth/unauthorized-domain') {
+        errorMessage = 'Ce domaine n\'est pas autorisé. Veuillez ajouter ce domaine dans la console Firebase.';
+      } else if (error.message && error.code !== 'auth/popup-closed-by-user') {
         errorMessage = error.message;
       }
       
-      Alert.alert('Erreur d\'inscription Google', errorMessage);
+      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+        Alert.alert('Erreur d\'inscription Google', errorMessage);
+      }
     } finally {
       setIsGoogleLoading(false);
     }
