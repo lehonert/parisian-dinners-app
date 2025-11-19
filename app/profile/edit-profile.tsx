@@ -147,7 +147,7 @@ export default function EditProfileScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={[styles.header, { paddingHorizontal: spacing }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Icon name="arrow-left" size={24} color={colors.text} />
+          <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet]}>
           Modifier le profil
@@ -172,7 +172,7 @@ export default function EditProfileScreen() {
               style={[styles.photo, isTablet && styles.photoTablet]}
             />
             <View style={[styles.photoOverlay, isTablet && styles.photoOverlayTablet]}>
-              <Icon name="camera" size={isTablet ? 32 : 24} color={colors.white} />
+              <Icon name="person" size={isTablet ? 32 : 24} color={colors.white} />
             </View>
           </TouchableOpacity>
           <Text style={[styles.photoHint, isTablet && styles.photoHintTablet]}>

@@ -98,7 +98,7 @@ export default function NotificationsScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={[styles.header, { paddingHorizontal: spacing }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Icon name="arrow-left" size={24} color={colors.text} />
+          <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet]}>
           Notifications
@@ -115,7 +115,7 @@ export default function NotificationsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.infoCard}>
-          <Icon name="bell" size={isTablet ? 28 : 24} color={colors.primary} style={styles.infoIcon} />
+          <Icon name="mail" size={isTablet ? 28 : 24} color={colors.primary} style={styles.infoIcon} />
           <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>
             Gérez vos préférences de notifications pour rester informé des événements qui vous intéressent.
           </Text>

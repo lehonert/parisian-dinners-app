@@ -108,7 +108,7 @@ export default function HelpSupportScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={[styles.header, { paddingHorizontal: spacing }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Icon name="arrow-left" size={24} color={colors.text} />
+          <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet]}>
           Aide et support
@@ -143,7 +143,7 @@ export default function HelpSupportScreen() {
               style={[styles.quickContactButton, isTablet && styles.quickContactButtonTablet]}
               onPress={handlePhone}
             >
-              <Icon name="phone" size={isTablet ? 28 : 24} color={colors.primary} />
+              <Icon name="call" size={isTablet ? 28 : 24} color={colors.primary} />
               <Text style={[styles.quickContactText, isTablet && styles.quickContactTextTablet]}>
                 Téléphone
               </Text>
@@ -236,13 +236,13 @@ export default function HelpSupportScreen() {
               </Text>
             </View>
             <View style={styles.contactInfoItem}>
-              <Icon name="phone" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
+              <Icon name="call" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
               <Text style={[styles.contactInfoText, isTablet && styles.contactInfoTextTablet]}>
                 +33 1 23 45 67 89
               </Text>
             </View>
             <View style={styles.contactInfoItem}>
-              <Icon name="clock" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
+              <Icon name="time" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
               <Text style={[styles.contactInfoText, isTablet && styles.contactInfoTextTablet]}>
                 Lun - Ven : 9h - 18h
               </Text>
