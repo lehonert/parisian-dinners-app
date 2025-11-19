@@ -21,18 +21,13 @@ console.log('Platform:', Platform.OS);
 
 // Initialiser Firebase seulement si pas déjà initialisé
 let app;
-try {
-  if (getApps().length === 0) {
-    console.log('Creating new Firebase app...');
-    app = initializeApp(firebaseConfig);
-    console.log('Firebase app created successfully');
-  } else {
-    console.log('Using existing Firebase app');
-    app = getApps()[0];
-  }
-} catch (error) {
-  console.error('Error initializing Firebase app:', error);
-  throw error;
+if (getApps().length === 0) {
+  console.log('Creating new Firebase app...');
+  app = initializeApp(firebaseConfig);
+  console.log('Firebase app created successfully');
+} else {
+  console.log('Using existing Firebase app');
+  app = getApps()[0];
 }
 
 // Initialiser Auth avec persistence pour React Native
@@ -41,53 +36,31 @@ try {
   if (Platform.OS === 'web') {
     console.log('Initializing auth for web...');
     auth = getAuth(app);
-    console.log('Web auth initialized successfully');
   } else {
     console.log('Initializing auth for native with AsyncStorage persistence...');
     // Pour React Native, utiliser initializeAuth avec persistence
-    // Check if auth is already initialized
-    const existingApps = getApps();
-    if (existingApps.length > 0) {
-      try {
-        auth = getAuth(app);
-        console.log('Auth already initialized, using existing instance');
-      } catch (authError) {
-        // Auth not initialized yet, create new instance
-        console.log('Creating new auth instance with persistence');
-        auth = initializeAuth(app, {
-          persistence: getReactNativePersistence(AsyncStorage)
-        });
-        console.log('Native auth initialized successfully');
-      }
+    const existingAuth = getApps().length > 0 ? getAuth(app) : null;
+    
+    if (existingAuth) {
+      auth = existingAuth;
     } else {
       auth = initializeAuth(app, {
         persistence: getReactNativePersistence(AsyncStorage)
       });
-      console.log('Native auth initialized successfully');
     }
   }
+  console.log('Auth initialized successfully');
 } catch (error) {
   console.error('Error initializing auth:', error);
   // Fallback to getAuth if initializeAuth fails
-  try {
-    auth = getAuth(app);
-    console.log('Using fallback auth initialization');
-  } catch (fallbackError) {
-    console.error('Fallback auth initialization also failed:', fallbackError);
-    throw fallbackError;
-  }
+  auth = getAuth(app);
+  console.log('Using fallback auth initialization');
 }
 
 // Initialiser Firestore
 console.log('Initializing Firestore...');
-let db;
-try {
-  db = getFirestore(app);
-  console.log('Firestore initialized successfully');
-} catch (error) {
-  console.error('Error initializing Firestore:', error);
-  throw error;
-}
+const db = getFirestore(app);
+console.log('Firestore initialized successfully');
 
 // Log pour vérifier que tout est bien configuré
 console.log('Firebase configuration complete');

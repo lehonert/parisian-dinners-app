@@ -22,7 +22,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     console.log('Setting up auth state listener...');
     
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('Auth state changed:', firebaseUser?.uid || 'No user');
+      console.log('Auth state changed:', firebaseUser?.uid);
       
       if (firebaseUser) {
         try {
@@ -37,16 +37,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       
       setIsLoading(false);
-    }, (error) => {
-      console.error('Auth state change error:', error);
-      ErrorService.reportError(error, 'Auth state change error');
-      setIsLoading(false);
     });
 
-    return () => {
-      console.log('Cleaning up auth state listener');
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, []);
 
   const loadUserData = async (firebaseUser: FirebaseUser) => {
@@ -57,15 +50,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log('User document found:', userData.email);
+        console.log('User document found:', userData);
         
         // Convert Firestore timestamps to Date objects
         const user: User = {
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
-          name: userData.name || firebaseUser.displayName || '',
+          name: userData.name || '',
           bio: userData.bio,
-          photo: userData.photo || firebaseUser.photoURL,
+          photo: userData.photo,
           isAdmin: userData.isAdmin || false,
           createdAt: userData.createdAt?.toDate() || new Date(),
           subscription: userData.subscription ? {
@@ -79,12 +72,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(user);
       } else {
         console.log('User document does not exist, creating...');
-        // Create user document if it doesn't exist (for Google sign-in)
+        // Create user document if it doesn't exist
         const newUser: User = {
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
           name: firebaseUser.displayName || '',
-          photo: firebaseUser.photoURL || undefined,
           isAdmin: false,
           createdAt: new Date(),
         };
@@ -92,7 +84,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await setDoc(userDocRef, {
           email: newUser.email,
           name: newUser.name,
-          photo: newUser.photo,
           isAdmin: false,
           createdAt: serverTimestamp(),
         });

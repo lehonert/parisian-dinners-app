@@ -5,16 +5,13 @@ import { colors } from '../styles/commonStyles';
 
 interface LoadingSpinnerProps {
   size?: 'small' | 'large';
+  color?: string;
 }
 
-export default function LoadingSpinner({ size = 'large' }: LoadingSpinnerProps) {
-  if (size === 'small') {
-    return <ActivityIndicator size="small" color={colors.primary} />;
-  }
-
+export default function LoadingSpinner({ size = 'large', color = colors.primary }: LoadingSpinnerProps) {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color={colors.primary} />
+      <ActivityIndicator size={size} color={color} />
     </View>
   );
 }

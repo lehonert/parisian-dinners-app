@@ -44,6 +44,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   
   const { measureAsync } = usePerformance();
 
+  // Load initial data
+  useEffect(() => {
+    loadInitialData();
+  }, []);
+
   const loadInitialData = useCallback(async () => {
     try {
       console.log('Loading initial data from Firebase...');
@@ -81,11 +86,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setLoadingReviews(false);
     }
   }, [measureAsync]);
-
-  // Load initial data
-  useEffect(() => {
-    loadInitialData();
-  }, [loadInitialData, measureAsync]);
 
   // Event operations
   const createEvent = useCallback(async (eventData: Omit<Event, 'id' | 'createdAt' | 'registeredCount' | 'waitlistCount'>) => {

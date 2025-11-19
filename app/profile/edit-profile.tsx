@@ -16,7 +16,6 @@ import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
-import ScreenHeader from '../../components/ScreenHeader';
 import * as ImagePicker from 'expo-image-picker';
 import { useResponsive } from '../../hooks/useResponsive';
 
@@ -141,7 +140,15 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScreenHeader title="Modifier le profil" />
+      <View style={[styles.header, { paddingHorizontal: spacing }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+          <Icon name="arrow-left" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet]}>
+          Modifier le profil
+        </Text>
+        <View style={styles.backButton} />
+      </View>
 
       <ScrollView
         style={styles.content}
@@ -232,6 +239,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  headerTitleTablet: {
+    fontSize: 24,
   },
   content: {
     flex: 1,

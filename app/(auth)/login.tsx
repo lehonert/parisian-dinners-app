@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
@@ -8,18 +8,11 @@ import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
 import LoadingSpinner from '../../components/LoadingSpinner';
 import { useResponsive } from '../../hooks/useResponsive';
-import * as WebBrowser from 'expo-web-browser';
-import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult } from 'firebase/auth';
-import { auth } from '../../config/firebase';
-
-// Required for Google Sign-In to work properly
-WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { signIn, isLoading } = useAuth();
   const { isTablet, spacing } = useResponsive();
 
@@ -35,82 +28,20 @@ export default function LoginScreen() {
       console.log('Attempting login...');
       await signIn(email.trim(), password);
       console.log('Login successful, navigating to events...');
-      // Navigation will be handled by the index.tsx redirect
+      router.replace('/(tabs)/events');
     } catch (error: any) {
       console.error('Login error in component:', error);
       Alert.alert('Erreur de connexion', error.message || 'Email ou mot de passe incorrect');
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     console.log('Google login button pressed');
-    setIsGoogleLoading(true);
-
-    try {
-      if (Platform.OS === 'web') {
-        // Web: Use popup-based authentication
-        console.log('Using web popup authentication');
-        const provider = new GoogleAuthProvider();
-        provider.addScope('profile');
-        provider.addScope('email');
-        
-        try {
-          const result = await signInWithPopup(auth, provider);
-          console.log('Google sign-in successful:', result.user.email);
-          
-          // Navigation will be handled by the index.tsx redirect
-        } catch (popupError: any) {
-          console.error('Popup error:', popupError);
-          
-          // If popup is blocked, show a helpful message
-          if (popupError.code === 'auth/popup-blocked') {
-            Alert.alert(
-              'Popup bloqué',
-              'Votre navigateur a bloqué la fenêtre de connexion. Veuillez autoriser les popups pour ce site et réessayer.',
-              [{ text: 'OK' }]
-            );
-          } else if (popupError.code !== 'auth/popup-closed-by-user' && popupError.code !== 'auth/cancelled-popup-request') {
-            throw popupError;
-          }
-        }
-      } else {
-        // Mobile: Show instructions for now
-        Alert.alert(
-          'Connexion Google',
-          'La connexion Google sur mobile nécessite une configuration supplémentaire:\n\n' +
-          '1. Configurez OAuth 2.0 dans Google Cloud Console\n' +
-          '2. Ajoutez les SHA-1/SHA-256 de votre app Android\n' +
-          '3. Configurez le Bundle ID pour iOS\n' +
-          '4. Installez @react-native-google-signin/google-signin\n\n' +
-          'Pour le moment, veuillez utiliser l\'authentification par email.',
-          [{ text: 'OK' }]
-        );
-      }
-    } catch (error: any) {
-      console.error('Google sign-in error:', error);
-      
-      let errorMessage = 'Une erreur est survenue lors de la connexion avec Google';
-      
-      if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Connexion annulée';
-      } else if (error.code === 'auth/popup-blocked') {
-        errorMessage = 'La fenêtre de connexion a été bloquée. Veuillez autoriser les popups pour ce site.';
-      } else if (error.code === 'auth/cancelled-popup-request') {
-        errorMessage = 'Connexion annulée';
-      } else if (error.code === 'auth/network-request-failed') {
-        errorMessage = 'Erreur de connexion réseau. Vérifiez votre connexion internet.';
-      } else if (error.code === 'auth/unauthorized-domain') {
-        errorMessage = 'Ce domaine n\'est pas autorisé. Veuillez ajouter ce domaine dans la console Firebase.';
-      } else if (error.message && error.code !== 'auth/popup-closed-by-user') {
-        errorMessage = error.message;
-      }
-      
-      if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-        Alert.alert('Erreur de connexion Google', errorMessage);
-      }
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    Alert.alert(
+      'Connexion Google',
+      'La connexion avec Google n\'est pas encore disponible. Cette fonctionnalité sera ajoutée prochainement.\n\nPour le moment, veuillez vous connecter avec votre email.',
+      [{ text: 'OK' }]
+    );
   };
 
   if (isLoading) {
@@ -195,18 +126,12 @@ export default function LoginScreen() {
           <TouchableOpacity 
             style={[buttonStyles.outline, styles.googleButton, isTablet && styles.googleButtonTablet]}
             onPress={handleGoogleLogin}
-            disabled={isLoading || isGoogleLoading}
+            disabled={isLoading}
           >
-            {isGoogleLoading ? (
-              <LoadingSpinner size="small" />
-            ) : (
-              <>
-                <Icon name="logo-google" size={isTablet ? 22 : 20} color={colors.text} />
-                <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>
-                  Continuer avec Google
-                </Text>
-              </>
-            )}
+            <Icon name="logo-google" size={isTablet ? 22 : 20} color={colors.text} />
+            <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>
+              Continuer avec Google
+            </Text>
           </TouchableOpacity>
         </View>
 
