@@ -67,11 +67,16 @@ export default function RegisterScreen() {
         provider.addScope('profile');
         provider.addScope('email');
         
-        const result = await signInWithPopup(auth, provider);
-        console.log('Google sign-in successful:', result.user.email);
-        
-        // Navigate to events page
-        router.replace('/(tabs)/events');
+        try {
+          const result = await signInWithPopup(auth, provider);
+          console.log('Google sign-in successful:', result.user.email);
+          
+          // Navigate to events page
+          router.replace('/(tabs)/events');
+        } catch (popupError: any) {
+          console.error('Popup error:', popupError);
+          throw popupError;
+        }
       } else {
         // Mobile: Show instructions for now
         Alert.alert(

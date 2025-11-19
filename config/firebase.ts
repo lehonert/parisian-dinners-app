@@ -39,11 +39,13 @@ try {
   } else {
     console.log('Initializing auth for native with AsyncStorage persistence...');
     // Pour React Native, utiliser initializeAuth avec persistence
-    const existingAuth = getApps().length > 0 ? getAuth(app) : null;
-    
-    if (existingAuth) {
-      auth = existingAuth;
-    } else {
+    // Check if auth is already initialized
+    try {
+      auth = getAuth(app);
+      console.log('Auth already initialized, using existing instance');
+    } catch (error) {
+      // Auth not initialized yet, create new instance
+      console.log('Creating new auth instance with persistence');
       auth = initializeAuth(app, {
         persistence: getReactNativePersistence(AsyncStorage)
       });
@@ -53,8 +55,13 @@ try {
 } catch (error) {
   console.error('Error initializing auth:', error);
   // Fallback to getAuth if initializeAuth fails
-  auth = getAuth(app);
-  console.log('Using fallback auth initialization');
+  try {
+    auth = getAuth(app);
+    console.log('Using fallback auth initialization');
+  } catch (fallbackError) {
+    console.error('Fallback auth initialization also failed:', fallbackError);
+    throw fallbackError;
+  }
 }
 
 // Initialiser Firestore
