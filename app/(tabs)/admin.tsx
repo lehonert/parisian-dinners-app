@@ -3,51 +3,49 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Alert, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { colors, commonStyles } from '../../styles/commonStyles';
-import { mockEvents, mockReviews } from '../../data/mockData';
-import EventCard from '../../components/EventCard';
-import Icon from '../../components/Icon';
-import { useAuth } from '../../contexts/AuthContext';
 import { Redirect } from 'expo-router';
+import { useAuth } from '../../contexts/AuthContext';
+import { useData } from '../../contexts/DataContext';
+import { colors, commonStyles } from '../../styles/commonStyles';
+import Icon from '../../components/Icon';
+import EventCard from '../../components/EventCard';
 import { useResponsive } from '../../hooks/useResponsive';
 
 export default function AdminScreen() {
   const { user } = useAuth();
+  const { events, reviews, approveReview, deleteReview } = useData();
   const { isTablet, spacing } = useResponsive();
-  const [reviews, setReviews] = useState(mockReviews);
+  const [activeTab, setActiveTab] = useState<'events' | 'reviews'>('events');
 
-  // Redirect if not admin
   if (!user?.isAdmin) {
     return <Redirect href="/(tabs)/events" />;
   }
 
+  const pendingReviews = reviews.filter(r => r.status === 'pending');
+
   const handleEventPress = (eventId: string) => {
-    console.log('Opening event:', eventId);
     router.push(`/event/${eventId}`);
   };
 
   const handleCreateEvent = () => {
-    console.log('Creating new event');
     router.push('/admin/create-event');
   };
 
   const handleEditEvent = (eventId: string) => {
-    console.log('Editing event:', eventId);
     router.push(`/admin/edit-event/${eventId}`);
   };
 
-  const handleApproveReview = (reviewId: string) => {
-    console.log('Approving review:', reviewId);
-    setReviews(prev => prev.map(review => 
-      review.id === reviewId 
-        ? { ...review, status: 'approved' as const }
-        : review
-    ));
-    Alert.alert('Succès', 'Avis approuvé avec succès');
+  const handleApproveReview = async (reviewId: string, eventId: string) => {
+    try {
+      await approveReview(reviewId, eventId);
+      Alert.alert('Succès', 'L\'avis a été approuvé');
+    } catch (error) {
+      console.log('Error approving review:', error);
+      Alert.alert('Erreur', 'Impossible d\'approuver l\'avis');
+    }
   };
 
-  const handleDeleteReview = (reviewId: string) => {
-    console.log('Deleting review:', reviewId);
+  const handleDeleteReview = async (reviewId: string, eventId: string) => {
     Alert.alert(
       'Supprimer l\'avis',
       'Êtes-vous sûr de vouloir supprimer cet avis ?',
@@ -56,8 +54,14 @@ export default function AdminScreen() {
         {
           text: 'Supprimer',
           style: 'destructive',
-          onPress: () => {
-            setReviews(prev => prev.filter(review => review.id !== reviewId));
+          onPress: async () => {
+            try {
+              await deleteReview(reviewId, eventId);
+              Alert.alert('Succès', 'L\'avis a été supprimé');
+            } catch (error) {
+              console.log('Error deleting review:', error);
+              Alert.alert('Erreur', 'Impossible de supprimer l\'avis');
+            }
           },
         },
       ]
@@ -65,173 +69,144 @@ export default function AdminScreen() {
   };
 
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Icon
-        key={i}
-        name={i < rating ? 'star' : 'star-outline'}
-        size={isTablet ? 18 : 16}
-        color={colors.warning}
-      />
-    ));
+    return (
+      <View style={styles.starsContainer}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Icon
+            key={star}
+            name={star <= rating ? 'star' : 'star-outline'}
+            size={isTablet ? 18 : 16}
+            color={star <= rating ? colors.primary : colors.textLight}
+          />
+        ))}
+      </View>
+    );
   };
 
-  const pendingReviews = reviews.filter(review => review.status === 'pending');
-  const contentMaxWidth = isTablet ? 1000 : undefined;
+  const contentMaxWidth = isTablet ? 1200 : undefined;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { paddingHorizontal: spacing }]}>
-        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet]}>Administration</Text>
-        <Text style={[styles.headerSubtitle, isTablet && styles.headerSubtitleTablet]}>Gérez les événements et les avis</Text>
-      </View>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
-          {/* Events Section */}
-          <View style={[styles.section, { paddingHorizontal: spacing }]}>
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, isTablet && styles.sectionTitleTablet]}>Événements</Text>
-              <TouchableOpacity style={styles.addButton} onPress={handleCreateEvent}>
-                <Icon name="add" size={isTablet ? 18 : 16} color={colors.white} />
-                <Text style={[styles.addButtonText, isTablet && styles.addButtonTextTablet]}>Créer</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <View style={styles.eventsList}>
-              {mockEvents.map((event) => (
-                <View key={event.id} style={{ marginBottom: 16 }}>
-                  <EventCard
-                    event={event}
-                    onPress={() => handleEventPress(event.id)}
-                  />
-                  <TouchableOpacity
-                    style={[styles.addButton, { marginTop: 8, alignSelf: 'flex-end' }]}
-                    onPress={() => handleEditEvent(event.id)}
-                  >
-                    <Icon name="create-outline" size={isTablet ? 18 : 16} color={colors.white} />
-                    <Text style={[styles.addButtonText, isTablet && styles.addButtonTextTablet]}>Modifier</Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {/* Reviews Section */}
-          <View style={[styles.section, { paddingHorizontal: spacing }]}>
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, isTablet && styles.sectionTitleTablet]}>
-                Avis en attente ({pendingReviews.length})
-              </Text>
-            </View>
-            
-            <View style={styles.reviewsSection}>
-              {pendingReviews.length === 0 ? (
-                <View style={styles.emptyState}>
-                  <Icon name="checkmark-circle-outline" size={isTablet ? 56 : 48} color={colors.textLight} />
-                  <Text style={[styles.emptyText, isTablet && styles.emptyTextTablet]}>
-                    Aucun avis en attente de modération
-                  </Text>
-                </View>
-              ) : (
-                pendingReviews.map((review) => (
-                  <View key={review.id} style={[styles.reviewCard, isTablet && styles.reviewCardTablet]}>
-                    <View style={styles.reviewHeader}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={[styles.reviewUser, isTablet && styles.reviewUserTablet]}>{review.userName}</Text>
-                        <Text style={[styles.reviewEvent, isTablet && styles.reviewEventTablet]}>
-                          Événement #{review.eventId}
-                        </Text>
-                      </View>
-                      <View style={[
-                        styles.statusBadge,
-                        review.status === 'pending' ? styles.pendingBadge : styles.approvedBadge
-                      ]}>
-                        <Text style={[
-                          styles.statusText,
-                          review.status === 'pending' ? styles.pendingText : styles.approvedText
-                        ]}>
-                          {review.status === 'pending' ? 'En attente' : 'Approuvé'}
-                        </Text>
-                      </View>
-                    </View>
-                    
-                    <View style={styles.reviewRating}>
-                      {renderStars(review.rating)}
-                    </View>
-                    
-                    <Text style={[styles.reviewComment, isTablet && styles.reviewCommentTablet]}>{review.comment}</Text>
-                    
-                    {review.status === 'pending' && (
-                      <View style={[styles.reviewActions, isTablet && styles.reviewActionsTablet]}>
-                        <TouchableOpacity
-                          style={styles.approveButton}
-                          onPress={() => handleApproveReview(review.id)}
-                        >
-                          <Text style={[styles.actionButtonText, isTablet && styles.actionButtonTextTablet]}>Approuver</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          style={styles.deleteButton}
-                          onPress={() => handleDeleteReview(review.id)}
-                        >
-                          <Text style={[styles.actionButtonText, isTablet && styles.actionButtonTextTablet]}>Supprimer</Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                ))
-              )}
-            </View>
-          </View>
-
-          {/* All Reviews Section */}
-          <View style={[styles.section, { paddingHorizontal: spacing }]}>
-            <View style={styles.sectionHeader}>
-              <Text style={[styles.sectionTitle, isTablet && styles.sectionTitleTablet]}>Tous les avis</Text>
-            </View>
-            
-            <View style={styles.reviewsSection}>
-              {reviews.map((review) => (
-                <View key={review.id} style={[styles.reviewCard, isTablet && styles.reviewCardTablet]}>
-                  <View style={styles.reviewHeader}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.reviewUser, isTablet && styles.reviewUserTablet]}>{review.userName}</Text>
-                      <Text style={[styles.reviewEvent, isTablet && styles.reviewEventTablet]}>
-                        Événement #{review.eventId}
-                      </Text>
-                    </View>
-                    <View style={[
-                      styles.statusBadge,
-                      review.status === 'pending' ? styles.pendingBadge : styles.approvedBadge
-                    ]}>
-                      <Text style={[
-                        styles.statusText,
-                        review.status === 'pending' ? styles.pendingText : styles.approvedText
-                      ]}>
-                        {review.status === 'pending' ? 'En attente' : 'Approuvé'}
-                      </Text>
-                    </View>
-                  </View>
-                  
-                  <View style={styles.reviewRating}>
-                    {renderStars(review.rating)}
-                  </View>
-                  
-                  <Text style={[styles.reviewComment, isTablet && styles.reviewCommentTablet]}>{review.comment}</Text>
-                  
-                  <View style={[styles.reviewActions, isTablet && styles.reviewActionsTablet]}>
-                    <TouchableOpacity
-                      style={styles.deleteButton}
-                      onPress={() => handleDeleteReview(review.id)}
-                    >
-                      <Text style={[styles.actionButtonText, isTablet && styles.actionButtonTextTablet]}>Supprimer</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ))}
-            </View>
-          </View>
+    <SafeAreaView style={commonStyles.wrapper}>
+      <View style={[styles.container, { paddingHorizontal: spacing }]}>
+        <View style={[styles.header, isTablet && styles.headerTablet]}>
+          <Text style={[styles.title, isTablet && styles.titleTablet]}>Administration</Text>
         </View>
-      </ScrollView>
+
+        <View style={styles.tabs}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'events' && styles.activeTab, isTablet && styles.tabTablet]}
+            onPress={() => setActiveTab('events')}
+          >
+            <Text style={[styles.tabText, activeTab === 'events' && styles.activeTabText, isTablet && styles.tabTextTablet]}>
+              Événements ({events.length})
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'reviews' && styles.activeTab, isTablet && styles.tabTablet]}
+            onPress={() => setActiveTab('reviews')}
+          >
+            <Text style={[styles.tabText, activeTab === 'reviews' && styles.activeTabText, isTablet && styles.tabTextTablet]}>
+              Avis en attente ({pendingReviews.length})
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
+            {activeTab === 'events' ? (
+              <View>
+                <TouchableOpacity
+                  style={[styles.createButton, isTablet && styles.createButtonTablet]}
+                  onPress={handleCreateEvent}
+                >
+                  <Icon name="add-circle-outline" size={isTablet ? 24 : 20} color={colors.white} />
+                  <Text style={[styles.createButtonText, isTablet && styles.createButtonTextTablet]}>
+                    Créer un événement
+                  </Text>
+                </TouchableOpacity>
+
+                <View style={styles.eventsGrid}>
+                  {events.map((event) => (
+                    <View key={event.id} style={[styles.eventItem, isTablet && styles.eventItemTablet]}>
+                      <EventCard
+                        event={event}
+                        onPress={() => handleEventPress(event.id)}
+                      />
+                      <TouchableOpacity
+                        style={[styles.editButton, isTablet && styles.editButtonTablet]}
+                        onPress={() => handleEditEvent(event.id)}
+                      >
+                        <Icon name="create-outline" size={isTablet ? 20 : 18} color={colors.white} />
+                        <Text style={[styles.editButtonText, isTablet && styles.editButtonTextTablet]}>Modifier</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+
+                {events.length === 0 && (
+                  <View style={styles.emptyState}>
+                    <Icon name="calendar-outline" size={isTablet ? 64 : 48} color={colors.textLight} />
+                    <Text style={[styles.emptyText, isTablet && styles.emptyTextTablet]}>
+                      Aucun événement créé
+                    </Text>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <View>
+                {pendingReviews.map((review) => {
+                  const event = events.find(e => e.id === review.eventId);
+                  return (
+                    <View key={review.id} style={[styles.reviewCard, isTablet && styles.reviewCardTablet]}>
+                      <View style={styles.reviewHeader}>
+                        <Text style={[styles.reviewEventTitle, isTablet && styles.reviewEventTitleTablet]}>
+                          {event?.title || 'Événement inconnu'}
+                        </Text>
+                        {renderStars(review.rating)}
+                      </View>
+                      <Text style={[styles.reviewAuthor, isTablet && styles.reviewAuthorTablet]}>
+                        Par {review.userName}
+                      </Text>
+                      <Text style={[styles.reviewComment, isTablet && styles.reviewCommentTablet]}>
+                        {review.comment}
+                      </Text>
+                      <View style={styles.reviewActions}>
+                        <TouchableOpacity
+                          style={[styles.approveButton, isTablet && styles.approveButtonTablet]}
+                          onPress={() => handleApproveReview(review.id, review.eventId)}
+                        >
+                          <Icon name="checkmark-circle-outline" size={isTablet ? 20 : 18} color={colors.white} />
+                          <Text style={[styles.approveButtonText, isTablet && styles.approveButtonTextTablet]}>
+                            Approuver
+                          </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={[styles.deleteButton, isTablet && styles.deleteButtonTablet]}
+                          onPress={() => handleDeleteReview(review.id, review.eventId)}
+                        >
+                          <Icon name="trash-outline" size={isTablet ? 20 : 18} color={colors.white} />
+                          <Text style={[styles.deleteButtonText, isTablet && styles.deleteButtonTextTablet]}>
+                            Supprimer
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  );
+                })}
+
+                {pendingReviews.length === 0 && (
+                  <View style={styles.emptyState}>
+                    <Icon name="chatbubbles-outline" size={isTablet ? 64 : 48} color={colors.textLight} />
+                    <Text style={[styles.emptyText, isTablet && styles.emptyTextTablet]}>
+                      Aucun avis en attente
+                    </Text>
+                  </View>
+                )}
+              </View>
+            )}
+          </View>
+        </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -239,119 +214,153 @@ export default function AdminScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.white,
+    paddingVertical: 20,
   },
-  headerTitle: {
+  headerTablet: {
+    paddingVertical: 30,
+  },
+  title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: colors.text,
-    marginBottom: 4,
   },
-  headerTitleTablet: {
+  titleTablet: {
     fontSize: 36,
   },
-  headerSubtitle: {
+  tabs: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    marginBottom: 20,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  tabTablet: {
+    paddingVertical: 16,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: colors.primary,
+  },
+  tabText: {
     fontSize: 16,
     color: colors.textLight,
   },
-  headerSubtitleTablet: {
+  tabTextTablet: {
     fontSize: 18,
+  },
+  activeTabText: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
   },
-  section: {
-    backgroundColor: colors.white,
-    marginTop: 12,
-    paddingVertical: 20,
-  },
-  sectionHeader: {
+  createButton: {
+    backgroundColor: colors.primary,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    gap: 8,
+  },
+  createButtonTablet: {
+    paddingVertical: 16,
+    borderRadius: 14,
+  },
+  createButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  createButtonTextTablet: {
+    fontSize: 18,
+  },
+  eventsGrid: {
+    gap: 16,
+  },
+  eventItem: {
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.text,
+  eventItemTablet: {
+    marginBottom: 20,
   },
-  sectionTitleTablet: {
-    fontSize: 24,
-  },
-  addButton: {
+  editButton: {
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    paddingVertical: 10,
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    borderRadius: 8,
+    marginTop: 8,
+    gap: 6,
   },
-  addButtonText: {
+  editButtonTablet: {
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  editButtonText: {
     color: colors.white,
-    fontWeight: '600',
-    marginLeft: 4,
     fontSize: 14,
+    fontWeight: '600',
   },
-  addButtonTextTablet: {
+  editButtonTextTablet: {
     fontSize: 16,
   },
-  eventsList: {
-    paddingHorizontal: 0,
-  },
-  reviewsSection: {
-    paddingHorizontal: 0,
-  },
   reviewCard: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: colors.border,
   },
   reviewCardTablet: {
-    padding: 20,
     borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
   },
   reviewHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginBottom: 8,
   },
-  reviewUser: {
+  reviewEventTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    flex: 1,
   },
-  reviewUserTablet: {
+  reviewEventTitleTablet: {
     fontSize: 18,
   },
-  reviewEvent: {
+  starsContainer: {
+    flexDirection: 'row',
+    gap: 2,
+  },
+  reviewAuthor: {
     fontSize: 14,
     color: colors.textLight,
-    marginBottom: 4,
-  },
-  reviewEventTablet: {
-    fontSize: 16,
-  },
-  reviewRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 8,
+  },
+  reviewAuthorTablet: {
+    fontSize: 16,
   },
   reviewComment: {
     fontSize: 14,
     color: colors.text,
     lineHeight: 20,
-    marginBottom: 12,
+    marginBottom: 16,
   },
   reviewCommentTablet: {
     fontSize: 16,
@@ -359,65 +368,61 @@ const styles = StyleSheet.create({
   },
   reviewActions: {
     flexDirection: 'row',
-    gap: 8,
-  },
-  reviewActionsTablet: {
     gap: 12,
   },
   approveButton: {
-    backgroundColor: colors.success,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
     flex: 1,
+    backgroundColor: colors.success,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 6,
+  },
+  approveButtonTablet: {
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  approveButtonText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  approveButtonTextTablet: {
+    fontSize: 16,
   },
   deleteButton: {
-    backgroundColor: colors.error,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
     flex: 1,
+    backgroundColor: colors.error,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 6,
   },
-  actionButtonText: {
+  deleteButtonTablet: {
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  deleteButtonText: {
     color: colors.white,
-    fontSize: 12,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  actionButtonTextTablet: {
     fontSize: 14,
-  },
-  statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    alignSelf: 'flex-start',
-  },
-  pendingBadge: {
-    backgroundColor: colors.warning + '20',
-  },
-  approvedBadge: {
-    backgroundColor: colors.success + '20',
-  },
-  statusText: {
-    fontSize: 12,
     fontWeight: '600',
   },
-  pendingText: {
-    color: colors.warning,
-  },
-  approvedText: {
-    color: colors.success,
+  deleteButtonTextTablet: {
+    fontSize: 16,
   },
   emptyState: {
-    padding: 40,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 60,
   },
   emptyText: {
     fontSize: 16,
     color: colors.textLight,
-    textAlign: 'center',
-    marginTop: 12,
+    marginTop: 16,
   },
   emptyTextTablet: {
     fontSize: 18,
