@@ -9,12 +9,143 @@ import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../../contexts/AuthContext';
 import { mockEvents } from '../../../data/mockData';
 import { Redirect } from 'expo-router';
-import { useResponsive } from '../../../hooks/useResponsive';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    backgroundColor: colors.white,
+  },
+  backButton: {
+    marginRight: 16,
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  deleteButton: {
+    padding: 8,
+  },
+  content: {
+    flex: 1,
+  },
+  form: {
+    backgroundColor: colors.white,
+    margin: 16,
+    borderRadius: 12,
+    padding: 20,
+  },
+  formGroup: {
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: colors.text,
+    backgroundColor: colors.background,
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: 'top',
+  },
+  imageSection: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+    marginBottom: 12,
+  },
+  imagePlaceholderText: {
+    fontSize: 16,
+    color: colors.textLight,
+    marginTop: 8,
+  },
+  imageButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  imageButtonText: {
+    color: colors.white,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  row: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  halfWidth: {
+    flex: 1,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    margin: 16,
+    marginTop: 0,
+  },
+  saveButton: {
+    ...buttonStyles.primary,
+    flex: 1,
+  },
+  saveButtonText: {
+    ...buttonStyles.primaryText,
+  },
+  deleteEventButton: {
+    backgroundColor: colors.error,
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    flex: 1,
+  },
+  deleteEventButtonText: {
+    color: colors.white,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default function EditEventScreen() {
   const { user } = useAuth();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { isTablet, spacing } = useResponsive();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -151,26 +282,24 @@ export default function EditEventScreen() {
     );
   };
 
-  const contentMaxWidth = isTablet ? 800 : undefined;
-
   return (
     <SafeAreaView style={styles.container}>
-      <View style={[styles.header, { paddingHorizontal: spacing }]}>
+      <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-          <Icon name="arrow-back" size={isTablet ? 28 : 24} color={colors.text} />
+          <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, isTablet && styles.headerTitleTablet]}>Modifier l'événement</Text>
+        <Text style={styles.headerTitle}>Modifier l'événement</Text>
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Icon name="trash-outline" size={isTablet ? 28 : 24} color={colors.error} />
+          <Icon name="trash-outline" size={24} color={colors.error} />
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={[styles.form, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%', paddingHorizontal: spacing }]}>
+        <View style={styles.form}>
           <View style={styles.formGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Titre *</Text>
+            <Text style={styles.label}>Titre *</Text>
             <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
+              style={styles.input}
               value={formData.title}
               onChangeText={(value) => handleInputChange('title', value)}
               placeholder="Nom de l'événement"
@@ -179,9 +308,9 @@ export default function EditEventScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Description *</Text>
+            <Text style={styles.label}>Description *</Text>
             <TextInput
-              style={[styles.input, styles.textArea, isTablet && styles.inputTablet]}
+              style={[styles.input, styles.textArea]}
               value={formData.description}
               onChangeText={(value) => handleInputChange('description', value)}
               placeholder="Description détaillée de l'événement"
@@ -192,9 +321,9 @@ export default function EditEventScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Chef *</Text>
+            <Text style={styles.label}>Chef *</Text>
             <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
+              style={styles.input}
               value={formData.chef}
               onChangeText={(value) => handleInputChange('chef', value)}
               placeholder="Nom du chef"
@@ -203,28 +332,28 @@ export default function EditEventScreen() {
           </View>
 
           <View style={styles.imageSection}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Image de l'événement</Text>
+            <Text style={styles.label}>Image de l'événement</Text>
             {formData.image ? (
-              <Image source={{ uri: formData.image }} style={[styles.imagePreview, isTablet && styles.imagePreviewTablet]} />
+              <Image source={{ uri: formData.image }} style={styles.imagePreview} />
             ) : (
-              <View style={[styles.imagePlaceholder, isTablet && styles.imagePlaceholderTablet]}>
-                <Icon name="image-outline" size={isTablet ? 56 : 48} color={colors.textLight} />
-                <Text style={[styles.imagePlaceholderText, isTablet && styles.imagePlaceholderTextTablet]}>Aucune image sélectionnée</Text>
+              <View style={styles.imagePlaceholder}>
+                <Icon name="image-outline" size={48} color={colors.textLight} />
+                <Text style={styles.imagePlaceholderText}>Aucune image sélectionnée</Text>
               </View>
             )}
-            <TouchableOpacity style={[styles.imageButton, isTablet && styles.imageButtonTablet]} onPress={pickImage}>
-              <Icon name="camera-outline" size={isTablet ? 22 : 20} color={colors.white} />
-              <Text style={[styles.imageButtonText, isTablet && styles.imageButtonTextTablet]}>
+            <TouchableOpacity style={styles.imageButton} onPress={pickImage}>
+              <Icon name="camera-outline" size={20} color={colors.white} />
+              <Text style={styles.imageButtonText}>
                 {formData.image ? 'Changer l\'image' : 'Ajouter une image'}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <View style={[styles.row, isTablet && styles.rowTablet]}>
+          <View style={styles.row}>
             <View style={[styles.formGroup, styles.halfWidth]}>
-              <Text style={[styles.label, isTablet && styles.labelTablet]}>Date *</Text>
+              <Text style={styles.label}>Date *</Text>
               <TextInput
-                style={[styles.input, isTablet && styles.inputTablet]}
+                style={styles.input}
                 value={formData.date}
                 onChangeText={(value) => handleInputChange('date', value)}
                 placeholder="JJ/MM/AAAA"
@@ -232,9 +361,9 @@ export default function EditEventScreen() {
               />
             </View>
             <View style={[styles.formGroup, styles.halfWidth]}>
-              <Text style={[styles.label, isTablet && styles.labelTablet]}>Heure *</Text>
+              <Text style={styles.label}>Heure *</Text>
               <TextInput
-                style={[styles.input, isTablet && styles.inputTablet]}
+                style={styles.input}
                 value={formData.time}
                 onChangeText={(value) => handleInputChange('time', value)}
                 placeholder="HH:MM"
@@ -244,9 +373,9 @@ export default function EditEventScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Lieu *</Text>
+            <Text style={styles.label}>Lieu *</Text>
             <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
+              style={styles.input}
               value={formData.location}
               onChangeText={(value) => handleInputChange('location', value)}
               placeholder="Adresse complète"
@@ -254,11 +383,11 @@ export default function EditEventScreen() {
             />
           </View>
 
-          <View style={[styles.row, isTablet && styles.rowTablet]}>
+          <View style={styles.row}>
             <View style={[styles.formGroup, styles.halfWidth]}>
-              <Text style={[styles.label, isTablet && styles.labelTablet]}>Capacité *</Text>
+              <Text style={styles.label}>Capacité *</Text>
               <TextInput
-                style={[styles.input, isTablet && styles.inputTablet]}
+                style={styles.input}
                 value={formData.capacity}
                 onChangeText={(value) => handleInputChange('capacity', value)}
                 placeholder="Nombre de places"
@@ -267,9 +396,9 @@ export default function EditEventScreen() {
               />
             </View>
             <View style={[styles.formGroup, styles.halfWidth]}>
-              <Text style={[styles.label, isTablet && styles.labelTablet]}>Prix (€) *</Text>
+              <Text style={styles.label}>Prix (€) *</Text>
               <TextInput
-                style={[styles.input, isTablet && styles.inputTablet]}
+                style={styles.input}
                 value={formData.price}
                 onChangeText={(value) => handleInputChange('price', value)}
                 placeholder="Prix par personne"
@@ -280,189 +409,15 @@ export default function EditEventScreen() {
           </View>
         </View>
 
-        <View style={[styles.buttonRow, { paddingHorizontal: spacing }]}>
-          <TouchableOpacity style={[styles.saveButton, isTablet && styles.saveButtonTablet]} onPress={handleSave}>
-            <Text style={[styles.saveButtonText, isTablet && styles.saveButtonTextTablet]}>Sauvegarder</Text>
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Sauvegarder</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.deleteEventButton, isTablet && styles.deleteEventButtonTablet]} onPress={handleDelete}>
-            <Text style={[styles.deleteEventButtonText, isTablet && styles.deleteEventButtonTextTablet]}>Supprimer</Text>
+          <TouchableOpacity style={styles.deleteEventButton} onPress={handleDelete}>
+            <Text style={styles.deleteEventButtonText}>Supprimer</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    backgroundColor: colors.white,
-  },
-  backButton: {
-    marginRight: 16,
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.text,
-    flex: 1,
-  },
-  headerTitleTablet: {
-    fontSize: 24,
-  },
-  deleteButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-  },
-  form: {
-    backgroundColor: colors.white,
-    marginVertical: 16,
-    borderRadius: 12,
-    padding: 20,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  labelTablet: {
-    fontSize: 18,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.background,
-  },
-  inputTablet: {
-    fontSize: 18,
-    paddingVertical: 14,
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  imageSection: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  imagePreview: {
-    width: '100%',
-    height: 200,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  imagePreviewTablet: {
-    height: 300,
-  },
-  imagePlaceholder: {
-    width: '100%',
-    height: 200,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-    marginBottom: 12,
-  },
-  imagePlaceholderTablet: {
-    height: 300,
-  },
-  imagePlaceholderText: {
-    fontSize: 16,
-    color: colors.textLight,
-    marginTop: 8,
-  },
-  imagePlaceholderTextTablet: {
-    fontSize: 18,
-  },
-  imageButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.primary,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  imageButtonTablet: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  imageButtonText: {
-    color: colors.white,
-    fontWeight: '600',
-    marginLeft: 8,
-    fontSize: 14,
-  },
-  imageButtonTextTablet: {
-    fontSize: 16,
-  },
-  row: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  rowTablet: {
-    gap: 16,
-  },
-  halfWidth: {
-    flex: 1,
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginVertical: 16,
-  },
-  saveButton: {
-    ...buttonStyles.primary,
-    flex: 1,
-  },
-  saveButtonTablet: {
-    paddingVertical: 18,
-  },
-  saveButtonText: {
-    ...buttonStyles.primaryText,
-  },
-  saveButtonTextTablet: {
-    fontSize: 18,
-  },
-  deleteEventButton: {
-    backgroundColor: colors.error,
-    paddingVertical: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    flex: 1,
-  },
-  deleteEventButtonTablet: {
-    paddingVertical: 18,
-  },
-  deleteEventButtonText: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  deleteEventButtonTextTablet: {
-    fontSize: 18,
-  },
-});
