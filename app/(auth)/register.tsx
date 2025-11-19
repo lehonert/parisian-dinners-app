@@ -1,13 +1,19 @@
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
-import { useAuth } from '../../contexts/AuthContext';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-import LoadingSpinner from '../../components/LoadingSpinner';
 import React, { useState } from 'react';
-import Icon from '../../components/Icon';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useAuth } from '../../contexts/AuthContext';
+import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
+import Icon from '../../components/Icon';
+import LoadingSpinner from '../../components/LoadingSpinner';
 import { useResponsive } from '../../hooks/useResponsive';
+import * as WebBrowser from 'expo-web-browser';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { auth } from '../../config/firebase';
+
+// Required for Google Sign-In to work properly
+WebBrowser.maybeCompleteAuthSession();
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
@@ -16,102 +22,129 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { signUp, isLoading } = useAuth();
   const { isTablet, spacing } = useResponsive();
 
   const handleRegister = async () => {
     console.log('Register button pressed');
     
-    // Validation
-    if (!name.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer votre nom.');
-      return;
-    }
-
-    if (!email.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer votre email.');
-      return;
-    }
-
-    if (!password.trim()) {
-      Alert.alert('Erreur', 'Veuillez entrer un mot de passe.');
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères.');
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
 
     try {
-      console.log('Calling signUp function...');
+      console.log('Attempting registration...');
       await signUp(email.trim(), password, name.trim());
-      
-      console.log('Sign up successful, showing alert...');
-      Alert.alert(
-        'Inscription réussie !',
-        'Votre compte a été créé avec succès. Pour accéder aux événements, vous devez souscrire à un abonnement.',
-        [
-          {
-            text: 'Découvrir les abonnements',
-            onPress: () => {
-              console.log('Navigating to subscription page...');
-              router.replace('/subscription');
-            },
-          },
-        ]
-      );
+      console.log('Registration successful, navigating to events...');
+      router.replace('/(tabs)/events');
     } catch (error: any) {
       console.error('Registration error in component:', error);
-      Alert.alert('Erreur d\'inscription', error.message || 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
+      Alert.alert('Erreur d\'inscription', error.message || 'Une erreur est survenue');
     }
   };
 
-  const handleGoogleRegister = () => {
+  const handleGoogleRegister = async () => {
     console.log('Google register button pressed');
-    Alert.alert(
-      'Connexion Google',
-      'La connexion avec Google n\'est pas encore disponible. Cette fonctionnalité sera ajoutée prochainement.\n\nPour le moment, veuillez créer un compte avec votre email.',
-      [{ text: 'OK' }]
-    );
+    setIsGoogleLoading(true);
+
+    try {
+      if (Platform.OS === 'web') {
+        // Web: Use popup-based authentication
+        console.log('Using web popup authentication');
+        const provider = new GoogleAuthProvider();
+        provider.addScope('profile');
+        provider.addScope('email');
+        
+        const result = await signInWithPopup(auth, provider);
+        console.log('Google sign-in successful:', result.user.email);
+        
+        // Navigate to events page
+        router.replace('/(tabs)/events');
+      } else {
+        // Mobile: Show instructions for now
+        Alert.alert(
+          'Inscription avec Google',
+          'Pour activer l\'inscription avec Google sur mobile:\n\n' +
+          '1. Configurez OAuth 2.0 dans Google Cloud Console\n' +
+          '2. Ajoutez les SHA-1/SHA-256 de votre app\n' +
+          '3. Installez @react-native-google-signin/google-signin\n\n' +
+          'Pour le moment, veuillez utiliser l\'inscription par email.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
+      
+      let errorMessage = 'Une erreur est survenue lors de l\'inscription avec Google';
+      
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Inscription annulée';
+      } else if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'La fenêtre d\'inscription a été bloquée. Veuillez autoriser les popups pour ce site.';
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        errorMessage = 'Inscription annulée';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Erreur de connexion réseau. Vérifiez votre connexion internet.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      Alert.alert('Erreur d\'inscription Google', errorMessage);
+    } finally {
+      setIsGoogleLoading(false);
+    }
   };
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return (
+      <SafeAreaView style={commonStyles.wrapper}>
+        <LoadingSpinner />
+      </SafeAreaView>
+    );
   }
 
   const contentMaxWidth = isTablet ? 600 : undefined;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: spacing }}>
+    <SafeAreaView style={commonStyles.wrapper}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingHorizontal: spacing }}>
         <View style={[styles.header, isTablet && styles.headerTablet]}>
+          <TouchableOpacity 
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <Icon name="arrow-back" size={isTablet ? 28 : 24} color={colors.text} />
+          </TouchableOpacity>
           <Text style={[styles.title, isTablet && styles.titleTablet]}>Créer un compte</Text>
-          <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
-            Rejoignez la communauté des Dîners Parisiens
-          </Text>
         </View>
 
         <View style={[styles.form, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
-          <View style={styles.inputGroup}>
+          <View style={styles.inputContainer}>
             <Text style={[styles.label, isTablet && styles.labelTablet]}>Nom complet</Text>
             <TextInput
               style={[styles.input, isTablet && styles.inputTablet]}
               value={name}
               onChangeText={setName}
-              placeholder="Votre nom complet"
+              placeholder="Jean Dupont"
               placeholderTextColor={colors.textLight}
               autoCapitalize="words"
               autoComplete="name"
             />
           </View>
 
-          <View style={styles.inputGroup}>
+          <View style={styles.inputContainer}>
             <Text style={[styles.label, isTablet && styles.labelTablet]}>Email</Text>
             <TextInput
               style={[styles.input, isTablet && styles.inputTablet]}
@@ -125,17 +158,17 @@ export default function RegisterScreen() {
             />
           </View>
 
-          <View style={styles.inputGroup}>
+          <View style={styles.inputContainer}>
             <Text style={[styles.label, isTablet && styles.labelTablet]}>Mot de passe</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={[styles.input, styles.passwordInput, isTablet && styles.inputTablet]}
                 value={password}
                 onChangeText={setPassword}
-                placeholder="Minimum 6 caractères"
+                placeholder="Au moins 6 caractères"
                 placeholderTextColor={colors.textLight}
                 secureTextEntry={!showPassword}
-                autoComplete="new-password"
+                autoComplete="password-new"
               />
               <TouchableOpacity
                 style={styles.eyeButton}
@@ -150,17 +183,17 @@ export default function RegisterScreen() {
             </View>
           </View>
 
-          <View style={styles.inputGroup}>
+          <View style={styles.inputContainer}>
             <Text style={[styles.label, isTablet && styles.labelTablet]}>Confirmer le mot de passe</Text>
             <View style={styles.passwordContainer}>
               <TextInput
                 style={[styles.input, styles.passwordInput, isTablet && styles.inputTablet]}
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                placeholder="Confirmez votre mot de passe"
+                placeholder="Retapez votre mot de passe"
                 placeholderTextColor={colors.textLight}
                 secureTextEntry={!showConfirmPassword}
-                autoComplete="new-password"
+                autoComplete="password-new"
               />
               <TouchableOpacity
                 style={styles.eyeButton}
@@ -176,12 +209,12 @@ export default function RegisterScreen() {
           </View>
 
           <TouchableOpacity 
-            style={[styles.registerButton, isTablet && styles.registerButtonTablet]} 
+            style={[buttonStyles.primary, styles.registerButton, isTablet && styles.registerButtonTablet]}
             onPress={handleRegister}
             disabled={isLoading}
           >
-            <Text style={[styles.registerButtonText, isTablet && styles.registerButtonTextTablet]}>
-              {isLoading ? 'Création en cours...' : 'Créer mon compte'}
+            <Text style={[styles.buttonText, isTablet && styles.buttonTextTablet]}>
+              {isLoading ? 'Création...' : 'Créer mon compte'}
             </Text>
           </TouchableOpacity>
 
@@ -192,21 +225,30 @@ export default function RegisterScreen() {
           </View>
 
           <TouchableOpacity 
-            style={[styles.googleButton, isTablet && styles.googleButtonTablet]} 
+            style={[buttonStyles.outline, styles.googleButton, isTablet && styles.googleButtonTablet]}
             onPress={handleGoogleRegister}
-            disabled={isLoading}
+            disabled={isLoading || isGoogleLoading}
           >
-            <Icon name="logo-google" size={isTablet ? 22 : 20} color={colors.text} />
-            <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>
-              Continuer avec Google
-            </Text>
+            {isGoogleLoading ? (
+              <LoadingSpinner size="small" />
+            ) : (
+              <>
+                <Icon name="logo-google" size={isTablet ? 22 : 20} color={colors.text} />
+                <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>
+                  S&apos;inscrire avec Google
+                </Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
 
         <View style={[styles.footer, isTablet && styles.footerTablet]}>
           <Text style={[styles.footerText, isTablet && styles.footerTextTablet]}>
-            Vous avez déjà un compte ?{' '}
-            <Text style={styles.loginLink} onPress={() => router.replace('/(auth)/login')}>
+            Déjà un compte ?{' '}
+            <Text 
+              style={styles.linkText}
+              onPress={() => router.push('/(auth)/login')}
+            >
               Se connecter
             </Text>
           </Text>
@@ -219,42 +261,36 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
   header: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 40,
+    paddingVertical: 20,
   },
   headerTablet: {
-    paddingVertical: 60,
+    paddingVertical: 30,
+  },
+  backButton: {
+    marginRight: 16,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    fontSize: 24,
+    fontWeight: '700',
     color: colors.text,
-    marginBottom: 8,
   },
   titleTablet: {
-    fontSize: 36,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-  },
-  subtitleTablet: {
-    fontSize: 18,
+    fontSize: 32,
   },
   form: {
     flex: 1,
-    paddingTop: 20,
+    paddingTop: 40,
   },
-  inputGroup: {
+  inputContainer: {
     marginBottom: 20,
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '500',
     color: colors.text,
     marginBottom: 8,
   },
@@ -268,8 +304,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: colors.text,
     backgroundColor: colors.white,
+    color: colors.text,
   },
   inputTablet: {
     fontSize: 18,
@@ -288,18 +324,18 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   registerButton: {
-    ...buttonStyles.primary,
     marginTop: 20,
     paddingVertical: 16,
   },
   registerButtonTablet: {
-    marginTop: 30,
     paddingVertical: 18,
   },
-  registerButtonText: {
-    ...buttonStyles.primaryText,
+  buttonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.white,
   },
-  registerButtonTextTablet: {
+  buttonTextTablet: {
     fontSize: 18,
   },
   divider: {
@@ -315,13 +351,12 @@ const styles = StyleSheet.create({
   dividerText: {
     marginHorizontal: 16,
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.textLight,
   },
   dividerTextTablet: {
     fontSize: 16,
   },
   googleButton: {
-    ...buttonStyles.secondary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -332,29 +367,29 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
   },
   googleButtonText: {
-    ...buttonStyles.secondaryText,
-    marginLeft: 0,
+    fontSize: 16,
+    fontWeight: '500',
+    color: colors.text,
   },
   googleButtonTextTablet: {
     fontSize: 18,
   },
   footer: {
-    alignItems: 'center',
     paddingVertical: 20,
+    alignItems: 'center',
   },
   footerTablet: {
     paddingVertical: 30,
   },
   footerText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.textLight,
   },
   footerTextTablet: {
     fontSize: 16,
   },
-  loginLink: {
-    fontSize: 14,
+  linkText: {
     color: colors.primary,
-    fontWeight: '600',
+    fontWeight: '500',
   },
 });

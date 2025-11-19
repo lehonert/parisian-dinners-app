@@ -56,9 +56,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const user: User = {
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
-          name: userData.name || '',
+          name: userData.name || firebaseUser.displayName || '',
           bio: userData.bio,
-          photo: userData.photo,
+          photo: userData.photo || firebaseUser.photoURL,
           isAdmin: userData.isAdmin || false,
           createdAt: userData.createdAt?.toDate() || new Date(),
           subscription: userData.subscription ? {
@@ -72,11 +72,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(user);
       } else {
         console.log('User document does not exist, creating...');
-        // Create user document if it doesn't exist
+        // Create user document if it doesn't exist (for Google sign-in)
         const newUser: User = {
           id: firebaseUser.uid,
           email: firebaseUser.email || '',
           name: firebaseUser.displayName || '',
+          photo: firebaseUser.photoURL || undefined,
           isAdmin: false,
           createdAt: new Date(),
         };
@@ -84,6 +85,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await setDoc(userDocRef, {
           email: newUser.email,
           name: newUser.name,
+          photo: newUser.photo,
           isAdmin: false,
           createdAt: serverTimestamp(),
         });
