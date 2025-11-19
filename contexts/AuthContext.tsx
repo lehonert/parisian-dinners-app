@@ -11,10 +11,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Simulate loading and auto-login for demo
+    console.log('AuthProvider: Initializing...');
     setTimeout(() => {
+      console.log('AuthProvider: Setting user', currentUser);
       setUser(currentUser);
       setIsLoading(false);
-    }, 1000);
+    }, 500);
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -25,7 +27,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setTimeout(() => {
       setUser(currentUser);
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
   };
 
   const signUp = async (email: string, password: string, name: string) => {
@@ -43,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       setUser(newUser);
       setIsLoading(false);
-    }, 1500);
+    }, 1000);
   };
 
   const signOut = async () => {
@@ -95,6 +97,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       subscription,
     });
   };
+
+  console.log('AuthProvider: Rendering, isLoading:', isLoading, 'user:', user?.name);
 
   return (
     <AuthContext.Provider value={{

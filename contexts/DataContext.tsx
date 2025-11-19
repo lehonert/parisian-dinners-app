@@ -1,9 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Event, Registration, Review, User } from '../types';
+import { Event, Registration, Review } from '../types';
 import { mockEvents, mockRegistrations, mockReviews } from '../data/mockData';
 import { ErrorService } from '../services/errorService';
-import { usePerformance } from '../hooks/usePerformance';
 
 interface DataContextType {
   // Events
@@ -41,8 +40,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [loadingRegistrations, setLoadingRegistrations] = useState(true);
   const [loadingReviews, setLoadingReviews] = useState(true);
-  
-  const { measureAsync } = usePerformance();
 
   // Simulate API delay
   const simulateDelay = (ms: number = 1000) => new Promise(resolve => setTimeout(resolve, ms));
@@ -52,14 +49,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const loadInitialData = async () => {
       try {
         console.log('Loading initial data...');
-        
-        await measureAsync('loadInitialData', async () => {
-          await simulateDelay(800);
-          setEvents(mockEvents);
-          setRegistrations(mockRegistrations);
-          setReviews(mockReviews);
-        });
-        
+        await simulateDelay(500);
+        setEvents(mockEvents);
+        setRegistrations(mockRegistrations);
+        setReviews(mockReviews);
+        console.log('Initial data loaded successfully');
       } catch (error) {
         console.error('Error loading initial data:', error);
         ErrorService.logError({
@@ -76,167 +70,152 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
 
     loadInitialData();
-  }, [measureAsync]);
+  }, []);
 
   // Event operations
   const createEvent = useCallback(async (eventData: Omit<Event, 'id' | 'createdAt' | 'registeredCount' | 'waitlistCount'>) => {
     try {
       console.log('Creating event:', eventData);
+      await simulateDelay(500);
       
-      await measureAsync('createEvent', async () => {
-        await simulateDelay(500);
-        
-        const newEvent: Event = {
-          ...eventData,
-          id: Date.now().toString(),
-          createdAt: new Date(),
-          registeredCount: 0,
-          waitlistCount: 0,
-        };
-        
-        setEvents(prev => [newEvent, ...prev]);
-      });
+      const newEvent: Event = {
+        ...eventData,
+        id: Date.now().toString(),
+        createdAt: new Date(),
+        registeredCount: 0,
+        waitlistCount: 0,
+      };
       
+      setEvents(prev => [newEvent, ...prev]);
+      console.log('Event created successfully');
     } catch (error) {
       console.error('Error creating event:', error);
       ErrorService.handleEventError(error, 'création d\'événement');
       throw error;
     }
-  }, [measureAsync]);
+  }, []);
 
   const updateEvent = useCallback(async (id: string, eventData: Partial<Event>) => {
     try {
       console.log('Updating event:', id, eventData);
+      await simulateDelay(500);
       
-      await measureAsync('updateEvent', async () => {
-        await simulateDelay(500);
-        
-        setEvents(prev => prev.map(event => 
-          event.id === id ? { ...event, ...eventData } : event
-        ));
-      });
-      
+      setEvents(prev => prev.map(event => 
+        event.id === id ? { ...event, ...eventData } : event
+      ));
+      console.log('Event updated successfully');
     } catch (error) {
       console.error('Error updating event:', error);
       ErrorService.handleEventError(error, 'modification d\'événement');
       throw error;
     }
-  }, [measureAsync]);
+  }, []);
 
   const deleteEvent = useCallback(async (id: string) => {
     try {
       console.log('Deleting event:', id);
+      await simulateDelay(500);
       
-      await measureAsync('deleteEvent', async () => {
-        await simulateDelay(500);
-        
-        setEvents(prev => prev.filter(event => event.id !== id));
-        setRegistrations(prev => prev.filter(reg => reg.eventId !== id));
-        setReviews(prev => prev.filter(review => review.eventId !== id));
-      });
-      
+      setEvents(prev => prev.filter(event => event.id !== id));
+      setRegistrations(prev => prev.filter(reg => reg.eventId !== id));
+      setReviews(prev => prev.filter(review => review.eventId !== id));
+      console.log('Event deleted successfully');
     } catch (error) {
       console.error('Error deleting event:', error);
       ErrorService.handleEventError(error, 'suppression d\'événement');
       throw error;
     }
-  }, [measureAsync]);
+  }, []);
 
   // Registration operations
   const registerForEvent = useCallback(async (eventId: string, userId: string) => {
     try {
       console.log('Registering for event:', eventId, userId);
+      await simulateDelay(500);
       
-      await measureAsync('registerForEvent', async () => {
-        await simulateDelay(500);
-        
-        const event = events.find(e => e.id === eventId);
-        if (!event) {
-          throw { code: 'event/not-found', message: 'Event not found' };
-        }
-        
-        const existingRegistration = registrations.find(
-          reg => reg.eventId === eventId && reg.userId === userId
-        );
-        
-        if (existingRegistration) {
-          throw { code: 'event/already-registered', message: 'Already registered' };
-        }
-        
-        const confirmedRegistrations = registrations.filter(
-          reg => reg.eventId === eventId && reg.status === 'confirmed'
-        ).length;
-        
-        const status = confirmedRegistrations >= event.capacity ? 'waitlist' : 'confirmed';
-        
-        const newRegistration: Registration = {
-          id: Date.now().toString(),
-          userId,
-          eventId,
-          status,
-          registeredAt: new Date(),
-        };
-        
-        setRegistrations(prev => [...prev, newRegistration]);
-        
-        // Update event counts
-        setEvents(prev => prev.map(e => {
-          if (e.id === eventId) {
-            return {
-              ...e,
-              registeredCount: status === 'confirmed' ? e.registeredCount + 1 : e.registeredCount,
-              waitlistCount: status === 'waitlist' ? e.waitlistCount + 1 : e.waitlistCount,
-            };
-          }
-          return e;
-        }));
-      });
+      const event = events.find(e => e.id === eventId);
+      if (!event) {
+        throw { code: 'event/not-found', message: 'Event not found' };
+      }
       
+      const existingRegistration = registrations.find(
+        reg => reg.eventId === eventId && reg.userId === userId
+      );
+      
+      if (existingRegistration) {
+        throw { code: 'event/already-registered', message: 'Already registered' };
+      }
+      
+      const confirmedRegistrations = registrations.filter(
+        reg => reg.eventId === eventId && reg.status === 'confirmed'
+      ).length;
+      
+      const status = confirmedRegistrations >= event.capacity ? 'waitlist' : 'confirmed';
+      
+      const newRegistration: Registration = {
+        id: Date.now().toString(),
+        userId,
+        eventId,
+        status,
+        registeredAt: new Date(),
+      };
+      
+      setRegistrations(prev => [...prev, newRegistration]);
+      
+      // Update event counts
+      setEvents(prev => prev.map(e => {
+        if (e.id === eventId) {
+          return {
+            ...e,
+            registeredCount: status === 'confirmed' ? e.registeredCount + 1 : e.registeredCount,
+            waitlistCount: status === 'waitlist' ? e.waitlistCount + 1 : e.waitlistCount,
+          };
+        }
+        return e;
+      }));
+      console.log('Registration successful');
     } catch (error) {
       console.error('Error registering for event:', error);
       ErrorService.handleEventError(error, 'inscription à l\'événement');
       throw error;
     }
-  }, [events, registrations, measureAsync]);
+  }, [events, registrations]);
 
   const unregisterFromEvent = useCallback(async (eventId: string, userId: string) => {
     try {
       console.log('Unregistering from event:', eventId, userId);
+      await simulateDelay(500);
       
-      await measureAsync('unregisterFromEvent', async () => {
-        await simulateDelay(500);
-        
-        const registration = registrations.find(
-          reg => reg.eventId === eventId && reg.userId === userId
-        );
-        
-        if (!registration) {
-          throw { code: 'registration/not-found', message: 'Registration not found' };
+      const registration = registrations.find(
+        reg => reg.eventId === eventId && reg.userId === userId
+      );
+      
+      if (!registration) {
+        throw { code: 'registration/not-found', message: 'Registration not found' };
+      }
+      
+      setRegistrations(prev => prev.filter(
+        reg => !(reg.eventId === eventId && reg.userId === userId)
+      ));
+      
+      // Update event counts
+      setEvents(prev => prev.map(e => {
+        if (e.id === eventId) {
+          return {
+            ...e,
+            registeredCount: registration.status === 'confirmed' ? e.registeredCount - 1 : e.registeredCount,
+            waitlistCount: registration.status === 'waitlist' ? e.waitlistCount - 1 : e.waitlistCount,
+          };
         }
-        
-        setRegistrations(prev => prev.filter(
-          reg => !(reg.eventId === eventId && reg.userId === userId)
-        ));
-        
-        // Update event counts
-        setEvents(prev => prev.map(e => {
-          if (e.id === eventId) {
-            return {
-              ...e,
-              registeredCount: registration.status === 'confirmed' ? e.registeredCount - 1 : e.registeredCount,
-              waitlistCount: registration.status === 'waitlist' ? e.waitlistCount - 1 : e.waitlistCount,
-            };
-          }
-          return e;
-        }));
-      });
-      
+        return e;
+      }));
+      console.log('Unregistration successful');
     } catch (error) {
       console.error('Error unregistering from event:', error);
       ErrorService.handleEventError(error, 'désinscription de l\'événement');
       throw error;
     }
-  }, [registrations, measureAsync]);
+  }, [registrations]);
 
   const getUserRegistrations = useCallback((userId: string) => {
     return registrations.filter(reg => reg.userId === userId);
@@ -246,20 +225,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const createReview = useCallback(async (reviewData: Omit<Review, 'id' | 'createdAt' | 'status'>) => {
     try {
       console.log('Creating review:', reviewData);
+      await simulateDelay(500);
       
-      await measureAsync('createReview', async () => {
-        await simulateDelay(500);
-        
-        const newReview: Review = {
-          ...reviewData,
-          id: Date.now().toString(),
-          createdAt: new Date(),
-          status: 'pending',
-        };
-        
-        setReviews(prev => [...prev, newReview]);
-      });
+      const newReview: Review = {
+        ...reviewData,
+        id: Date.now().toString(),
+        createdAt: new Date(),
+        status: 'pending',
+      };
       
+      setReviews(prev => [...prev, newReview]);
+      console.log('Review created successfully');
     } catch (error) {
       console.error('Error creating review:', error);
       ErrorService.logError({
@@ -270,20 +246,17 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       });
       throw error;
     }
-  }, [measureAsync]);
+  }, []);
 
   const approveReview = useCallback(async (reviewId: string) => {
     try {
       console.log('Approving review:', reviewId);
+      await simulateDelay(300);
       
-      await measureAsync('approveReview', async () => {
-        await simulateDelay(300);
-        
-        setReviews(prev => prev.map(review =>
-          review.id === reviewId ? { ...review, status: 'approved' as const } : review
-        ));
-      });
-      
+      setReviews(prev => prev.map(review =>
+        review.id === reviewId ? { ...review, status: 'approved' as const } : review
+      ));
+      console.log('Review approved successfully');
     } catch (error) {
       console.error('Error approving review:', error);
       ErrorService.logError({
@@ -294,18 +267,15 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       });
       throw error;
     }
-  }, [measureAsync]);
+  }, []);
 
   const deleteReview = useCallback(async (reviewId: string) => {
     try {
       console.log('Deleting review:', reviewId);
+      await simulateDelay(300);
       
-      await measureAsync('deleteReview', async () => {
-        await simulateDelay(300);
-        
-        setReviews(prev => prev.filter(review => review.id !== reviewId));
-      });
-      
+      setReviews(prev => prev.filter(review => review.id !== reviewId));
+      console.log('Review deleted successfully');
     } catch (error) {
       console.error('Error deleting review:', error);
       ErrorService.logError({
@@ -316,7 +286,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       });
       throw error;
     }
-  }, [measureAsync]);
+  }, []);
 
   const getEventReviews = useCallback((eventId: string) => {
     return reviews.filter(review => review.eventId === eventId && review.status === 'approved');
@@ -329,12 +299,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setLoadingReviews(true);
     
     try {
-      await measureAsync('refreshData', async () => {
-        await simulateDelay(800);
-        setEvents(mockEvents);
-        setRegistrations(mockRegistrations);
-        setReviews(mockReviews);
-      });
+      await simulateDelay(500);
+      setEvents(mockEvents);
+      setRegistrations(mockRegistrations);
+      setReviews(mockReviews);
+      console.log('Data refreshed successfully');
     } catch (error) {
       console.error('Error refreshing data:', error);
       ErrorService.logError({
@@ -348,7 +317,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setLoadingRegistrations(false);
       setLoadingReviews(false);
     }
-  }, [measureAsync]);
+  }, []);
 
   const value: DataContextType = {
     // Events
