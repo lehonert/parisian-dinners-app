@@ -1,11 +1,11 @@
+
 import * as React from "react";
 import { createContext, useCallback, useContext } from "react";
-import { ExtensionStorage } from "@bacons/apple-targets";
 
-// Initialize storage with your group ID
-const storage = new ExtensionStorage(
-  "group.com.<user_name>.<app_name>"
-);
+// Note: @bacons/apple-targets is not installed in this project
+// If you need iOS widget functionality, install it with:
+// npm install @bacons/apple-targets
+// For now, we'll provide a mock implementation
 
 type WidgetContextType = {
   refreshWidget: () => void;
@@ -16,15 +16,13 @@ const WidgetContext = createContext<WidgetContextType | null>(null);
 export function WidgetProvider({ children }: { children: React.ReactNode }) {
   // Update widget state whenever what we want to show changes
   React.useEffect(() => {
-    // set widget_state to null if we want to reset the widget
-    // storage.set("widget_state", null);
-
-    // Refresh widget
-    ExtensionStorage.reloadWidget();
+    // Widget functionality is disabled until @bacons/apple-targets is installed
+    console.log('Widget refresh requested - @bacons/apple-targets not installed');
   }, []);
 
   const refreshWidget = useCallback(() => {
-    ExtensionStorage.reloadWidget();
+    // Widget functionality is disabled until @bacons/apple-targets is installed
+    console.log('Widget refresh requested - @bacons/apple-targets not installed');
   }, []);
 
   return (
