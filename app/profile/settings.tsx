@@ -137,7 +137,7 @@ export default function SettingsScreen() {
           <View style={styles.settingsGroup}>
             <View style={[styles.settingItem, isTablet && styles.settingItemTablet]}>
               <View style={styles.settingInfo}>
-                <Icon name="moon" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="moon-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Mode sombre
@@ -166,7 +166,7 @@ export default function SettingsScreen() {
               onPress={handleLanguageChange}
             >
               <View style={styles.settingInfo}>
-                <Icon name="globe" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="globe-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Langue
@@ -189,7 +189,7 @@ export default function SettingsScreen() {
           <View style={styles.settingsGroup}>
             <View style={[styles.settingItem, isTablet && styles.settingItemTablet]}>
               <View style={styles.settingInfo}>
-                <Icon name="mail" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="mail-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Notifications par email
@@ -212,7 +212,7 @@ export default function SettingsScreen() {
 
             <View style={[styles.settingItem, isTablet && styles.settingItemTablet]}>
               <View style={styles.settingInfo}>
-                <Icon name="notifications" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="notifications-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Notifications push
@@ -244,7 +244,7 @@ export default function SettingsScreen() {
               onPress={handleChangePassword}
             >
               <View style={styles.settingInfo}>
-                <Icon name="lock-closed" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="lock-closed-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Changer le mot de passe
@@ -261,7 +261,7 @@ export default function SettingsScreen() {
               onPress={handlePrivacy}
             >
               <View style={styles.settingInfo}>
-                <Icon name="shield-checkmark" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="shield-checkmark-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Confidentialité
@@ -284,7 +284,7 @@ export default function SettingsScreen() {
               onPress={handleClearCache}
             >
               <View style={styles.settingInfo}>
-                <Icon name="trash" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="trash-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Vider le cache
@@ -310,7 +310,7 @@ export default function SettingsScreen() {
               onPress={() => Alert.alert('Version', 'Les Dîners Parisiens v1.0.0')}
             >
               <View style={styles.settingInfo}>
-                <Icon name="information-circle" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="information-circle-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Version de l&apos;application
@@ -329,7 +329,7 @@ export default function SettingsScreen() {
               onPress={handleTerms}
             >
               <View style={styles.settingInfo}>
-                <Icon name="document-text" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="document-text-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Conditions d&apos;utilisation
@@ -346,7 +346,7 @@ export default function SettingsScreen() {
               onPress={handlePrivacy}
             >
               <View style={styles.settingInfo}>
-                <Icon name="document-text" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
+                <Icon name="document-text-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, isTablet && styles.settingTitleTablet]}>
                     Politique de confidentialité
@@ -369,7 +369,7 @@ export default function SettingsScreen() {
               onPress={handleDeleteAccount}
             >
               <View style={styles.settingInfo}>
-                <Icon name="warning" size={isTablet ? 24 : 20} color={colors.error} style={styles.settingIcon} />
+                <Icon name="warning-outline" size={isTablet ? 24 : 20} color={colors.error} style={styles.settingIcon} />
                 <View style={styles.settingText}>
                   <Text style={[styles.settingTitle, styles.dangerText, isTablet && styles.settingTitleTablet]}>
                     Supprimer mon compte

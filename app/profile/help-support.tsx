@@ -134,7 +134,7 @@ export default function HelpSupportScreen() {
               style={[styles.quickContactButton, isTablet && styles.quickContactButtonTablet]}
               onPress={handleEmail}
             >
-              <Icon name="mail" size={isTablet ? 28 : 24} color={colors.primary} />
+              <Icon name="mail-outline" size={isTablet ? 28 : 24} color={colors.primary} />
               <Text style={[styles.quickContactText, isTablet && styles.quickContactTextTablet]}>
                 Email
               </Text>
@@ -143,7 +143,7 @@ export default function HelpSupportScreen() {
               style={[styles.quickContactButton, isTablet && styles.quickContactButtonTablet]}
               onPress={handlePhone}
             >
-              <Icon name="call" size={isTablet ? 28 : 24} color={colors.primary} />
+              <Icon name="call-outline" size={isTablet ? 28 : 24} color={colors.primary} />
               <Text style={[styles.quickContactText, isTablet && styles.quickContactTextTablet]}>
                 Téléphone
               </Text>
@@ -230,19 +230,19 @@ export default function HelpSupportScreen() {
           </Text>
           <View style={styles.contactInfoCard}>
             <View style={styles.contactInfoItem}>
-              <Icon name="mail" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
+              <Icon name="mail-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
               <Text style={[styles.contactInfoText, isTablet && styles.contactInfoTextTablet]}>
                 support@diners-parisiens.fr
               </Text>
             </View>
             <View style={styles.contactInfoItem}>
-              <Icon name="call" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
+              <Icon name="call-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
               <Text style={[styles.contactInfoText, isTablet && styles.contactInfoTextTablet]}>
                 +33 1 23 45 67 89
               </Text>
             </View>
             <View style={styles.contactInfoItem}>
-              <Icon name="time" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
+              <Icon name="time-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
               <Text style={[styles.contactInfoText, isTablet && styles.contactInfoTextTablet]}>
                 Lun - Ven : 9h - 18h
               </Text>

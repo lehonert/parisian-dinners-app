@@ -115,7 +115,7 @@ export default function NotificationsScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.infoCard}>
-          <Icon name="mail" size={isTablet ? 28 : 24} color={colors.primary} style={styles.infoIcon} />
+          <Icon name="mail-outline" size={isTablet ? 28 : 24} color={colors.primary} style={styles.infoIcon} />
           <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>
             Gérez vos préférences de notifications pour rester informé des événements qui vous intéressent.
           </Text>

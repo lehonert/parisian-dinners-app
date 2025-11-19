@@ -172,7 +172,7 @@ export default function EditProfileScreen() {
               style={[styles.photo, isTablet && styles.photoTablet]}
             />
             <View style={[styles.photoOverlay, isTablet && styles.photoOverlayTablet]}>
-              <Icon name="person" size={isTablet ? 32 : 24} color={colors.white} />
+              <Icon name="camera-outline" size={isTablet ? 32 : 24} color={colors.white} />
             </View>
           </TouchableOpacity>
           <Text style={[styles.photoHint, isTablet && styles.photoHintTablet]}>

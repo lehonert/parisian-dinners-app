@@ -143,7 +143,7 @@ export default function ProfileScreen() {
               onPress={handleEditProfile}
             >
               <Icon 
-                name="user" 
+                name="person-circle-outline" 
                 size={isTablet ? 24 : 20} 
                 color={colors.textSecondary} 
                 style={styles.menuIcon} 
@@ -152,7 +152,7 @@ export default function ProfileScreen() {
                 Modifier le profil
               </Text>
               <Icon 
-                name="chevron-right" 
+                name="chevron-forward" 
                 size={isTablet ? 20 : 16} 
                 color={colors.textSecondary} 
                 style={styles.menuArrow} 
@@ -164,7 +164,7 @@ export default function ProfileScreen() {
               onPress={() => router.push('/(tabs)/registrations')}
             >
               <Icon 
-                name="calendar" 
+                name="calendar-outline" 
                 size={isTablet ? 24 : 20} 
                 color={colors.textSecondary} 
                 style={styles.menuIcon} 
@@ -173,7 +173,7 @@ export default function ProfileScreen() {
                 Mes inscriptions
               </Text>
               <Icon 
-                name="chevron-right" 
+                name="chevron-forward" 
                 size={isTablet ? 20 : 16} 
                 color={colors.textSecondary} 
                 style={styles.menuArrow} 
@@ -185,7 +185,7 @@ export default function ProfileScreen() {
               onPress={() => router.push('/profile/notifications')}
             >
               <Icon 
-                name="bell" 
+                name="notifications-outline" 
                 size={isTablet ? 24 : 20} 
                 color={colors.textSecondary} 
                 style={styles.menuIcon} 
@@ -194,7 +194,7 @@ export default function ProfileScreen() {
                 Notifications
               </Text>
               <Icon 
-                name="chevron-right" 
+                name="chevron-forward" 
                 size={isTablet ? 20 : 16} 
                 color={colors.textSecondary} 
                 style={styles.menuArrow} 
@@ -206,7 +206,7 @@ export default function ProfileScreen() {
               onPress={() => router.push('/profile/settings')}
             >
               <Icon 
-                name="settings" 
+                name="settings-outline" 
                 size={isTablet ? 24 : 20} 
                 color={colors.textSecondary} 
                 style={styles.menuIcon} 
@@ -215,7 +215,7 @@ export default function ProfileScreen() {
                 Paramètres
               </Text>
               <Icon 
-                name="chevron-right" 
+                name="chevron-forward" 
                 size={isTablet ? 20 : 16} 
                 color={colors.textSecondary} 
                 style={styles.menuArrow} 
@@ -227,7 +227,7 @@ export default function ProfileScreen() {
               onPress={() => router.push('/profile/help-support')}
             >
               <Icon 
-                name="help-circle" 
+                name="help-circle-outline" 
                 size={isTablet ? 24 : 20} 
                 color={colors.textSecondary} 
                 style={styles.menuIcon} 
@@ -236,7 +236,7 @@ export default function ProfileScreen() {
                 Aide et support
               </Text>
               <Icon 
-                name="chevron-right" 
+                name="chevron-forward" 
                 size={isTablet ? 20 : 16} 
                 color={colors.textSecondary} 
                 style={styles.menuArrow} 
