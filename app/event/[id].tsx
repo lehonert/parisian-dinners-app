@@ -1,441 +1,586 @@
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
-import { mockEvents, mockRegistrations, mockReviews, currentUser } from '../../data/mockData';
-import React, { useState } from 'react';
-import Icon from '../../components/Icon';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.background,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    flex: 1,
-  },
-  eventImage: {
-    width: '100%',
-    height: 250,
-  },
-  content: {
-    padding: 20,
-  },
-  eventTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  chefName: {
-    fontSize: 16,
-    color: colors.primary,
-    marginBottom: 16,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  infoIcon: {
-    marginRight: 12,
-  },
-  infoText: {
-    fontSize: 14,
-    color: colors.text,
-    flex: 1,
-  },
-  priceText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: colors.primary,
-  },
-  description: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 22,
-    marginVertical: 20,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  ratingText: {
-    fontSize: 14,
-    color: colors.text,
-    marginLeft: 8,
-  },
-  participantsSection: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 12,
-  },
-  participantsList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  participantAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  reviewsSection: {
-    marginBottom: 20,
-  },
-  reviewItem: {
-    backgroundColor: colors.surface,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  reviewAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    marginRight: 12,
-  },
-  reviewerName: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: colors.text,
-    flex: 1,
-  },
-  reviewRating: {
-    flexDirection: 'row',
-  },
-  reviewComment: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 20,
-  },
-  registerButton: {
-    ...buttonStyles.primary,
-    flex: 1,
-  },
-  registerButtonText: {
-    ...buttonStyles.primaryText,
-  },
-  unregisterButton: {
-    ...buttonStyles.secondary,
-    flex: 1,
-  },
-  unregisterButtonText: {
-    ...buttonStyles.secondaryText,
-  },
-  reviewButton: {
-    ...buttonStyles.outline,
-    flex: 1,
-  },
-  reviewButtonText: {
-    ...buttonStyles.outlineText,
-  },
-  subscriptionRequired: {
-    backgroundColor: colors.primaryLight,
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  subscriptionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: 8,
-  },
-  subscriptionText: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  subscribeButton: {
-    ...buttonStyles.primary,
-    paddingVertical: 12,
-  },
-  subscribeButtonText: {
-    ...buttonStyles.primaryText,
-    fontSize: 14,
-  },
-});
+import { useData } from '../../contexts/DataContext';
+import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
+import Icon from '../../components/Icon';
+import { useResponsive } from '../../hooks/useResponsive';
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
   const { user, hasActiveSubscription } = useAuth();
-  const [isRegistered, setIsRegistered] = useState(false);
-
-  const event = mockEvents.find(e => e.id === id);
-  const eventReviews = mockReviews.filter(r => r.eventId === id && r.status === 'approved');
-  const userRegistration = mockRegistrations.find(r => r.eventId === id && r.userId === currentUser.id);
-
-  React.useEffect(() => {
-    setIsRegistered(!!userRegistration);
-  }, [userRegistration]);
+  const { events, registerForEvent, unregisterFromEvent, getUserRegistrations, getEventReviews } = useData();
+  const { isTablet, spacing } = useResponsive();
+  
+  const event = events.find(e => e.id === id);
+  const userRegistrations = user ? getUserRegistrations(user.id) : [];
+  const userRegistration = userRegistrations.find(r => r.eventId === id);
+  const eventReviews = event ? getEventReviews(event.id) : [];
+  
+  const [isRegistering, setIsRegistering] = useState(false);
 
   if (!event) {
     return (
-      <SafeAreaView style={styles.container}>
-        <Text>Événement non trouvé</Text>
+      <SafeAreaView style={commonStyles.wrapper}>
+        <View style={[styles.container, { paddingHorizontal: spacing }]}>
+          <Text style={styles.errorText}>Événement non trouvé</Text>
+        </View>
       </SafeAreaView>
     );
   }
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('fr-FR', {
+    return new Date(date).toLocaleDateString('fr-FR', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    }).format(date);
+    });
   };
 
   const formatPrice = (price: number) => {
-    return `${price}€`;
+    return `${price.toFixed(2)}€`;
   };
 
-  const handleRegistration = () => {
-    if (!hasActiveSubscription()) {
+  const handleRegistration = async () => {
+    if (!user) {
       Alert.alert(
-        'Abonnement requis',
-        'Vous devez avoir un abonnement actif pour vous inscrire aux événements.',
+        'Connexion requise',
+        'Vous devez être connecté pour vous inscrire à un événement',
         [
-          {
-            text: 'Annuler',
-            style: 'cancel',
-          },
-          {
-            text: 'S\'abonner',
-            onPress: () => router.push('/subscription'),
-          },
+          { text: 'Annuler', style: 'cancel' },
+          { text: 'Se connecter', onPress: () => router.push('/(auth)/login') },
         ]
       );
       return;
     }
 
-    if (isRegistered) {
+    if (!hasActiveSubscription()) {
       Alert.alert(
-        'Se désinscrire',
-        'Êtes-vous sûr de vouloir vous désinscrire de cet événement ?',
+        'Abonnement requis',
+        'Vous devez avoir un abonnement actif pour vous inscrire aux événements',
         [
           { text: 'Annuler', style: 'cancel' },
-          {
-            text: 'Se désinscrire',
-            style: 'destructive',
-            onPress: () => {
-              setIsRegistered(false);
-              Alert.alert('Succès', 'Vous êtes maintenant désinscrit de cet événement.');
-            },
-          },
+          { text: 'S\'abonner', onPress: () => router.push('/subscription') },
         ]
       );
-    } else {
-      if (event.registeredCount >= event.capacity) {
-        Alert.alert(
-          'Liste d\'attente',
-          'Cet événement est complet. Souhaitez-vous rejoindre la liste d\'attente ?',
-          [
-            { text: 'Annuler', style: 'cancel' },
-            {
-              text: 'Rejoindre',
-              onPress: () => {
-                setIsRegistered(true);
-                Alert.alert('Succès', 'Vous avez été ajouté à la liste d\'attente.');
-              },
-            },
-          ]
-        );
+      return;
+    }
+
+    setIsRegistering(true);
+
+    try {
+      if (userRegistration) {
+        await unregisterFromEvent(event.id, user.id);
+        Alert.alert('Succès', 'Vous êtes désinscrit de cet événement');
       } else {
-        setIsRegistered(true);
-        Alert.alert('Succès', 'Vous êtes maintenant inscrit à cet événement !');
+        const isFull = event.registeredCount >= event.capacity;
+        await registerForEvent(event.id, user.id);
+        
+        if (isFull) {
+          Alert.alert(
+            'Liste d\'attente',
+            'L\'événement est complet. Vous avez été ajouté à la liste d\'attente.'
+          );
+        } else {
+          Alert.alert('Succès', 'Vous êtes inscrit à cet événement !');
+        }
       }
+    } catch (error: any) {
+      console.log('Registration error:', error);
+      
+      if (error.code === 'event/already-registered') {
+        Alert.alert('Erreur', 'Vous êtes déjà inscrit à cet événement');
+      } else {
+        Alert.alert('Erreur', 'Une erreur est survenue lors de l\'inscription');
+      }
+    } finally {
+      setIsRegistering(false);
     }
   };
 
   const handleReview = () => {
-    Alert.alert('Avis', 'Fonctionnalité d\'avis en cours de développement.');
+    if (!user) {
+      Alert.alert('Connexion requise', 'Vous devez être connecté pour laisser un avis');
+      return;
+    }
+
+    if (!userRegistration) {
+      Alert.alert('Inscription requise', 'Vous devez être inscrit à cet événement pour laisser un avis');
+      return;
+    }
+
+    const eventDate = new Date(event.date);
+    const now = new Date();
+
+    if (eventDate > now) {
+      Alert.alert('Événement à venir', 'Vous pourrez laisser un avis après l\'événement');
+      return;
+    }
+
+    Alert.alert('Fonctionnalité à venir', 'La possibilité de laisser un avis sera bientôt disponible');
   };
 
   const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Icon
-        key={i}
-        name="star"
-        size={16}
-        color={i < rating ? colors.primary : colors.border}
-      />
-    ));
+    return (
+      <View style={styles.starsContainer}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Icon
+            key={star}
+            name={star <= rating ? 'star' : 'star-outline'}
+            size={isTablet ? 20 : 18}
+            color={star <= rating ? colors.primary : colors.textLight}
+          />
+        ))}
+      </View>
+    );
   };
 
   const handleSubscribe = () => {
     router.push('/subscription');
   };
 
+  const remainingSpots = event.capacity - event.registeredCount;
+  const isFull = remainingSpots <= 0;
+  const isUpcoming = new Date(event.date) > new Date();
+
+  const contentMaxWidth = isTablet ? 900 : undefined;
+
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Icon name="arrow-left" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          {event.title}
-        </Text>
-      </View>
+    <SafeAreaView style={commonStyles.wrapper}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={{ maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }}>
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: event.image }} style={styles.image} />
+            <TouchableOpacity
+              style={[styles.backButton, { top: spacing, left: spacing }]}
+              onPress={() => router.back()}
+            >
+              <Icon name="arrow-back" size={isTablet ? 28 : 24} color={colors.text} />
+            </TouchableOpacity>
+          </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Image source={{ uri: event.image }} style={styles.eventImage} />
-        
-        <View style={styles.content}>
-          <Text style={styles.eventTitle}>{event.title}</Text>
-          <Text style={styles.chefName}>Par {event.chef}</Text>
-
-          {!hasActiveSubscription() && (
-            <View style={styles.subscriptionRequired}>
-              <Text style={styles.subscriptionTitle}>
-                Abonnement requis
-              </Text>
-              <Text style={styles.subscriptionText}>
-                Pour vous inscrire à cet événement, vous devez avoir un abonnement actif aux Dîners Parisiens. 
-                Découvrez tous nos événements culinaires exclusifs !
-              </Text>
-              <TouchableOpacity
-                style={styles.subscribeButton}
-                onPress={handleSubscribe}
-              >
-                <Text style={styles.subscribeButtonText}>
-                  Découvrir nos abonnements
+          <View style={[styles.content, { paddingHorizontal: spacing }]}>
+            <View style={[styles.header, isTablet && styles.headerTablet]}>
+              <Text style={[styles.title, isTablet && styles.titleTablet]}>{event.title}</Text>
+              <View style={styles.ratingContainer}>
+                {renderStars(Math.round(event.ratingAvg))}
+                <Text style={[styles.ratingText, isTablet && styles.ratingTextTablet]}>
+                  {event.ratingAvg.toFixed(1)} ({event.ratingCount})
                 </Text>
-              </TouchableOpacity>
+              </View>
             </View>
-          )}
 
-          <View style={styles.infoRow}>
-            <Icon name="calendar" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={styles.infoText}>{formatDate(event.date)}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Icon name="map-pin" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={styles.infoText}>{event.location}</Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Icon name="users" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={styles.infoText}>
-              {event.registeredCount}/{event.capacity} participants
-              {event.waitlistCount > 0 && ` • ${event.waitlistCount} en attente`}
-            </Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Icon name="credit-card" size={20} color={colors.textSecondary} style={styles.infoIcon} />
-            <Text style={[styles.infoText, styles.priceText]}>{formatPrice(event.price)}</Text>
-          </View>
-
-          <Text style={styles.description}>{event.description}</Text>
-
-          <View style={styles.ratingContainer}>
-            <View style={{ flexDirection: 'row' }}>
-              {renderStars(Math.round(event.ratingAvg))}
+            <View style={[styles.infoSection, isTablet && styles.infoSectionTablet]}>
+              <View style={styles.infoRow}>
+                <Icon name="person-outline" size={isTablet ? 22 : 20} color={colors.primary} />
+                <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>Chef : {event.chef}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Icon name="calendar-outline" size={isTablet ? 22 : 20} color={colors.primary} />
+                <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>{formatDate(event.date)}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Icon name="location-outline" size={isTablet ? 22 : 20} color={colors.primary} />
+                <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>{event.location}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Icon name="cash-outline" size={isTablet ? 22 : 20} color={colors.primary} />
+                <Text style={[styles.infoText, isTablet && styles.infoTextTablet]}>{formatPrice(event.price)}</Text>
+              </View>
             </View>
-            <Text style={styles.ratingText}>
-              {event.ratingAvg.toFixed(1)} ({event.ratingCount} avis)
-            </Text>
-          </View>
 
-          {eventReviews.length > 0 && (
-            <View style={styles.reviewsSection}>
-              <Text style={styles.sectionTitle}>Avis des participants</Text>
-              {eventReviews.slice(0, 3).map((review) => (
-                <View key={review.id} style={styles.reviewItem}>
-                  <View style={styles.reviewHeader}>
-                    <Image
-                      source={{ uri: review.userPhoto || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face' }}
-                      style={styles.reviewAvatar}
-                    />
-                    <Text style={styles.reviewerName}>{review.userName}</Text>
-                    <View style={styles.reviewRating}>
+            <View style={[styles.capacitySection, isTablet && styles.capacitySectionTablet]}>
+              <View style={styles.capacityRow}>
+                <Text style={[styles.capacityLabel, isTablet && styles.capacityLabelTablet]}>Places disponibles :</Text>
+                <Text style={[styles.capacityValue, isFull && styles.capacityFull, isTablet && styles.capacityValueTablet]}>
+                  {isFull ? 'Complet' : `${remainingSpots} / ${event.capacity}`}
+                </Text>
+              </View>
+              {event.waitlistCount > 0 && (
+                <Text style={[styles.waitlistText, isTablet && styles.waitlistTextTablet]}>
+                  {event.waitlistCount} personne(s) en liste d&apos;attente
+                </Text>
+              )}
+            </View>
+
+            <View style={[styles.descriptionSection, isTablet && styles.descriptionSectionTablet]}>
+              <Text style={[styles.sectionTitle, isTablet && styles.sectionTitleTablet]}>Description</Text>
+              <Text style={[styles.description, isTablet && styles.descriptionTablet]}>{event.description}</Text>
+            </View>
+
+            {eventReviews.length > 0 && (
+              <View style={[styles.reviewsSection, isTablet && styles.reviewsSectionTablet]}>
+                <Text style={[styles.sectionTitle, isTablet && styles.sectionTitleTablet]}>
+                  Avis ({eventReviews.length})
+                </Text>
+                {eventReviews.map((review) => (
+                  <View key={review.id} style={[styles.reviewCard, isTablet && styles.reviewCardTablet]}>
+                    <View style={styles.reviewHeader}>
+                      <Text style={[styles.reviewAuthor, isTablet && styles.reviewAuthorTablet]}>
+                        {review.userName}
+                      </Text>
                       {renderStars(review.rating)}
                     </View>
+                    <Text style={[styles.reviewComment, isTablet && styles.reviewCommentTablet]}>
+                      {review.comment}
+                    </Text>
                   </View>
-                  <Text style={styles.reviewComment}>{review.comment}</Text>
-                </View>
-              ))}
-            </View>
-          )}
+                ))}
+              </View>
+            )}
 
-          <View style={styles.actionButtons}>
-            {hasActiveSubscription() ? (
-              <>
+            {!hasActiveSubscription() && (
+              <View style={[styles.subscriptionBanner, isTablet && styles.subscriptionBannerTablet]}>
+                <Icon name="information-circle-outline" size={isTablet ? 28 : 24} color={colors.primary} />
+                <View style={styles.subscriptionTextContainer}>
+                  <Text style={[styles.subscriptionTitle, isTablet && styles.subscriptionTitleTablet]}>
+                    Abonnement requis
+                  </Text>
+                  <Text style={[styles.subscriptionText, isTablet && styles.subscriptionTextTablet]}>
+                    Souscrivez à un abonnement pour vous inscrire aux événements
+                  </Text>
+                </View>
                 <TouchableOpacity
-                  style={isRegistered ? styles.unregisterButton : styles.registerButton}
-                  onPress={handleRegistration}
+                  style={[styles.subscribeButton, isTablet && styles.subscribeButtonTablet]}
+                  onPress={handleSubscribe}
                 >
-                  <Text style={isRegistered ? styles.unregisterButtonText : styles.registerButtonText}>
-                    {isRegistered ? 'Se désinscrire' : 'S\'inscrire'}
+                  <Text style={[styles.subscribeButtonText, isTablet && styles.subscribeButtonTextTablet]}>
+                    S&apos;abonner
                   </Text>
                 </TouchableOpacity>
+              </View>
+            )}
 
-                {isRegistered && new Date() > event.date && (
-                  <TouchableOpacity
-                    style={styles.reviewButton}
-                    onPress={handleReview}
-                  >
-                    <Text style={styles.reviewButtonText}>Laisser un avis</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            ) : (
+            {isUpcoming && (
               <TouchableOpacity
-                style={styles.subscribeButton}
-                onPress={handleSubscribe}
+                style={[
+                  buttonStyles.primary,
+                  styles.registerButton,
+                  userRegistration && styles.unregisterButton,
+                  isRegistering && { opacity: 0.7 },
+                  isTablet && styles.registerButtonTablet,
+                ]}
+                onPress={handleRegistration}
+                disabled={isRegistering}
               >
-                <Text style={styles.subscribeButtonText}>
-                  S'abonner pour s'inscrire
+                <Text style={[styles.registerButtonText, isTablet && styles.registerButtonTextTablet]}>
+                  {isRegistering
+                    ? 'Chargement...'
+                    : userRegistration
+                    ? 'Se désinscrire'
+                    : isFull
+                    ? 'Rejoindre la liste d\'attente'
+                    : 'S\'inscrire'}
                 </Text>
               </TouchableOpacity>
             )}
+
+            {!isUpcoming && userRegistration && (
+              <TouchableOpacity
+                style={[buttonStyles.secondary, styles.reviewButton, isTablet && styles.reviewButtonTablet]}
+                onPress={handleReview}
+              >
+                <Text style={[styles.reviewButtonText, isTablet && styles.reviewButtonTextTablet]}>
+                  Laisser un avis
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            <View style={{ height: 40 }} />
           </View>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  imageContainer: {
+    position: 'relative',
+  },
+  image: {
+    width: '100%',
+    height: 300,
+  },
+  backButton: {
+    position: 'absolute',
+    backgroundColor: colors.white,
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  content: {
+    flex: 1,
+  },
+  header: {
+    paddingTop: 20,
+    paddingBottom: 16,
+  },
+  headerTablet: {
+    paddingTop: 30,
+    paddingBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  titleTablet: {
+    fontSize: 32,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+    gap: 2,
+  },
+  ratingText: {
+    fontSize: 14,
+    color: colors.textLight,
+  },
+  ratingTextTablet: {
+    fontSize: 16,
+  },
+  infoSection: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    gap: 12,
+  },
+  infoSectionTablet: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+    gap: 16,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  infoText: {
+    fontSize: 16,
+    color: colors.text,
+    flex: 1,
+  },
+  infoTextTablet: {
+    fontSize: 18,
+  },
+  capacitySection: {
+    backgroundColor: colors.primaryLight,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+  },
+  capacitySectionTablet: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+  },
+  capacityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  capacityLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  capacityLabelTablet: {
+    fontSize: 18,
+  },
+  capacityValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.success,
+  },
+  capacityValueTablet: {
+    fontSize: 18,
+  },
+  capacityFull: {
+    color: colors.error,
+  },
+  waitlistText: {
+    fontSize: 14,
+    color: colors.textLight,
+    marginTop: 8,
+  },
+  waitlistTextTablet: {
+    fontSize: 16,
+  },
+  descriptionSection: {
+    marginBottom: 20,
+  },
+  descriptionSectionTablet: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  sectionTitleTablet: {
+    fontSize: 24,
+    marginBottom: 16,
+  },
+  description: {
+    fontSize: 16,
+    color: colors.text,
+    lineHeight: 24,
+  },
+  descriptionTablet: {
+    fontSize: 18,
+    lineHeight: 28,
+  },
+  reviewsSection: {
+    marginBottom: 20,
+  },
+  reviewsSectionTablet: {
+    marginBottom: 24,
+  },
+  reviewCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  reviewCardTablet: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 16,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  reviewAuthor: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  reviewAuthorTablet: {
+    fontSize: 18,
+  },
+  reviewComment: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+  },
+  reviewCommentTablet: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  subscriptionBanner: {
+    backgroundColor: colors.primaryLight,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  subscriptionBannerTablet: {
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 24,
+  },
+  subscriptionTextContainer: {
+    flex: 1,
+  },
+  subscriptionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 4,
+  },
+  subscriptionTitleTablet: {
+    fontSize: 18,
+  },
+  subscriptionText: {
+    fontSize: 14,
+    color: colors.textLight,
+  },
+  subscriptionTextTablet: {
+    fontSize: 16,
+  },
+  subscribeButton: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  subscribeButtonTablet: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  subscribeButtonText: {
+    color: colors.white,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  subscribeButtonTextTablet: {
+    fontSize: 16,
+  },
+  registerButton: {
+    marginBottom: 12,
+  },
+  registerButtonTablet: {
+    paddingVertical: 18,
+  },
+  unregisterButton: {
+    backgroundColor: colors.error,
+  },
+  registerButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.white,
+  },
+  registerButtonTextTablet: {
+    fontSize: 18,
+  },
+  reviewButton: {
+    marginBottom: 12,
+  },
+  reviewButtonTablet: {
+    paddingVertical: 18,
+  },
+  reviewButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  reviewButtonTextTablet: {
+    fontSize: 18,
+  },
+  errorText: {
+    fontSize: 16,
+    color: colors.error,
+    textAlign: 'center',
+    marginTop: 40,
+  },
+});

@@ -1,33 +1,309 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { 
-  signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  signOut, 
+  signInWithEmailAndPassword, 
+  signOut as firebaseSignOut,
   onAuthStateChanged,
-  User as FirebaseUser,
-  GoogleAuthProvider,
-  signInWithCredential
+  User as FirebaseUser
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../config/firebase';
-import { User, Subscription } from '../types';
-import { FirebaseService } from '../services/firebaseService';
-
-interface AuthContextType {
-  user: User | null;
-  firebaseUser: FirebaseUser | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
-  signOut: () => Promise<void>;
-  updateProfile: (profileData: Partial<User>) => Promise<void>;
-  hasActiveSubscription: boolean;
-  subscription: Subscription | null;
-}
+import { AuthContextType, User, Subscription } from '../types';
+import { ErrorService } from '../services/errorService';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    console.log('Setting up auth state listener...');
+    
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('Auth state changed:', firebaseUser?.uid);
+      
+      if (firebaseUser) {
+        try {
+          await loadUserData(firebaseUser);
+        } catch (error) {
+          console.error('Error loading user data:', error);
+          ErrorService.reportError(error, 'Failed to load user data');
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const loadUserData = async (firebaseUser: FirebaseUser) => {
+    try {
+      const userDocRef = doc(db, 'users', firebaseUser.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        
+        // Convert Firestore timestamps to Date objects
+        const user: User = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          name: userData.name || '',
+          bio: userData.bio,
+          photo: userData.photo,
+          isAdmin: userData.isAdmin || false,
+          createdAt: userData.createdAt?.toDate() || new Date(),
+          subscription: userData.subscription ? {
+            ...userData.subscription,
+            startDate: userData.subscription.startDate?.toDate() || new Date(),
+            endDate: userData.subscription.endDate?.toDate() || new Date(),
+          } : undefined,
+        };
+        
+        console.log('User data loaded:', user.email);
+        setUser(user);
+      } else {
+        console.log('User document does not exist, creating...');
+        // Create user document if it doesn't exist
+        const newUser: User = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          name: firebaseUser.displayName || '',
+          isAdmin: false,
+          createdAt: new Date(),
+        };
+        
+        await setDoc(userDocRef, {
+          email: newUser.email,
+          name: newUser.name,
+          isAdmin: false,
+          createdAt: serverTimestamp(),
+        });
+        
+        setUser(newUser);
+      }
+    } catch (error) {
+      console.error('Error in loadUserData:', error);
+      throw error;
+    }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    try {
+      console.log('Signing in with email:', email);
+      setIsLoading(true);
+      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      console.log('Sign in successful:', userCredential.user.uid);
+      
+      // User data will be loaded by onAuthStateChanged
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      
+      let errorMessage = 'Une erreur est survenue lors de la connexion';
+      
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Aucun compte trouvé avec cet email';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Mot de passe incorrect';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Email invalide';
+      } else if (error.code === 'auth/user-disabled') {
+        errorMessage = 'Ce compte a été désactivé';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Trop de tentatives. Veuillez réessayer plus tard';
+      } else if (error.code === 'auth/invalid-credential') {
+        errorMessage = 'Email ou mot de passe incorrect';
+      }
+      
+      ErrorService.reportError(error, 'Sign in failed');
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signUp = async (email: string, password: string, name: string) => {
+    try {
+      console.log('Signing up with email:', email);
+      setIsLoading(true);
+      
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('Sign up successful:', userCredential.user.uid);
+      
+      // Create user document in Firestore
+      const userDocRef = doc(db, 'users', userCredential.user.uid);
+      await setDoc(userDocRef, {
+        email,
+        name,
+        isAdmin: false,
+        createdAt: serverTimestamp(),
+      });
+      
+      console.log('User document created');
+      
+      // User data will be loaded by onAuthStateChanged
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      
+      let errorMessage = 'Une erreur est survenue lors de l\'inscription';
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'Cet email est déjà utilisé';
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Email invalide';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Le mot de passe doit contenir au moins 6 caractères';
+      } else if (error.code === 'auth/operation-not-allowed') {
+        errorMessage = 'L\'inscription par email est désactivée';
+      }
+      
+      ErrorService.reportError(error, 'Sign up failed');
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signOut = async () => {
+    try {
+      console.log('Signing out...');
+      await firebaseSignOut(auth);
+      setUser(null);
+      console.log('Sign out successful');
+    } catch (error) {
+      console.error('Sign out error:', error);
+      ErrorService.reportError(error, 'Sign out failed');
+      throw error;
+    }
+  };
+
+  const updateProfile = async (data: Partial<User>) => {
+    try {
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+      
+      console.log('Updating profile:', data);
+      
+      const userDocRef = doc(db, 'users', user.id);
+      const updateData: any = {};
+      
+      if (data.name !== undefined) updateData.name = data.name;
+      if (data.bio !== undefined) updateData.bio = data.bio;
+      if (data.photo !== undefined) updateData.photo = data.photo;
+      if (data.isAdmin !== undefined) updateData.isAdmin = data.isAdmin;
+      
+      updateData.updatedAt = serverTimestamp();
+      
+      await updateDoc(userDocRef, updateData);
+      
+      // Update local state
+      setUser({ ...user, ...data });
+      
+      console.log('Profile updated successfully');
+    } catch (error) {
+      console.error('Update profile error:', error);
+      ErrorService.reportError(error, 'Profile update failed');
+      throw error;
+    }
+  };
+
+  const hasActiveSubscription = (): boolean => {
+    if (!user?.subscription) {
+      console.log('No subscription found');
+      return false;
+    }
+    
+    const now = new Date();
+    const endDate = new Date(user.subscription.endDate);
+    
+    const isActive = user.subscription.status === 'active' && endDate > now;
+    console.log('Subscription active:', isActive);
+    
+    return isActive;
+  };
+
+  const subscribeUser = async (plan: 'monthly' | 'yearly') => {
+    try {
+      if (!user) {
+        throw new Error('No user logged in');
+      }
+      
+      console.log('Subscribing user to plan:', plan);
+      
+      const price = plan === 'monthly' ? 19.99 : 199.99;
+      const startDate = new Date();
+      const endDate = new Date();
+      
+      if (plan === 'monthly') {
+        endDate.setMonth(endDate.getMonth() + 1);
+      } else {
+        endDate.setFullYear(endDate.getFullYear() + 1);
+      }
+
+      const subscription: Subscription = {
+        id: `sub_${Date.now()}`,
+        userId: user.id,
+        plan,
+        status: 'active',
+        startDate,
+        endDate,
+        price,
+        paymentMethod: 'Carte bancaire',
+      };
+
+      // Update user document with subscription
+      const userDocRef = doc(db, 'users', user.id);
+      await updateDoc(userDocRef, {
+        subscription: {
+          id: subscription.id,
+          userId: subscription.userId,
+          plan: subscription.plan,
+          status: subscription.status,
+          startDate: subscription.startDate,
+          endDate: subscription.endDate,
+          price: subscription.price,
+          paymentMethod: subscription.paymentMethod,
+        },
+        updatedAt: serverTimestamp(),
+      });
+
+      // Update local state
+      setUser({
+        ...user,
+        subscription,
+      });
+      
+      console.log('Subscription created successfully');
+    } catch (error) {
+      console.error('Subscribe error:', error);
+      ErrorService.reportError(error, 'Subscription failed');
+      throw error;
+    }
+  };
+
+  return (
+    <AuthContext.Provider value={{
+      user,
+      isLoading,
+      signIn,
+      signUp,
+      signOut,
+      updateProfile,
+      hasActiveSubscription,
+      subscribeUser,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
 export function useAuth() {
   const context = useContext(AuthContext);
@@ -35,162 +311,4 @@ export function useAuth() {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
-
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('Auth state changed:', firebaseUser?.uid);
-      setFirebaseUser(firebaseUser);
-      
-      if (firebaseUser) {
-        try {
-          // Récupérer les données utilisateur depuis Firestore
-          const userData = await FirebaseService.getUser(firebaseUser.uid);
-          if (userData) {
-            setUser(userData);
-            // Récupérer l'abonnement (simulation pour l'instant)
-            setSubscription({
-              id: 'sub_1',
-              userId: firebaseUser.uid,
-              plan: 'premium',
-              status: 'active',
-              startDate: new Date(),
-              endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 jours
-              price: 29.99
-            });
-          } else {
-            // Créer un profil utilisateur de base s'il n'existe pas
-            const newUser: Omit<User, 'id'> = {
-              email: firebaseUser.email || '',
-              name: firebaseUser.displayName || '',
-              photoURL: firebaseUser.photoURL || '',
-              bio: '',
-              isAdmin: false,
-              createdAt: new Date(),
-              hasCompletedProfile: false
-            };
-            
-            await setDoc(doc(db, 'users', firebaseUser.uid), newUser);
-            setUser({ id: firebaseUser.uid, ...newUser });
-          }
-        } catch (error) {
-          console.error('Error loading user data:', error);
-        }
-      } else {
-        setUser(null);
-        setSubscription(null);
-      }
-      
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      await signInWithEmailAndPassword(auth, email, password);
-      console.log('Sign in successful');
-    } catch (error) {
-      console.error('Sign in error:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signUp = async (email: string, password: string) => {
-    try {
-      setLoading(true);
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Créer le profil utilisateur dans Firestore
-      const newUser: Omit<User, 'id'> = {
-        email,
-        name: '',
-        photoURL: '',
-        bio: '',
-        isAdmin: false,
-        createdAt: new Date(),
-        hasCompletedProfile: false
-      };
-      
-      await setDoc(doc(db, 'users', userCredential.user.uid), newUser);
-      console.log('Sign up successful');
-    } catch (error) {
-      console.error('Sign up error:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signInWithGoogle = async () => {
-    try {
-      setLoading(true);
-      // Note: Pour une implémentation complète avec Google Sign-In,
-      // vous devrez installer et configurer @react-native-google-signin/google-signin
-      // Pour l'instant, on simule juste l'erreur
-      throw new Error('Google Sign-In nécessite une configuration supplémentaire');
-    } catch (error) {
-      console.error('Google sign in error:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signOutUser = async () => {
-    try {
-      await signOut(auth);
-      console.log('Sign out successful');
-    } catch (error) {
-      console.error('Sign out error:', error);
-      throw error;
-    }
-  };
-
-  const updateProfile = async (profileData: Partial<User>) => {
-    if (!firebaseUser || !user) {
-      throw new Error('No authenticated user');
-    }
-
-    try {
-      await FirebaseService.updateUser(firebaseUser.uid, profileData);
-      setUser({ ...user, ...profileData });
-      console.log('Profile updated successfully');
-    } catch (error) {
-      console.error('Update profile error:', error);
-      throw error;
-    }
-  };
-
-  const hasActiveSubscription = subscription?.status === 'active' && 
-    subscription?.endDate && subscription.endDate > new Date();
-
-  const value: AuthContextType = {
-    user,
-    firebaseUser,
-    loading,
-    signIn,
-    signUp,
-    signInWithGoogle,
-    signOut: signOutUser,
-    updateProfile,
-    hasActiveSubscription,
-    subscription
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
 }

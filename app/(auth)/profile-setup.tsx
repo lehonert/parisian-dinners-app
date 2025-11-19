@@ -1,17 +1,19 @@
 
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import Icon from '../../components/Icon';
 import * as ImagePicker from 'expo-image-picker';
+import { useResponsive } from '../../hooks/useResponsive';
 
 export default function ProfileSetupScreen() {
   const [bio, setBio] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
   const { user, updateProfile } = useAuth();
+  const { isTablet, spacing } = useResponsive();
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -40,34 +42,36 @@ export default function ProfileSetupScreen() {
     router.replace('/(tabs)/events');
   };
 
+  const contentMaxWidth = isTablet ? 600 : undefined;
+
   return (
     <SafeAreaView style={commonStyles.wrapper}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Complétez votre profil</Text>
-          <Text style={styles.subtitle}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingHorizontal: spacing }}>
+        <View style={[styles.header, isTablet && styles.headerTablet]}>
+          <Text style={[styles.title, isTablet && styles.titleTablet]}>Complétez votre profil</Text>
+          <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
             Ajoutez une photo et une bio pour vous présenter à la communauté
           </Text>
         </View>
 
-        <View style={styles.form}>
+        <View style={[styles.form, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
           <View style={styles.photoSection}>
-            <TouchableOpacity style={styles.photoContainer} onPress={pickImage}>
+            <TouchableOpacity style={[styles.photoContainer, isTablet && styles.photoContainerTablet]} onPress={pickImage}>
               {photo ? (
                 <Image source={{ uri: photo }} style={styles.photo} />
               ) : (
                 <View style={styles.photoPlaceholder}>
-                  <Icon name="camera-outline" size={40} color={colors.textLight} />
-                  <Text style={styles.photoText}>Ajouter une photo</Text>
+                  <Icon name="camera-outline" size={isTablet ? 48 : 40} color={colors.textLight} />
+                  <Text style={[styles.photoText, isTablet && styles.photoTextTablet]}>Ajouter une photo</Text>
                 </View>
               )}
             </TouchableOpacity>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Bio (optionnel)</Text>
+            <Text style={[styles.label, isTablet && styles.labelTablet]}>Bio (optionnel)</Text>
             <TextInput
-              style={[styles.input, styles.bioInput]}
+              style={[styles.input, styles.bioInput, isTablet && styles.inputTablet]}
               value={bio}
               onChangeText={setBio}
               placeholder="Parlez-nous de votre passion pour la cuisine..."
@@ -79,20 +83,20 @@ export default function ProfileSetupScreen() {
           </View>
 
           <TouchableOpacity 
-            style={[buttonStyles.primary, styles.saveButton]}
+            style={[buttonStyles.primary, styles.saveButton, isTablet && styles.saveButtonTablet]}
             onPress={handleSave}
           >
-            <Text style={styles.buttonText}>Terminer</Text>
+            <Text style={[styles.buttonText, isTablet && styles.buttonTextTablet]}>Terminer</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
             style={styles.skipButton}
             onPress={handleSkip}
           >
-            <Text style={styles.skipText}>Passer cette étape</Text>
+            <Text style={[styles.skipText, isTablet && styles.skipTextTablet]}>Passer cette étape</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -100,11 +104,13 @@ export default function ProfileSetupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   header: {
     paddingVertical: 40,
     alignItems: 'center',
+  },
+  headerTablet: {
+    paddingVertical: 60,
   },
   title: {
     fontSize: 24,
@@ -113,11 +119,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 12,
   },
+  titleTablet: {
+    fontSize: 32,
+  },
   subtitle: {
     fontSize: 16,
     color: colors.textLight,
     textAlign: 'center',
     lineHeight: 22,
+  },
+  subtitleTablet: {
+    fontSize: 18,
+    lineHeight: 26,
   },
   form: {
     flex: 1,
@@ -131,6 +144,11 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     overflow: 'hidden',
+  },
+  photoContainerTablet: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
   },
   photo: {
     width: '100%',
@@ -151,6 +169,9 @@ const styles = StyleSheet.create({
     color: colors.textLight,
     marginTop: 8,
   },
+  photoTextTablet: {
+    fontSize: 14,
+  },
   inputContainer: {
     marginBottom: 30,
   },
@@ -159,6 +180,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: colors.text,
     marginBottom: 8,
+  },
+  labelTablet: {
+    fontSize: 18,
   },
   input: {
     borderWidth: 1,
@@ -170,6 +194,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     color: colors.text,
   },
+  inputTablet: {
+    fontSize: 18,
+    paddingVertical: 14,
+  },
   bioInput: {
     height: 100,
     paddingTop: 12,
@@ -178,10 +206,16 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginBottom: 16,
   },
+  saveButtonTablet: {
+    paddingVertical: 18,
+  },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.white,
+  },
+  buttonTextTablet: {
+    fontSize: 18,
   },
   skipButton: {
     alignItems: 'center',
@@ -190,5 +224,8 @@ const styles = StyleSheet.create({
   skipText: {
     fontSize: 16,
     color: colors.textLight,
+  },
+  skipTextTablet: {
+    fontSize: 18,
   },
 });

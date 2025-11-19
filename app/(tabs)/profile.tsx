@@ -6,177 +6,11 @@ import React from 'react';
 import Icon from '../../components/Icon';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { router } from 'expo-router';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 16,
-  },
-  name: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  email: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginBottom: 8,
-  },
-  bio: {
-    fontSize: 14,
-    color: colors.text,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  subscriptionCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  subscriptionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  subscriptionIcon: {
-    marginRight: 12,
-  },
-  subscriptionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-    flex: 1,
-  },
-  subscriptionStatus: {
-    fontSize: 12,
-    fontWeight: '600',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  activeStatus: {
-    backgroundColor: colors.success + '20',
-    color: colors.success,
-  },
-  inactiveStatus: {
-    backgroundColor: colors.error + '20',
-    color: colors.error,
-  },
-  subscriptionDetails: {
-    marginBottom: 16,
-  },
-  subscriptionPlan: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: 4,
-  },
-  subscriptionDates: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-  subscriptionPrice: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-  subscriptionActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  manageButton: {
-    ...buttonStyles.outline,
-    flex: 1,
-    paddingVertical: 12,
-  },
-  manageButtonText: {
-    ...buttonStyles.outlineText,
-    fontSize: 14,
-  },
-  subscribeButton: {
-    ...buttonStyles.primary,
-    flex: 1,
-    paddingVertical: 12,
-  },
-  subscribeButtonText: {
-    ...buttonStyles.primaryText,
-    fontSize: 14,
-  },
-  noSubscriptionCard: {
-    backgroundColor: colors.primaryLight,
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: colors.primary,
-  },
-  noSubscriptionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.primary,
-    marginBottom: 8,
-  },
-  noSubscriptionText: {
-    fontSize: 14,
-    color: colors.text,
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  menuSection: {
-    marginBottom: 20,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    backgroundColor: colors.surface,
-    borderRadius: 12,
-    marginBottom: 8,
-  },
-  menuIcon: {
-    marginRight: 16,
-  },
-  menuText: {
-    fontSize: 16,
-    color: colors.text,
-    flex: 1,
-  },
-  menuArrow: {
-    marginLeft: 8,
-  },
-  signOutButton: {
-    ...buttonStyles.secondary,
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  signOutButtonText: {
-    ...buttonStyles.secondaryText,
-  },
-});
+import { useResponsive } from '../../hooks/useResponsive';
 
 export default function ProfileScreen() {
   const { user, signOut, hasActiveSubscription } = useAuth();
+  const { isTablet, spacing } = useResponsive();
 
   const handleSignOut = () => {
     Alert.alert(
@@ -218,47 +52,58 @@ export default function ProfileScreen() {
   }
 
   const isSubscribed = hasActiveSubscription();
+  const contentMaxWidth = isTablet ? 800 : undefined;
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
+        <View style={[styles.header, { paddingHorizontal: spacing }]}>
           <Image
             source={{
               uri: user.photo || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
             }}
-            style={styles.avatar}
+            style={[styles.avatar, isTablet && styles.avatarTablet]}
           />
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.email}>{user.email}</Text>
-          {user.bio && <Text style={styles.bio}>{user.bio}</Text>}
+          <Text style={[styles.name, isTablet && styles.nameTablet]}>
+            {user.name}
+          </Text>
+          <Text style={[styles.email, isTablet && styles.emailTablet]}>
+            {user.email}
+          </Text>
+          {user.bio && (
+            <Text style={[styles.bio, isTablet && styles.bioTablet]}>
+              {user.bio}
+            </Text>
+          )}
         </View>
 
-        <View style={styles.content}>
+        <View style={[styles.content, { paddingHorizontal: spacing, maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
           {/* Subscription Section */}
           {isSubscribed && user.subscription ? (
-            <View style={styles.subscriptionCard}>
+            <View style={[styles.subscriptionCard, isTablet && styles.subscriptionCardTablet]}>
               <View style={styles.subscriptionHeader}>
                 <Icon
                   name="star"
-                  size={24}
+                  size={isTablet ? 28 : 24}
                   color={colors.primary}
                   style={styles.subscriptionIcon}
                 />
-                <Text style={styles.subscriptionTitle}>Mon Abonnement</Text>
-                <Text style={[styles.subscriptionStatus, styles.activeStatus]}>
+                <Text style={[styles.subscriptionTitle, isTablet && styles.subscriptionTitleTablet]}>
+                  Mon Abonnement
+                </Text>
+                <Text style={[styles.subscriptionStatus, styles.activeStatus, isTablet && styles.subscriptionStatusTablet]}>
                   ACTIF
                 </Text>
               </View>
               
               <View style={styles.subscriptionDetails}>
-                <Text style={styles.subscriptionPlan}>
+                <Text style={[styles.subscriptionPlan, isTablet && styles.subscriptionPlanTablet]}>
                   Plan {user.subscription.plan === 'monthly' ? 'Mensuel' : 'Annuel'}
                 </Text>
-                <Text style={styles.subscriptionDates}>
+                <Text style={[styles.subscriptionDates, isTablet && styles.subscriptionDatesTablet]}>
                   Expire le {formatDate(new Date(user.subscription.endDate))}
                 </Text>
-                <Text style={styles.subscriptionPrice}>
+                <Text style={[styles.subscriptionPrice, isTablet && styles.subscriptionPriceTablet]}>
                   {formatPrice(user.subscription.price)} / {user.subscription.plan === 'monthly' ? 'mois' : 'an'}
                 </Text>
               </View>
@@ -273,11 +118,11 @@ export default function ProfileScreen() {
               </View>
             </View>
           ) : (
-            <View style={styles.noSubscriptionCard}>
-              <Text style={styles.noSubscriptionTitle}>
+            <View style={[styles.noSubscriptionCard, isTablet && styles.noSubscriptionCardTablet]}>
+              <Text style={[styles.noSubscriptionTitle, isTablet && styles.noSubscriptionTitleTablet]}>
                 Aucun abonnement actif
               </Text>
-              <Text style={styles.noSubscriptionText}>
+              <Text style={[styles.noSubscriptionText, isTablet && styles.noSubscriptionTextTablet]}>
                 Souscrivez à un abonnement pour accéder à tous nos événements culinaires exclusifs et rejoindre notre communauté passionnée.
               </Text>
               <TouchableOpacity
@@ -293,37 +138,109 @@ export default function ProfileScreen() {
 
           {/* Menu Items */}
           <View style={styles.menuSection}>
-            <TouchableOpacity style={styles.menuItem} onPress={handleEditProfile}>
-              <Icon name="user" size={20} color={colors.textSecondary} style={styles.menuIcon} />
-              <Text style={styles.menuText}>Modifier le profil</Text>
-              <Icon name="chevron-right" size={16} color={colors.textSecondary} style={styles.menuArrow} />
+            <TouchableOpacity 
+              style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
+              onPress={handleEditProfile}
+            >
+              <Icon 
+                name="user" 
+                size={isTablet ? 24 : 20} 
+                color={colors.textSecondary} 
+                style={styles.menuIcon} 
+              />
+              <Text style={[styles.menuText, isTablet && styles.menuTextTablet]}>
+                Modifier le profil
+              </Text>
+              <Icon 
+                name="chevron-right" 
+                size={isTablet ? 20 : 16} 
+                color={colors.textSecondary} 
+                style={styles.menuArrow} 
+              />
             </TouchableOpacity>
 
             <TouchableOpacity 
-              style={styles.menuItem} 
+              style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
               onPress={() => router.push('/(tabs)/registrations')}
             >
-              <Icon name="calendar" size={20} color={colors.textSecondary} style={styles.menuIcon} />
-              <Text style={styles.menuText}>Mes inscriptions</Text>
-              <Icon name="chevron-right" size={16} color={colors.textSecondary} style={styles.menuArrow} />
+              <Icon 
+                name="calendar" 
+                size={isTablet ? 24 : 20} 
+                color={colors.textSecondary} 
+                style={styles.menuIcon} 
+              />
+              <Text style={[styles.menuText, isTablet && styles.menuTextTablet]}>
+                Mes inscriptions
+              </Text>
+              <Icon 
+                name="chevron-right" 
+                size={isTablet ? 20 : 16} 
+                color={colors.textSecondary} 
+                style={styles.menuArrow} 
+              />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Notifications', 'Fonctionnalité en cours de développement.')}>
-              <Icon name="bell" size={20} color={colors.textSecondary} style={styles.menuIcon} />
-              <Text style={styles.menuText}>Notifications</Text>
-              <Icon name="chevron-right" size={16} color={colors.textSecondary} style={styles.menuArrow} />
+            <TouchableOpacity 
+              style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
+              onPress={() => Alert.alert('Notifications', 'Fonctionnalité en cours de développement.')}
+            >
+              <Icon 
+                name="bell" 
+                size={isTablet ? 24 : 20} 
+                color={colors.textSecondary} 
+                style={styles.menuIcon} 
+              />
+              <Text style={[styles.menuText, isTablet && styles.menuTextTablet]}>
+                Notifications
+              </Text>
+              <Icon 
+                name="chevron-right" 
+                size={isTablet ? 20 : 16} 
+                color={colors.textSecondary} 
+                style={styles.menuArrow} 
+              />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Paramètres', 'Fonctionnalité en cours de développement.')}>
-              <Icon name="settings" size={20} color={colors.textSecondary} style={styles.menuIcon} />
-              <Text style={styles.menuText}>Paramètres</Text>
-              <Icon name="chevron-right" size={16} color={colors.textSecondary} style={styles.menuArrow} />
+            <TouchableOpacity 
+              style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
+              onPress={() => Alert.alert('Paramètres', 'Fonctionnalité en cours de développement.')}
+            >
+              <Icon 
+                name="settings" 
+                size={isTablet ? 24 : 20} 
+                color={colors.textSecondary} 
+                style={styles.menuIcon} 
+              />
+              <Text style={[styles.menuText, isTablet && styles.menuTextTablet]}>
+                Paramètres
+              </Text>
+              <Icon 
+                name="chevron-right" 
+                size={isTablet ? 20 : 16} 
+                color={colors.textSecondary} 
+                style={styles.menuArrow} 
+              />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem} onPress={() => Alert.alert('Aide', 'Fonctionnalité en cours de développement.')}>
-              <Icon name="help-circle" size={20} color={colors.textSecondary} style={styles.menuIcon} />
-              <Text style={styles.menuText}>Aide et support</Text>
-              <Icon name="chevron-right" size={16} color={colors.textSecondary} style={styles.menuArrow} />
+            <TouchableOpacity 
+              style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
+              onPress={() => Alert.alert('Aide', 'Fonctionnalité en cours de développement.')}
+            >
+              <Icon 
+                name="help-circle" 
+                size={isTablet ? 24 : 20} 
+                color={colors.textSecondary} 
+                style={styles.menuIcon} 
+              />
+              <Text style={[styles.menuText, isTablet && styles.menuTextTablet]}>
+                Aide et support
+              </Text>
+              <Icon 
+                name="chevron-right" 
+                size={isTablet ? 20 : 16} 
+                color={colors.textSecondary} 
+                style={styles.menuArrow} 
+              />
             </TouchableOpacity>
           </View>
 
@@ -335,3 +252,224 @@ export default function ProfileScreen() {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
+  },
+  header: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  avatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 16,
+  },
+  avatarTablet: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+  },
+  name: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text,
+    marginBottom: 8,
+  },
+  nameTablet: {
+    fontSize: 32,
+  },
+  email: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    marginBottom: 8,
+  },
+  emailTablet: {
+    fontSize: 20,
+  },
+  bio: {
+    fontSize: 14,
+    color: colors.text,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  bioTablet: {
+    fontSize: 18,
+    lineHeight: 26,
+  },
+  content: {
+    flex: 1,
+  },
+  subscriptionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  subscriptionCardTablet: {
+    padding: 24,
+    borderRadius: 20,
+  },
+  subscriptionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  subscriptionIcon: {
+    marginRight: 12,
+  },
+  subscriptionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    flex: 1,
+  },
+  subscriptionTitleTablet: {
+    fontSize: 22,
+  },
+  subscriptionStatus: {
+    fontSize: 12,
+    fontWeight: '600',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  subscriptionStatusTablet: {
+    fontSize: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  activeStatus: {
+    backgroundColor: colors.success + '20',
+    color: colors.success,
+  },
+  inactiveStatus: {
+    backgroundColor: colors.error + '20',
+    color: colors.error,
+  },
+  subscriptionDetails: {
+    marginBottom: 16,
+  },
+  subscriptionPlan: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  subscriptionPlanTablet: {
+    fontSize: 20,
+  },
+  subscriptionDates: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+  subscriptionDatesTablet: {
+    fontSize: 16,
+  },
+  subscriptionPrice: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
+  subscriptionPriceTablet: {
+    fontSize: 16,
+  },
+  subscriptionActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  manageButton: {
+    ...buttonStyles.outline,
+    flex: 1,
+    paddingVertical: 12,
+  },
+  manageButtonText: {
+    ...buttonStyles.outlineText,
+    fontSize: 14,
+  },
+  subscribeButton: {
+    ...buttonStyles.primary,
+    flex: 1,
+    paddingVertical: 12,
+  },
+  subscribeButtonText: {
+    ...buttonStyles.primaryText,
+    fontSize: 14,
+  },
+  noSubscriptionCard: {
+    backgroundColor: colors.primaryLight,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  noSubscriptionCardTablet: {
+    padding: 24,
+    borderRadius: 20,
+  },
+  noSubscriptionTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  noSubscriptionTitleTablet: {
+    fontSize: 20,
+  },
+  noSubscriptionText: {
+    fontSize: 14,
+    color: colors.text,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  noSubscriptionTextTablet: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  menuSection: {
+    marginBottom: 20,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: colors.surface,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  menuItemTablet: {
+    paddingVertical: 20,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+  },
+  menuIcon: {
+    marginRight: 16,
+  },
+  menuText: {
+    fontSize: 16,
+    color: colors.text,
+    flex: 1,
+  },
+  menuTextTablet: {
+    fontSize: 18,
+  },
+  menuArrow: {
+    marginLeft: 8,
+  },
+  signOutButton: {
+    ...buttonStyles.secondary,
+    marginTop: 20,
+    marginBottom: 40,
+  },
+  signOutButtonText: {
+    ...buttonStyles.secondaryText,
+  },
+});
