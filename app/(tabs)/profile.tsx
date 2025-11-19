@@ -24,7 +24,7 @@ export default function ProfileScreen() {
   };
 
   const handleEditProfile = () => {
-    router.push('/profile/edit-profile');
+    Alert.alert('Modifier le profil', 'Fonctionnalité en cours de développement.');
   };
 
   const handleManageSubscription = () => {
@@ -182,7 +182,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
               style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
-              onPress={() => router.push('/profile/notifications')}
+              onPress={() => Alert.alert('Notifications', 'Fonctionnalité en cours de développement.')}
             >
               <Icon 
                 name="bell" 
@@ -203,7 +203,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
               style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
-              onPress={() => router.push('/profile/settings')}
+              onPress={() => Alert.alert('Paramètres', 'Fonctionnalité en cours de développement.')}
             >
               <Icon 
                 name="settings" 
@@ -224,7 +224,7 @@ export default function ProfileScreen() {
 
             <TouchableOpacity 
               style={[styles.menuItem, isTablet && styles.menuItemTablet]} 
-              onPress={() => router.push('/profile/help-support')}
+              onPress={() => Alert.alert('Aide', 'Fonctionnalité en cours de développement.')}
             >
               <Icon 
                 name="help-circle" 

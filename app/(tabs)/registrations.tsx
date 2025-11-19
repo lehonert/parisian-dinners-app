@@ -1,38 +1,27 @@
 
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import React from 'react';
+import { View, Text, ScrollView, StyleSheet, FlatList, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors, commonStyles } from '../../styles/commonStyles';
+import { mockEvents, mockRegistrations } from '../../data/mockData';
 import EventCard from '../../components/EventCard';
 import { useResponsive } from '../../hooks/useResponsive';
-import { useAuth } from '../../contexts/AuthContext';
-import { useData } from '../../contexts/DataContext';
-import { Event } from '../../types';
 
 export default function RegistrationsScreen() {
   const { isTablet, columns, spacing } = useResponsive();
-  const { user } = useAuth();
-  const { events, registrations, loadingEvents, loadingRegistrations } = useData();
-  const [registeredEvents, setRegisteredEvents] = useState<Event[]>([]);
-
-  useEffect(() => {
-    if (user && events.length > 0 && registrations.length > 0) {
-      const userRegs = registrations.filter(reg => reg.userId === user.id);
-      const userEvents = events.filter(event =>
-        userRegs.some(reg => reg.eventId === event.id)
-      );
-      setRegisteredEvents(userEvents);
-    } else {
-      setRegisteredEvents([]);
-    }
-  }, [user, events, registrations]);
+  
+  // Get events where user is registered
+  const userRegistrations = mockRegistrations;
+  const registeredEvents = mockEvents.filter(event => 
+    userRegistrations.some(reg => reg.eventId === event.id)
+  );
 
   const handleEventPress = (eventId: string) => {
     router.push(`/event/${eventId}`);
   };
 
-  const renderEventItem = ({ item }: { item: Event }) => (
+  const renderEventItem = ({ item }: { item: typeof mockEvents[0] }) => (
     <View style={[styles.eventItem, { width: isTablet ? `${100 / columns}%` : '100%' }]}>
       <EventCard
         event={item}
@@ -40,19 +29,6 @@ export default function RegistrationsScreen() {
       />
     </View>
   );
-
-  if (loadingEvents || loadingRegistrations) {
-    return (
-      <SafeAreaView style={commonStyles.wrapper}>
-        <View style={[styles.container, styles.centerContent]}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, isTablet && styles.loadingTextTablet]}>
-            Chargement de vos inscriptions...
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={commonStyles.wrapper}>
@@ -120,10 +96,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  centerContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   header: {
     paddingTop: 20,
     paddingBottom: 16,
@@ -143,14 +115,6 @@ const styles = StyleSheet.create({
     color: colors.textLight,
   },
   subtitleTablet: {
-    fontSize: 18,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-    marginTop: 16,
-  },
-  loadingTextTablet: {
     fontSize: 18,
   },
   scrollView: {
