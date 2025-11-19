@@ -47,36 +47,36 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Simulate API delay
   const simulateDelay = (ms: number = 1000) => new Promise(resolve => setTimeout(resolve, ms));
 
-  // Load initial data
+  // Load initial data on mount
   useEffect(() => {
-    loadInitialData();
-  }, []);
+    const loadInitialData = async () => {
+      try {
+        console.log('Loading initial data...');
+        
+        await measureAsync('loadInitialData', async () => {
+          await simulateDelay(800);
+          setEvents(mockEvents);
+          setRegistrations(mockRegistrations);
+          setReviews(mockReviews);
+        });
+        
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        ErrorService.logError({
+          code: 'data-load-error',
+          message: 'Failed to load initial data',
+          details: error,
+          timestamp: new Date(),
+        });
+      } finally {
+        setLoadingEvents(false);
+        setLoadingRegistrations(false);
+        setLoadingReviews(false);
+      }
+    };
 
-  const loadInitialData = async () => {
-    try {
-      console.log('Loading initial data...');
-      
-      await measureAsync('loadInitialData', async () => {
-        await simulateDelay(800);
-        setEvents(mockEvents);
-        setRegistrations(mockRegistrations);
-        setReviews(mockReviews);
-      });
-      
-    } catch (error) {
-      console.error('Error loading initial data:', error);
-      ErrorService.logError({
-        code: 'data-load-error',
-        message: 'Failed to load initial data',
-        details: error,
-        timestamp: new Date(),
-      });
-    } finally {
-      setLoadingEvents(false);
-      setLoadingRegistrations(false);
-      setLoadingReviews(false);
-    }
-  };
+    loadInitialData();
+  }, [measureAsync]);
 
   // Event operations
   const createEvent = useCallback(async (eventData: Omit<Event, 'id' | 'createdAt' | 'registeredCount' | 'waitlistCount'>) => {
@@ -328,8 +328,27 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setLoadingRegistrations(true);
     setLoadingReviews(true);
     
-    await loadInitialData();
-  }, []);
+    try {
+      await measureAsync('refreshData', async () => {
+        await simulateDelay(800);
+        setEvents(mockEvents);
+        setRegistrations(mockRegistrations);
+        setReviews(mockReviews);
+      });
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      ErrorService.logError({
+        code: 'data-refresh-error',
+        message: 'Failed to refresh data',
+        details: error,
+        timestamp: new Date(),
+      });
+    } finally {
+      setLoadingEvents(false);
+      setLoadingRegistrations(false);
+      setLoadingReviews(false);
+    }
+  }, [measureAsync]);
 
   const value: DataContextType = {
     // Events
