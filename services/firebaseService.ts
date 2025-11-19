@@ -14,32 +14,16 @@ import {
   serverTimestamp,
   increment,
   arrayUnion,
-  arrayRemove,
-  Timestamp
+  arrayRemove
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Event, User, Registration, Review } from '../types';
 
 export class FirebaseService {
-  // Helper to convert Firestore timestamps to Date
-  private static convertTimestamp(timestamp: any): Date {
-    if (timestamp instanceof Timestamp) {
-      return timestamp.toDate();
-    }
-    if (timestamp?.toDate) {
-      return timestamp.toDate();
-    }
-    if (timestamp instanceof Date) {
-      return timestamp;
-    }
-    return new Date(timestamp);
-  }
-
   // Users
   static async createUser(userId: string, userData: Omit<User, 'id'>) {
     try {
-      const userDocRef = doc(db, 'users', userId);
-      await updateDoc(userDocRef, {
+      await updateDoc(doc(db, 'users', userId), {
         ...userData,
         createdAt: serverTimestamp()
       });
@@ -54,17 +38,7 @@ export class FirebaseService {
     try {
       const userDoc = await getDoc(doc(db, 'users', userId));
       if (userDoc.exists()) {
-        const data = userDoc.data();
-        return { 
-          id: userDoc.id, 
-          ...data,
-          createdAt: this.convertTimestamp(data.createdAt),
-          subscription: data.subscription ? {
-            ...data.subscription,
-            startDate: this.convertTimestamp(data.subscription.startDate),
-            endDate: this.convertTimestamp(data.subscription.endDate),
-          } : undefined,
-        } as User;
+        return { id: userDoc.id, ...userDoc.data() } as User;
       }
       return null;
     } catch (error) {
@@ -97,13 +71,7 @@ export class FirebaseService {
       const events: Event[] = [];
       
       querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        events.push({ 
-          id: doc.id, 
-          ...data,
-          date: this.convertTimestamp(data.date),
-          createdAt: this.convertTimestamp(data.createdAt),
-        } as Event);
+        events.push({ id: doc.id, ...doc.data() } as Event);
       });
       
       return events;
@@ -117,13 +85,7 @@ export class FirebaseService {
     try {
       const eventDoc = await getDoc(doc(db, 'events', eventId));
       if (eventDoc.exists()) {
-        const data = eventDoc.data();
-        return { 
-          id: eventDoc.id, 
-          ...data,
-          date: this.convertTimestamp(data.date),
-          createdAt: this.convertTimestamp(data.createdAt),
-        } as Event;
+        return { id: eventDoc.id, ...eventDoc.data() } as Event;
       }
       return null;
     } catch (error) {
@@ -136,12 +98,11 @@ export class FirebaseService {
     try {
       const docRef = await addDoc(collection(db, 'events'), {
         ...eventData,
-        date: eventData.date,
         createdAt: serverTimestamp(),
         registeredCount: 0,
         waitlistCount: 0,
-        ratingAvg: eventData.ratingAvg || 0,
-        ratingCount: eventData.ratingCount || 0
+        ratingAvg: 0,
+        ratingCount: 0
       });
       console.log('Event created with ID:', docRef.id);
       return docRef.id;
@@ -153,13 +114,10 @@ export class FirebaseService {
 
   static async updateEvent(eventId: string, eventData: Partial<Event>) {
     try {
-      const updateData: any = { ...eventData };
-      delete updateData.id;
-      delete updateData.createdAt;
-      
-      updateData.updatedAt = serverTimestamp();
-      
-      await updateDoc(doc(db, 'events', eventId), updateData);
+      await updateDoc(doc(db, 'events', eventId), {
+        ...eventData,
+        updatedAt: serverTimestamp()
+      });
       console.log('Event updated successfully');
     } catch (error) {
       console.error('Error updating event:', error);
@@ -180,14 +138,14 @@ export class FirebaseService {
   // Registrations
   static async registerForEvent(eventId: string, userId: string, status: 'confirmed' | 'waitlist' = 'confirmed') {
     try {
-      // Add registration
+      // Ajouter l'inscription
       await addDoc(collection(db, 'events', eventId, 'registrations'), {
         userId,
         status,
         registeredAt: serverTimestamp()
       });
 
-      // Update event counts
+      // Mettre à jour le compteur
       const fieldToIncrement = status === 'confirmed' ? 'registeredCount' : 'waitlistCount';
       await updateDoc(doc(db, 'events', eventId), {
         [fieldToIncrement]: increment(1)
@@ -202,7 +160,7 @@ export class FirebaseService {
 
   static async unregisterFromEvent(eventId: string, userId: string) {
     try {
-      // Find registration
+      // Trouver l'inscription
       const registrationsQuery = query(
         collection(db, 'events', eventId, 'registrations'),
         where('userId', '==', userId)
@@ -213,10 +171,10 @@ export class FirebaseService {
         const registrationDoc = querySnapshot.docs[0];
         const registrationData = registrationDoc.data();
         
-        // Delete registration
+        // Supprimer l'inscription
         await deleteDoc(registrationDoc.ref);
         
-        // Update event counts
+        // Mettre à jour le compteur
         const fieldToDecrement = registrationData.status === 'confirmed' ? 'registeredCount' : 'waitlistCount';
         await updateDoc(doc(db, 'events', eventId), {
           [fieldToDecrement]: increment(-1)
@@ -243,14 +201,11 @@ export class FirebaseService {
         const querySnapshot = await getDocs(registrationsQuery);
         
         querySnapshot.forEach((doc) => {
-          const data = doc.data();
           registrations.push({
             id: doc.id,
             eventId: event.id,
-            userId: data.userId,
-            status: data.status,
-            registeredAt: this.convertTimestamp(data.registeredAt),
-          });
+            ...doc.data()
+          } as Registration);
         });
       }
       
@@ -261,41 +216,11 @@ export class FirebaseService {
     }
   }
 
-  static async getEventRegistrations(eventId: string): Promise<Registration[]> {
-    try {
-      const registrationsQuery = query(
-        collection(db, 'events', eventId, 'registrations')
-      );
-      const querySnapshot = await getDocs(registrationsQuery);
-      const registrations: Registration[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        registrations.push({
-          id: doc.id,
-          eventId,
-          userId: data.userId,
-          status: data.status,
-          registeredAt: this.convertTimestamp(data.registeredAt),
-        });
-      });
-      
-      return registrations;
-    } catch (error) {
-      console.error('Error getting event registrations:', error);
-      throw error;
-    }
-  }
-
   // Reviews
   static async createReview(eventId: string, reviewData: Omit<Review, 'id' | 'createdAt' | 'status'>) {
     try {
       await addDoc(collection(db, 'events', eventId, 'reviews'), {
-        userId: reviewData.userId,
-        rating: reviewData.rating,
-        comment: reviewData.comment,
-        userName: reviewData.userName,
-        userPhoto: reviewData.userPhoto,
+        ...reviewData,
         status: 'pending',
         createdAt: serverTimestamp()
       });
@@ -317,18 +242,7 @@ export class FirebaseService {
       const reviews: Review[] = [];
       
       querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        reviews.push({ 
-          id: doc.id, 
-          eventId,
-          userId: data.userId,
-          rating: data.rating,
-          comment: data.comment,
-          userName: data.userName,
-          userPhoto: data.userPhoto,
-          status: data.status,
-          createdAt: this.convertTimestamp(data.createdAt),
-        });
+        reviews.push({ id: doc.id, eventId, ...doc.data() } as Review);
       });
       
       return reviews;
@@ -375,18 +289,11 @@ export class FirebaseService {
         const querySnapshot = await getDocs(reviewsQuery);
         
         querySnapshot.forEach((doc) => {
-          const data = doc.data();
           pendingReviews.push({
             id: doc.id,
             eventId: event.id,
-            userId: data.userId,
-            rating: data.rating,
-            comment: data.comment,
-            userName: data.userName,
-            userPhoto: data.userPhoto,
-            status: data.status,
-            createdAt: this.convertTimestamp(data.createdAt),
-          });
+            ...doc.data()
+          } as Review);
         });
       }
       

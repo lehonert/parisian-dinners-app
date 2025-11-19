@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Event, Registration, Review, User } from '../types';
-import { FirebaseService } from '../services/firebaseService';
+import { mockEvents, mockRegistrations, mockReviews } from '../data/mockData';
 import { ErrorService } from '../services/errorService';
 import { usePerformance } from '../hooks/usePerformance';
 
@@ -24,8 +24,8 @@ interface DataContextType {
   reviews: Review[];
   loadingReviews: boolean;
   createReview: (reviewData: Omit<Review, 'id' | 'createdAt' | 'status'>) => Promise<void>;
-  approveReview: (reviewId: string, eventId: string) => Promise<void>;
-  deleteReview: (reviewId: string, eventId: string) => Promise<void>;
+  approveReview: (reviewId: string) => Promise<void>;
+  deleteReview: (reviewId: string) => Promise<void>;
   getEventReviews: (eventId: string) => Review[];
   
   // General
@@ -44,32 +44,23 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   
   const { measureAsync } = usePerformance();
 
+  // Simulate API delay
+  const simulateDelay = (ms: number = 1000) => new Promise(resolve => setTimeout(resolve, ms));
+
   // Load initial data
   useEffect(() => {
     loadInitialData();
   }, []);
 
-  const loadInitialData = useCallback(async () => {
+  const loadInitialData = async () => {
     try {
-      console.log('Loading initial data from Firebase...');
+      console.log('Loading initial data...');
       
       await measureAsync('loadInitialData', async () => {
-        // Load events
-        try {
-          const eventsData = await FirebaseService.getEvents();
-          console.log('Events loaded:', eventsData.length);
-          setEvents(eventsData);
-        } catch (error) {
-          console.error('Error loading events:', error);
-          setEvents([]);
-        }
-        
-        // Load all registrations (for admin view)
-        // In production, you might want to load only user-specific registrations
-        setRegistrations([]);
-        
-        // Load all reviews
-        setReviews([]);
+        await simulateDelay(800);
+        setEvents(mockEvents);
+        setRegistrations(mockRegistrations);
+        setReviews(mockReviews);
       });
       
     } catch (error) {
@@ -85,19 +76,25 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setLoadingRegistrations(false);
       setLoadingReviews(false);
     }
-  }, [measureAsync]);
+  };
 
   // Event operations
   const createEvent = useCallback(async (eventData: Omit<Event, 'id' | 'createdAt' | 'registeredCount' | 'waitlistCount'>) => {
     try {
-      console.log('Creating event:', eventData.title);
+      console.log('Creating event:', eventData);
       
       await measureAsync('createEvent', async () => {
-        const eventId = await FirebaseService.createEvent(eventData);
+        await simulateDelay(500);
         
-        // Reload events to get the new event
-        const updatedEvents = await FirebaseService.getEvents();
-        setEvents(updatedEvents);
+        const newEvent: Event = {
+          ...eventData,
+          id: Date.now().toString(),
+          createdAt: new Date(),
+          registeredCount: 0,
+          waitlistCount: 0,
+        };
+        
+        setEvents(prev => [newEvent, ...prev]);
       });
       
     } catch (error) {
@@ -109,12 +106,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const updateEvent = useCallback(async (id: string, eventData: Partial<Event>) => {
     try {
-      console.log('Updating event:', id);
+      console.log('Updating event:', id, eventData);
       
       await measureAsync('updateEvent', async () => {
-        await FirebaseService.updateEvent(id, eventData);
+        await simulateDelay(500);
         
-        // Update local state
         setEvents(prev => prev.map(event => 
           event.id === id ? { ...event, ...eventData } : event
         ));
@@ -132,9 +128,8 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       console.log('Deleting event:', id);
       
       await measureAsync('deleteEvent', async () => {
-        await FirebaseService.deleteEvent(id);
+        await simulateDelay(500);
         
-        // Update local state
         setEvents(prev => prev.filter(event => event.id !== id));
         setRegistrations(prev => prev.filter(reg => reg.eventId !== id));
         setReviews(prev => prev.filter(review => review.eventId !== id));
@@ -153,31 +148,48 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       console.log('Registering for event:', eventId, userId);
       
       await measureAsync('registerForEvent', async () => {
+        await simulateDelay(500);
+        
         const event = events.find(e => e.id === eventId);
         if (!event) {
           throw { code: 'event/not-found', message: 'Event not found' };
         }
         
-        // Check if already registered
-        const userRegs = await FirebaseService.getUserRegistrations(userId);
-        const existingRegistration = userRegs.find(reg => reg.eventId === eventId);
+        const existingRegistration = registrations.find(
+          reg => reg.eventId === eventId && reg.userId === userId
+        );
         
         if (existingRegistration) {
           throw { code: 'event/already-registered', message: 'Already registered' };
         }
         
-        // Determine status based on capacity
-        const status = event.registeredCount >= event.capacity ? 'waitlist' : 'confirmed';
+        const confirmedRegistrations = registrations.filter(
+          reg => reg.eventId === eventId && reg.status === 'confirmed'
+        ).length;
         
-        await FirebaseService.registerForEvent(eventId, userId, status);
+        const status = confirmedRegistrations >= event.capacity ? 'waitlist' : 'confirmed';
         
-        // Reload events to get updated counts
-        const updatedEvents = await FirebaseService.getEvents();
-        setEvents(updatedEvents);
+        const newRegistration: Registration = {
+          id: Date.now().toString(),
+          userId,
+          eventId,
+          status,
+          registeredAt: new Date(),
+        };
         
-        // Reload user registrations
-        const updatedRegs = await FirebaseService.getUserRegistrations(userId);
-        setRegistrations(updatedRegs);
+        setRegistrations(prev => [...prev, newRegistration]);
+        
+        // Update event counts
+        setEvents(prev => prev.map(e => {
+          if (e.id === eventId) {
+            return {
+              ...e,
+              registeredCount: status === 'confirmed' ? e.registeredCount + 1 : e.registeredCount,
+              waitlistCount: status === 'waitlist' ? e.waitlistCount + 1 : e.waitlistCount,
+            };
+          }
+          return e;
+        }));
       });
       
     } catch (error) {
@@ -185,23 +197,38 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       ErrorService.handleEventError(error, 'inscription à l\'événement');
       throw error;
     }
-  }, [events, measureAsync]);
+  }, [events, registrations, measureAsync]);
 
   const unregisterFromEvent = useCallback(async (eventId: string, userId: string) => {
     try {
       console.log('Unregistering from event:', eventId, userId);
       
       await measureAsync('unregisterFromEvent', async () => {
-        await FirebaseService.unregisterFromEvent(eventId, userId);
+        await simulateDelay(500);
         
-        // Reload events to get updated counts
-        const updatedEvents = await FirebaseService.getEvents();
-        setEvents(updatedEvents);
+        const registration = registrations.find(
+          reg => reg.eventId === eventId && reg.userId === userId
+        );
         
-        // Update local registrations
+        if (!registration) {
+          throw { code: 'registration/not-found', message: 'Registration not found' };
+        }
+        
         setRegistrations(prev => prev.filter(
           reg => !(reg.eventId === eventId && reg.userId === userId)
         ));
+        
+        // Update event counts
+        setEvents(prev => prev.map(e => {
+          if (e.id === eventId) {
+            return {
+              ...e,
+              registeredCount: registration.status === 'confirmed' ? e.registeredCount - 1 : e.registeredCount,
+              waitlistCount: registration.status === 'waitlist' ? e.waitlistCount - 1 : e.waitlistCount,
+            };
+          }
+          return e;
+        }));
       });
       
     } catch (error) {
@@ -209,7 +236,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       ErrorService.handleEventError(error, 'désinscription de l\'événement');
       throw error;
     }
-  }, [measureAsync]);
+  }, [registrations, measureAsync]);
 
   const getUserRegistrations = useCallback((userId: string) => {
     return registrations.filter(reg => reg.userId === userId);
@@ -218,19 +245,19 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   // Review operations
   const createReview = useCallback(async (reviewData: Omit<Review, 'id' | 'createdAt' | 'status'>) => {
     try {
-      console.log('Creating review for event:', reviewData.eventId);
+      console.log('Creating review:', reviewData);
       
       await measureAsync('createReview', async () => {
-        await FirebaseService.createReview(reviewData.eventId, reviewData);
+        await simulateDelay(500);
         
-        // Reload reviews for this event
-        const eventReviews = await FirebaseService.getEventReviews(reviewData.eventId);
+        const newReview: Review = {
+          ...reviewData,
+          id: Date.now().toString(),
+          createdAt: new Date(),
+          status: 'pending',
+        };
         
-        // Update local state
-        setReviews(prev => {
-          const filtered = prev.filter(r => r.eventId !== reviewData.eventId);
-          return [...filtered, ...eventReviews];
-        });
+        setReviews(prev => [...prev, newReview]);
       });
       
     } catch (error) {
@@ -245,14 +272,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, [measureAsync]);
 
-  const approveReview = useCallback(async (reviewId: string, eventId: string) => {
+  const approveReview = useCallback(async (reviewId: string) => {
     try {
       console.log('Approving review:', reviewId);
       
       await measureAsync('approveReview', async () => {
-        await FirebaseService.approveReview(eventId, reviewId);
+        await simulateDelay(300);
         
-        // Update local state
         setReviews(prev => prev.map(review =>
           review.id === reviewId ? { ...review, status: 'approved' as const } : review
         ));
@@ -270,14 +296,13 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     }
   }, [measureAsync]);
 
-  const deleteReview = useCallback(async (reviewId: string, eventId: string) => {
+  const deleteReview = useCallback(async (reviewId: string) => {
     try {
       console.log('Deleting review:', reviewId);
       
       await measureAsync('deleteReview', async () => {
-        await FirebaseService.deleteReview(eventId, reviewId);
+        await simulateDelay(300);
         
-        // Update local state
         setReviews(prev => prev.filter(review => review.id !== reviewId));
       });
       
@@ -304,7 +329,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     setLoadingReviews(true);
     
     await loadInitialData();
-  }, [loadInitialData]);
+  }, []);
 
   const value: DataContextType = {
     // Events
