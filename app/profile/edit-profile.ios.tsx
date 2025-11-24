@@ -118,7 +118,7 @@ export default function EditProfileScreen() {
         return;
       }
 
-      if (phone && !/^[\d\s\+\-\(\)]+$/.test(phone)) {
+      if (phone && !/^[\d\s+\-()]+$/.test(phone)) {
         Alert.alert('Erreur', 'Le numéro de téléphone n\'est pas valide.');
         return;
       }
