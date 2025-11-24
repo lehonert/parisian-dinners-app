@@ -11,7 +11,7 @@ import { useResponsive } from '../../hooks/useResponsive';
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
-  const { user, hasActiveSubscription } = useAuth();
+  const { user, hasActiveSubscription, getEventPrice } = useAuth();
   const { isTablet, spacing } = useResponsive();
   const [isRegistered, setIsRegistered] = useState(false);
 
@@ -46,11 +46,14 @@ export default function EventDetailScreen() {
     return `${price}€`;
   };
 
+  const userPrice = getEventPrice(event.price);
+  const isSubscriber = hasActiveSubscription();
+
   const handleRegistration = () => {
     if (!hasActiveSubscription()) {
       Alert.alert(
         'Abonnement requis',
-        'Vous devez avoir un abonnement actif pour vous inscrire aux événements.',
+        'Vous devez avoir un abonnement actif pour vous inscrire aux événements. Abonnez-vous pour seulement 197€/an et économisez 30€ sur chaque événement !',
         [
           {
             text: 'Annuler',
@@ -159,17 +162,31 @@ export default function EventDetailScreen() {
                 Abonnement requis
               </Text>
               <Text style={[styles.subscriptionText, isTablet && styles.subscriptionTextTablet]}>
-                Pour vous inscrire à cet événement, vous devez avoir un abonnement actif aux Dîners Parisiens. 
-                Découvrez tous nos événements culinaires exclusifs !
+                Pour vous inscrire à cet événement, vous devez avoir un abonnement actif. 
+                Abonnez-vous pour 197€/an et économisez 30€ sur chaque événement !
               </Text>
+              <View style={styles.savingsExample}>
+                <Text style={[styles.savingsExampleText, isTablet && styles.savingsExampleTextTablet]}>
+                  Cet événement : {formatPrice(event.price)} → {formatPrice(userPrice)} avec l&apos;abonnement
+                </Text>
+              </View>
               <TouchableOpacity
                 style={styles.subscribeButton}
                 onPress={handleSubscribe}
               >
                 <Text style={styles.subscribeButtonText}>
-                  Découvrir nos abonnements
+                  Découvrir l&apos;abonnement
                 </Text>
               </TouchableOpacity>
+            </View>
+          )}
+
+          {isSubscriber && (
+            <View style={[styles.subscriberBadge, isTablet && styles.subscriberBadgeTablet]}>
+              <Icon name="check-circle" size={isTablet ? 22 : 20} color={colors.primary} />
+              <Text style={[styles.subscriberBadgeText, isTablet && styles.subscriberBadgeTextTablet]}>
+                Vous économisez 30€ sur cet événement !
+              </Text>
             </View>
           )}
 
@@ -210,16 +227,29 @@ export default function EventDetailScreen() {
             </Text>
           </View>
 
-          <View style={styles.infoRow}>
+          <View style={styles.priceRow}>
             <Icon 
               name="credit-card" 
               size={isTablet ? 24 : 20} 
               color={colors.textSecondary} 
               style={styles.infoIcon} 
             />
-            <Text style={[styles.infoText, styles.priceText, isTablet && styles.priceTextTablet]}>
-              {formatPrice(event.price)}
-            </Text>
+            <View style={{ flex: 1 }}>
+              {isSubscriber ? (
+                <View>
+                  <Text style={[styles.originalPrice, isTablet && styles.originalPriceTablet]}>
+                    {formatPrice(event.price)}
+                  </Text>
+                  <Text style={[styles.discountedPrice, isTablet && styles.discountedPriceTablet]}>
+                    {formatPrice(userPrice)} (prix abonné)
+                  </Text>
+                </View>
+              ) : (
+                <Text style={[styles.infoText, styles.priceText, isTablet && styles.priceTextTablet]}>
+                  {formatPrice(event.price)}
+                </Text>
+              )}
+            </View>
           </View>
 
           <Text style={[styles.description, isTablet && styles.descriptionTablet]}>
@@ -270,7 +300,7 @@ export default function EventDetailScreen() {
                   onPress={handleRegistration}
                 >
                   <Text style={isRegistered ? styles.unregisterButtonText : styles.registerButtonText}>
-                    {isRegistered ? 'Se désinscrire' : 'S\'inscrire'}
+                    {isRegistered ? 'Se désinscrire' : `S'inscrire - ${formatPrice(userPrice)}`}
                   </Text>
                 </TouchableOpacity>
 
@@ -289,7 +319,7 @@ export default function EventDetailScreen() {
                 onPress={handleSubscribe}
               >
                 <Text style={styles.subscribeButtonText}>
-                  S'abonner pour s'inscrire
+                  S&apos;abonner pour s&apos;inscrire
                 </Text>
               </TouchableOpacity>
             )}
@@ -352,9 +382,35 @@ const styles = StyleSheet.create({
   chefNameTablet: {
     fontSize: 20,
   },
+  subscriberBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primaryLight,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  subscriberBadgeTablet: {
+    padding: 14,
+    borderRadius: 10,
+  },
+  subscriberBadgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    marginLeft: 8,
+  },
+  subscriberBadgeTextTablet: {
+    fontSize: 16,
+  },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 12,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
     marginBottom: 12,
   },
   infoIcon: {
@@ -367,6 +423,22 @@ const styles = StyleSheet.create({
   },
   infoTextTablet: {
     fontSize: 18,
+  },
+  originalPrice: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textDecorationLine: 'line-through',
+  },
+  originalPriceTablet: {
+    fontSize: 16,
+  },
+  discountedPrice: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.primary,
+  },
+  discountedPriceTablet: {
+    fontSize: 22,
   },
   priceText: {
     fontSize: 18,
@@ -528,6 +600,21 @@ const styles = StyleSheet.create({
   subscriptionTextTablet: {
     fontSize: 16,
     lineHeight: 24,
+  },
+  savingsExample: {
+    backgroundColor: colors.white,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  savingsExampleText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    textAlign: 'center',
+  },
+  savingsExampleTextTablet: {
+    fontSize: 16,
   },
   subscribeButton: {
     ...buttonStyles.primary,

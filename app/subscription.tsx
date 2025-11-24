@@ -9,58 +9,46 @@ import { router } from 'expo-router';
 import { useResponsive } from '../hooks/useResponsive';
 
 export default function SubscriptionScreen() {
-  const { subscribeUser } = useAuth();
+  const { subscribeUser, hasActiveSubscription } = useAuth();
   const { isTablet, spacing } = useResponsive();
-  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly'>('monthly');
   const [isLoading, setIsLoading] = useState(false);
 
-  const plans = [
-    {
-      id: 'monthly',
-      name: 'Mensuel',
-      price: '19,99€',
-      period: '/mois',
-      description: 'Accès complet à tous les événements culinaires',
-      features: [
-        'Inscription illimitée aux événements',
-        'Accès prioritaire aux nouveaux événements',
-        'Support client prioritaire',
-        'Annulation flexible',
-      ],
-    },
-    {
-      id: 'yearly',
-      name: 'Annuel',
-      price: '199,99€',
-      period: '/an',
-      description: 'Économisez 17% avec l\'abonnement annuel',
-      features: [
-        'Inscription illimitée aux événements',
-        'Accès prioritaire aux nouveaux événements',
-        'Support client prioritaire',
-        'Annulation flexible',
-        'Événements exclusifs réservés aux abonnés annuels',
-        'Réductions sur les événements premium',
-      ],
-    },
+  const features = [
+    'Inscription illimitée aux événements',
+    'Réduction de 30€ sur tous les événements',
+    'Accès prioritaire aux nouveaux événements',
+    'Support client prioritaire',
+    'Événements exclusifs réservés aux abonnés',
+    'Recettes exclusives des chefs partenaires',
+    'Invitations aux événements spéciaux',
+    'Annulation flexible',
   ];
 
   const benefits = [
     'Accès à tous les événements culinaires de Les Dîners Parisiens',
+    'Économisez 30€ sur chaque événement (prix standard : 150€)',
     'Inscription prioritaire avant les non-abonnés',
     'Notifications exclusives pour les nouveaux événements',
     'Accès à la communauté privée des membres',
-    'Recettes exclusives des chefs partenaires',
-    'Invitations aux événements spéciaux et dégustations privées',
+    'Invitations aux dégustations privées',
   ];
 
   const handleSubscribe = async () => {
+    if (hasActiveSubscription()) {
+      Alert.alert(
+        'Abonnement actif',
+        'Vous avez déjà un abonnement actif. Votre abonnement se renouvellera automatiquement chaque année.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await subscribeUser(selectedPlan);
+      await subscribeUser();
       Alert.alert(
         'Abonnement activé !',
-        'Félicitations ! Votre abonnement a été activé avec succès. Vous pouvez maintenant vous inscrire à tous nos événements.',
+        'Félicitations ! Votre abonnement annuel a été activé avec succès. Vous bénéficiez maintenant d\'une réduction de 30€ sur tous les événements et votre abonnement se renouvellera automatiquement chaque année.',
         [
           {
             text: 'Découvrir les événements',
@@ -97,50 +85,73 @@ export default function SubscriptionScreen() {
               Rejoignez Les Dîners Parisiens
             </Text>
             <Text style={[styles.heroSubtitle, isTablet && styles.heroSubtitleTablet]}>
-              Accédez à tous nos événements culinaires exclusifs et découvrez une communauté passionnée de gastronomie
+              Accédez à tous nos événements culinaires exclusifs avec une réduction de 30€ sur chaque événement
             </Text>
           </View>
 
-          <View style={[styles.plansContainer, isTablet && styles.plansContainerTablet]}>
-            {plans.map((plan) => (
-              <TouchableOpacity
-                key={plan.id}
-                style={[
-                  styles.planCard,
-                  selectedPlan === plan.id && styles.selectedPlan,
-                  isTablet && styles.planCardTablet,
-                ]}
-                onPress={() => setSelectedPlan(plan.id as 'monthly' | 'yearly')}
-              >
-                <View style={styles.planHeader}>
-                  <Text style={[styles.planName, isTablet && styles.planNameTablet]}>{plan.name}</Text>
-                  <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={[styles.planPrice, isTablet && styles.planPriceTablet]}>{plan.price}</Text>
-                    <Text style={[styles.planPeriod, isTablet && styles.planPeriodTablet]}>{plan.period}</Text>
-                  </View>
+          <View style={[styles.planCard, isTablet && styles.planCardTablet]}>
+            <View style={styles.planBadge}>
+              <Text style={styles.planBadgeText}>Abonnement Annuel</Text>
+            </View>
+            
+            <View style={styles.planHeader}>
+              <View>
+                <Text style={[styles.planPrice, isTablet && styles.planPriceTablet]}>197€</Text>
+                <Text style={[styles.planPeriod, isTablet && styles.planPeriodTablet]}>/an</Text>
+              </View>
+              <View style={styles.savingsBox}>
+                <Text style={[styles.savingsText, isTablet && styles.savingsTextTablet]}>
+                  Économisez 30€ par événement
+                </Text>
+              </View>
+            </View>
+            
+            <Text style={[styles.planDescription, isTablet && styles.planDescriptionTablet]}>
+              Prélèvement automatique annuel • Annulation flexible
+            </Text>
+            
+            <View style={styles.priceComparison}>
+              <View style={styles.comparisonItem}>
+                <Text style={[styles.comparisonLabel, isTablet && styles.comparisonLabelTablet]}>
+                  Sans abonnement
+                </Text>
+                <Text style={[styles.comparisonPrice, styles.oldPrice, isTablet && styles.comparisonPriceTablet]}>
+                  150€
+                </Text>
+              </View>
+              <Icon name="arrow-right" size={isTablet ? 28 : 24} color={colors.primary} />
+              <View style={styles.comparisonItem}>
+                <Text style={[styles.comparisonLabel, isTablet && styles.comparisonLabelTablet]}>
+                  Avec abonnement
+                </Text>
+                <Text style={[styles.comparisonPrice, styles.newPrice, isTablet && styles.comparisonPriceTablet]}>
+                  120€
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.featuresContainer}>
+              <Text style={[styles.featuresTitle, isTablet && styles.featuresTitleTablet]}>
+                Avantages inclus :
+              </Text>
+              {features.map((feature, index) => (
+                <View key={index} style={styles.featureItem}>
+                  <Icon
+                    name="check"
+                    size={isTablet ? 18 : 16}
+                    color={colors.primary}
+                    style={styles.featureIcon}
+                  />
+                  <Text style={[styles.featureText, isTablet && styles.featureTextTablet]}>{feature}</Text>
                 </View>
-                
-                <Text style={[styles.planDescription, isTablet && styles.planDescriptionTablet]}>{plan.description}</Text>
-                
-                <View style={styles.featuresContainer}>
-                  {plan.features.map((feature, index) => (
-                    <View key={index} style={styles.featureItem}>
-                      <Icon
-                        name="check"
-                        size={isTablet ? 18 : 16}
-                        color={colors.primary}
-                        style={styles.featureIcon}
-                      />
-                      <Text style={[styles.featureText, isTablet && styles.featureTextTablet]}>{feature}</Text>
-                    </View>
-                  ))}
-                </View>
-              </TouchableOpacity>
-            ))}
+              ))}
+            </View>
           </View>
 
           <View style={[styles.benefitsSection, isTablet && styles.benefitsSectionTablet]}>
-            <Text style={[styles.benefitsTitle, isTablet && styles.benefitsTitleTablet]}>Avantages inclus</Text>
+            <Text style={[styles.benefitsTitle, isTablet && styles.benefitsTitleTablet]}>
+              Pourquoi s&apos;abonner ?
+            </Text>
             {benefits.map((benefit, index) => (
               <View key={index} style={styles.benefitItem}>
                 <Icon
@@ -154,15 +165,40 @@ export default function SubscriptionScreen() {
             ))}
           </View>
 
+          <View style={styles.calculationBox}>
+            <Text style={[styles.calculationTitle, isTablet && styles.calculationTitleTablet]}>
+              Rentabilisez votre abonnement
+            </Text>
+            <Text style={[styles.calculationText, isTablet && styles.calculationTextTablet]}>
+              Avec seulement 7 événements par an, votre abonnement est rentabilisé !
+            </Text>
+            <Text style={[styles.calculationDetail, isTablet && styles.calculationDetailTablet]}>
+              7 événements × 30€ d&apos;économie = 210€ économisés
+            </Text>
+          </View>
+
           <TouchableOpacity
-            style={[styles.subscribeButton, isLoading && { opacity: 0.7 }, isTablet && styles.subscribeButtonTablet]}
+            style={[
+              styles.subscribeButton, 
+              isLoading && { opacity: 0.7 }, 
+              isTablet && styles.subscribeButtonTablet,
+              hasActiveSubscription() && styles.subscribeButtonDisabled
+            ]}
             onPress={handleSubscribe}
-            disabled={isLoading}
+            disabled={isLoading || hasActiveSubscription()}
           >
             <Text style={[styles.subscribeButtonText, isTablet && styles.subscribeButtonTextTablet]}>
-              {isLoading ? 'Activation en cours...' : `S'abonner - ${plans.find(p => p.id === selectedPlan)?.price}`}
+              {isLoading 
+                ? 'Activation en cours...' 
+                : hasActiveSubscription() 
+                  ? 'Abonnement actif' 
+                  : 'S\'abonner - 197€/an'}
             </Text>
           </TouchableOpacity>
+
+          <Text style={[styles.disclaimer, isTablet && styles.disclaimerTablet]}>
+            Renouvellement automatique annuel. Vous pouvez annuler à tout moment depuis votre profil.
+          </Text>
 
           <View style={{ height: 40 }} />
         </View>
@@ -224,31 +260,32 @@ const styles = StyleSheet.create({
     fontSize: 18,
     lineHeight: 28,
   },
-  plansContainer: {
-    marginVertical: 30,
-  },
-  plansContainerTablet: {
-    marginVertical: 40,
-    flexDirection: 'row',
-    gap: 20,
-  },
   planCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 24,
-    marginBottom: 16,
+    marginVertical: 20,
     borderWidth: 2,
-    borderColor: colors.border,
+    borderColor: colors.primary,
   },
   planCardTablet: {
-    flex: 1,
-    marginBottom: 0,
     borderRadius: 20,
-    padding: 28,
+    padding: 32,
+    marginVertical: 30,
   },
-  selectedPlan: {
-    borderColor: colors.primary,
-    backgroundColor: colors.primaryLight,
+  planBadge: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+  },
+  planBadgeText: {
+    color: colors.white,
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
   },
   planHeader: {
     flexDirection: 'row',
@@ -256,46 +293,95 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  planName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.text,
-  },
-  planNameTablet: {
-    fontSize: 24,
-  },
   planPrice: {
-    fontSize: 24,
+    fontSize: 36,
     fontWeight: 'bold',
     color: colors.primary,
   },
   planPriceTablet: {
-    fontSize: 28,
+    fontSize: 44,
   },
   planPeriod: {
-    fontSize: 14,
+    fontSize: 16,
     color: colors.textSecondary,
   },
   planPeriodTablet: {
+    fontSize: 20,
+  },
+  savingsBox: {
+    backgroundColor: colors.primaryLight,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  savingsText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  savingsTextTablet: {
     fontSize: 16,
   },
   planDescription: {
     fontSize: 14,
     color: colors.textSecondary,
-    marginBottom: 16,
+    marginBottom: 20,
     lineHeight: 20,
   },
   planDescriptionTablet: {
     fontSize: 16,
     lineHeight: 24,
   },
-  featuresContainer: {
+  priceComparison: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    backgroundColor: colors.background,
+    padding: 16,
+    borderRadius: 12,
     marginBottom: 20,
+  },
+  comparisonItem: {
+    alignItems: 'center',
+  },
+  comparisonLabel: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginBottom: 4,
+  },
+  comparisonLabelTablet: {
+    fontSize: 14,
+  },
+  comparisonPrice: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  comparisonPriceTablet: {
+    fontSize: 24,
+  },
+  oldPrice: {
+    color: colors.textSecondary,
+    textDecorationLine: 'line-through',
+  },
+  newPrice: {
+    color: colors.primary,
+  },
+  featuresContainer: {
+    marginTop: 10,
+  },
+  featuresTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+    marginBottom: 12,
+  },
+  featuresTitleTablet: {
+    fontSize: 18,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   featureIcon: {
     marginRight: 12,
@@ -343,6 +429,39 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 24,
   },
+  calculationBox: {
+    backgroundColor: colors.primaryLight,
+    padding: 20,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  calculationTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  calculationTitleTablet: {
+    fontSize: 18,
+  },
+  calculationText: {
+    fontSize: 14,
+    color: colors.text,
+    marginBottom: 8,
+  },
+  calculationTextTablet: {
+    fontSize: 16,
+  },
+  calculationDetail: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+  },
+  calculationDetailTablet: {
+    fontSize: 16,
+  },
   subscribeButton: {
     ...buttonStyles.primary,
     marginTop: 20,
@@ -351,10 +470,24 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     marginTop: 30,
   },
+  subscribeButtonDisabled: {
+    backgroundColor: colors.textSecondary,
+  },
   subscribeButtonText: {
     ...buttonStyles.primaryText,
   },
   subscribeButtonTextTablet: {
     fontSize: 18,
+  },
+  disclaimer: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 12,
+    lineHeight: 18,
+  },
+  disclaimerTablet: {
+    fontSize: 14,
+    lineHeight: 20,
   },
 });

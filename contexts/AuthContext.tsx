@@ -5,6 +5,9 @@ import { currentUser } from '../data/mockData';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const SUBSCRIPTION_PRICE = 197;
+const SUBSCRIBER_DISCOUNT = 30;
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -69,33 +72,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return user.subscription.status === 'active' && endDate > now;
   };
 
-  const subscribeUser = async (plan: 'monthly' | 'yearly') => {
-    console.log('Subscribing user to plan:', plan);
+  const subscribeUser = async () => {
+    console.log('Subscribing user to annual plan');
     if (!user) return;
 
-    const price = plan === 'monthly' ? 19.99 : 199.99;
     const endDate = new Date();
-    if (plan === 'monthly') {
-      endDate.setMonth(endDate.getMonth() + 1);
-    } else {
-      endDate.setFullYear(endDate.getFullYear() + 1);
-    }
+    endDate.setFullYear(endDate.getFullYear() + 1);
 
     const subscription: Subscription = {
       id: Date.now().toString(),
       userId: user.id,
-      plan,
+      plan: 'annual',
       status: 'active',
       startDate: new Date(),
       endDate,
-      price,
+      price: SUBSCRIPTION_PRICE,
       paymentMethod: 'Carte bancaire',
+      autoRenewal: true,
     };
 
     setUser({
       ...user,
       subscription,
     });
+  };
+
+  const getEventPrice = (basePrice: number): number => {
+    if (hasActiveSubscription()) {
+      return Math.max(0, basePrice - SUBSCRIBER_DISCOUNT);
+    }
+    return basePrice;
   };
 
   console.log('AuthProvider: Rendering, isLoading:', isLoading, 'user:', user?.name);
@@ -110,6 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       updateProfile,
       hasActiveSubscription,
       subscribeUser,
+      getEventPrice,
     }}>
       {children}
     </AuthContext.Provider>

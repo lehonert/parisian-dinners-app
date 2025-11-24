@@ -13,12 +13,13 @@ export interface User {
 export interface Subscription {
   id: string;
   userId: string;
-  plan: 'monthly' | 'yearly';
+  plan: 'annual';
   status: 'active' | 'expired' | 'cancelled';
   startDate: Date;
   endDate: Date;
   price: number;
   paymentMethod?: string;
+  autoRenewal: boolean;
 }
 
 export interface Event {
@@ -67,5 +68,6 @@ export interface AuthContextType {
   signOut: () => Promise<void>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   hasActiveSubscription: () => boolean;
-  subscribeUser: (plan: 'monthly' | 'yearly') => Promise<void>;
+  subscribeUser: () => Promise<void>;
+  getEventPrice: (basePrice: number) => number;
 }

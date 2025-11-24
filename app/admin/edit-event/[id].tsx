@@ -278,6 +278,21 @@ export default function EditEventScreen() {
               />
             </View>
           </View>
+
+          <View style={styles.priceInfoBox}>
+            <Icon name="info" size={isTablet ? 22 : 20} color={colors.primary} style={styles.infoIcon} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.priceInfoTitle, isTablet && styles.priceInfoTitleTablet]}>
+                Tarification
+              </Text>
+              <Text style={[styles.priceInfoText, isTablet && styles.priceInfoTextTablet]}>
+                Prix standard : {formData.price}€ (non-abonnés)
+              </Text>
+              <Text style={[styles.priceInfoText, isTablet && styles.priceInfoTextTablet]}>
+                Prix abonnés : {Math.max(0, Number(formData.price) - 30)}€ (réduction de 30€)
+              </Text>
+            </View>
+          </View>
         </View>
 
         <View style={[styles.buttonRow, { paddingHorizontal: spacing }]}>
@@ -428,6 +443,37 @@ const styles = StyleSheet.create({
   },
   halfWidth: {
     flex: 1,
+  },
+  priceInfoBox: {
+    flexDirection: 'row',
+    backgroundColor: colors.primaryLight,
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  infoIcon: {
+    marginRight: 12,
+    marginTop: 2,
+  },
+  priceInfoTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  priceInfoTitleTablet: {
+    fontSize: 16,
+  },
+  priceInfoText: {
+    fontSize: 13,
+    color: colors.text,
+    lineHeight: 18,
+  },
+  priceInfoTextTablet: {
+    fontSize: 15,
+    lineHeight: 20,
   },
   buttonRow: {
     flexDirection: 'row',
