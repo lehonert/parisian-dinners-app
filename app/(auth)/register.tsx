@@ -1,282 +1,255 @@
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
-import { useAuth } from '../../contexts/AuthContext';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-import LoadingSpinner from '../../components/LoadingSpinner';
 import React, { useState } from 'react';
-import Icon from '../../components/Icon';
-import { router } from 'expo-router';
-import { useResponsive } from '../../hooks/useResponsive';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../../contexts/AuthContext';
+import { colors } from '../../styles/commonStyles';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { signUp, isLoading } = useAuth();
-  const { isTablet, spacing } = useResponsive();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUp } = useAuth();
+  const router = useRouter();
 
   const handleRegister = async () => {
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères.');
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
 
+    setIsLoading(true);
     try {
       await signUp(email, password, name);
-      Alert.alert(
-        'Inscription réussie !',
-        'Votre compte a été créé avec succès. Pour accéder aux événements, vous devez souscrire à un abonnement.',
-        [
-          {
-            text: 'Découvrir les abonnements',
-            onPress: () => router.replace('/subscription'),
-          },
-        ]
-      );
-    } catch (error) {
-      console.log('Registration error:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'inscription.');
+      console.log('Registration successful');
+      // La navigation sera gérée automatiquement par _layout.tsx
+    } catch (error: any) {
+      console.error('Registration error:', error);
+      Alert.alert('Erreur d\'inscription', error.message || 'Une erreur est survenue');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleGoogleRegister = () => {
-    Alert.alert('Google', 'Inscription avec Google en cours de développement.');
-  };
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  const contentMaxWidth = isTablet ? 600 : undefined;
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: spacing }}>
-        <View style={[styles.header, isTablet && styles.headerTablet]}>
-          <Text style={[styles.title, isTablet && styles.titleTablet]}>Créer un compte</Text>
-          <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
-            Rejoignez la communauté des Dîners Parisiens
-          </Text>
-        </View>
+    <LinearGradient
+      colors={[colors.background, '#1a0a0a']}
+      style={styles.container}
+    >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.content}>
+            <Text style={styles.title}>Inscription</Text>
+            <Text style={styles.subtitle}>Rejoignez Les Dîners Parisiens</Text>
 
-        <View style={[styles.form, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Nom complet</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={name}
-              onChangeText={setName}
-              placeholder="Votre nom complet"
-              autoCapitalize="words"
-              autoComplete="name"
-            />
+            <View style={styles.form}>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Nom complet</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Jean Dupont"
+                  placeholderTextColor={colors.textSecondary}
+                  value={name}
+                  onChangeText={setName}
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="votre@email.com"
+                  placeholderTextColor={colors.textSecondary}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Mot de passe</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.textSecondary}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Confirmer le mot de passe</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.textSecondary}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  editable={!isLoading}
+                />
+              </View>
+
+              <TouchableOpacity
+                style={[styles.button, isLoading && styles.buttonDisabled]}
+                onPress={handleRegister}
+                disabled={isLoading}
+              >
+                <Text style={styles.buttonText}>
+                  {isLoading ? 'Inscription...' : 'S\'inscrire'}
+                </Text>
+              </TouchableOpacity>
+
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>ou</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => router.push('/(auth)/login')}
+                disabled={isLoading}
+              >
+                <Text style={styles.secondaryButtonText}>J&apos;ai déjà un compte</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+                disabled={isLoading}
+              >
+                <Text style={styles.backButtonText}>← Retour</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Email</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="votre@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Mot de passe</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Votre mot de passe"
-              secureTextEntry
-              autoComplete="new-password"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Confirmer le mot de passe</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Confirmez votre mot de passe"
-              secureTextEntry
-              autoComplete="new-password"
-            />
-          </View>
-
-          <TouchableOpacity style={[styles.registerButton, isTablet && styles.registerButtonTablet]} onPress={handleRegister}>
-            <Text style={[styles.registerButtonText, isTablet && styles.registerButtonTextTablet]}>Créer mon compte</Text>
-          </TouchableOpacity>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={[styles.dividerText, isTablet && styles.dividerTextTablet]}>ou</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity style={[styles.googleButton, isTablet && styles.googleButtonTablet]} onPress={handleGoogleRegister}>
-            <Icon name="globe" size={isTablet ? 22 : 20} color={colors.text} />
-            <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>Continuer avec Google</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={[styles.footer, isTablet && styles.footerTablet]}>
-          <Text style={[styles.footerText, isTablet && styles.footerTextTablet]}>
-            Vous avez déjà un compte ?{' '}
-            <Text style={styles.loginLink} onPress={() => router.replace('/(auth)/login')}>
-              Se connecter
-            </Text>
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
   },
-  header: {
-    alignItems: 'center',
-    paddingVertical: 40,
+  keyboardView: {
+    flex: 1,
   },
-  headerTablet: {
-    paddingVertical: 60,
+  scrollContent: {
+    flexGrow: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: colors.text,
     marginBottom: 8,
-  },
-  titleTablet: {
-    fontSize: 36,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: colors.textSecondary,
+    marginBottom: 40,
     textAlign: 'center',
   },
-  subtitleTablet: {
-    fontSize: 18,
-  },
   form: {
-    flex: 1,
-    paddingTop: 20,
+    width: '100%',
   },
-  inputGroup: {
+  inputContainer: {
     marginBottom: 20,
   },
   label: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
     color: colors.text,
     marginBottom: 8,
   },
-  labelTablet: {
-    fontSize: 18,
-  },
   input: {
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    padding: 16,
     fontSize: 16,
     color: colors.text,
-    backgroundColor: colors.white,
   },
-  inputTablet: {
-    fontSize: 18,
-    paddingVertical: 14,
+  button: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    marginTop: 8,
   },
-  registerButton: {
-    ...buttonStyles.primary,
-    marginTop: 20,
-    paddingVertical: 16,
+  buttonDisabled: {
+    opacity: 0.6,
   },
-  registerButtonTablet: {
-    marginTop: 30,
-    paddingVertical: 18,
-  },
-  registerButtonText: {
-    ...buttonStyles.primaryText,
-  },
-  registerButtonTextTablet: {
-    fontSize: 18,
+  buttonText: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '600',
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 30,
+    marginVertical: 24,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: colors.border,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
   },
   dividerText: {
-    marginHorizontal: 16,
-    fontSize: 14,
     color: colors.textSecondary,
-  },
-  dividerTextTablet: {
-    fontSize: 16,
-  },
-  googleButton: {
-    ...buttonStyles.secondary,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 12,
-  },
-  googleButtonTablet: {
-    paddingVertical: 18,
-  },
-  googleButtonText: {
-    ...buttonStyles.secondaryText,
-    marginLeft: 0,
-  },
-  googleButtonTextTablet: {
-    fontSize: 18,
-  },
-  footer: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  footerTablet: {
-    paddingVertical: 30,
-  },
-  footerText: {
+    paddingHorizontal: 16,
     fontSize: 14,
-    color: colors.textSecondary,
   },
-  footerTextTablet: {
-    fontSize: 16,
+  secondaryButton: {
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
   },
-  loginLink: {
-    fontSize: 14,
+  secondaryButtonText: {
     color: colors.primary,
+    fontSize: 16,
     fontWeight: '600',
+  },
+  backButton: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  backButtonText: {
+    color: colors.textSecondary,
+    fontSize: 14,
   },
 });
