@@ -1,166 +1,231 @@
 
-# Configuration Firebase pour Les Dîners Parisiens
+# 🔥 Configuration Firebase pour Les Dîners Parisiens
 
-## Étapes de configuration pour Expo
+## ✅ Statut actuel
 
-### 1. Placer le fichier google-services.json
+Votre application est **presque prête** ! Voici ce qui est déjà configuré :
 
-1. Créez un dossier `google-services` à la racine de votre projet
-2. Placez votre fichier `google-services.json` (fourni par Firebase) dans ce dossier
-3. Pour iOS, placez également le fichier `GoogleService-Info.plist` dans le même dossier
+- ✅ Firebase SDK installé (`firebase` v12.6.0)
+- ✅ Configuration Firebase dans `config/firebase.ts`
+- ✅ Fichiers de configuration Google Services présents
+- ✅ AuthContext configuré avec toutes les méthodes d'authentification
+- ✅ Écran de test Firebase disponible
 
-### 2. Configuration automatique avec Expo
+## ⚠️ Action requise : Corriger le package name
 
-Expo gère automatiquement la configuration des plugins Gradle Firebase. Les plugins suivants sont déjà configurés dans `app.json` :
-- `@react-native-firebase/app`
-- `@react-native-firebase/auth` 
-- `@react-native-firebase/firestore`
+**Problème identifié :** Le package name Android ne correspond pas entre les fichiers.
 
-### 3. Structure Firestore requise
-
-Créez ces collections dans votre base de données Firestore :
-
-#### Collection `users`
+### Dans `google-services.json` :
 ```
-users/{userId}
-├── email: string
-├── name: string
-├── photoURL: string
-├── bio: string
-├── isAdmin: boolean
-├── createdAt: timestamp
-├── updatedAt: timestamp
-├── hasCompletedProfile: boolean
-└── subscription: {
-    ├── isActive: boolean
-    ├── plan: string
-    ├── startDate: timestamp
-    └── endDate: timestamp
-}
+"package_name": "com.LDP.LesDinersParisiens"
 ```
 
-#### Collection `events`
+### Dans `app.json` :
 ```
-events/{eventId}
-├── title: string
-├── description: string
-├── chef: string
-├── date: timestamp
-├── location: string
-├── capacity: number
-├── price: number
-├── imageUrl: string
-├── createdBy: string (userId)
-├── createdAt: timestamp
-├── updatedAt: timestamp
-├── registeredCount: number
-├── waitlistCount: number
-├── ratingAvg: number
-└── ratingCount: number
+"package": "com.ldplehonert.ldp"
 ```
 
-#### Sous-collection `registrations`
-```
-events/{eventId}/registrations/{registrationId}
-├── userId: string
-├── status: string ("confirmed" | "waitlist")
-└── registeredAt: timestamp
-```
+### Solution appliquée :
+Le fichier `app.json` a été mis à jour pour utiliser `com.LDP.LesDinersParisiens` afin de correspondre à votre configuration Firebase.
 
-#### Sous-collection `reviews`
-```
-events/{eventId}/reviews/{reviewId}
-├── userId: string
-├── rating: number (1-5)
-├── comment: string
-├── status: string ("pending" | "approved")
-├── createdAt: timestamp
-└── approvedAt: timestamp (optionnel)
-```
+## 📱 Tester l'authentification Firebase
 
-### 4. Règles de sécurité Firestore
+1. **Lancez l'application :**
+   ```bash
+   npm run dev
+   ```
 
-Ajoutez ces règles dans la console Firebase :
+2. **Accédez à l'écran de test :**
+   - Naviguez vers `/test-firebase-auth` dans votre application
+   - Ou ajoutez un bouton temporaire dans votre app pour y accéder
+
+3. **Testez les fonctionnalités :**
+   - ✅ Inscription avec email/mot de passe
+   - ✅ Connexion
+   - ✅ Déconnexion
+   - ✅ Réinitialisation du mot de passe
+
+## 🔧 Configuration Firebase Console
+
+### 1. Activer l'authentification par email
+
+1. Allez sur [Firebase Console](https://console.firebase.google.com/)
+2. Sélectionnez votre projet : **les-diners-parisiens-4bb9c**
+3. Dans le menu latéral, cliquez sur **Authentication**
+4. Allez dans l'onglet **Sign-in method**
+5. Activez **Email/Password**
+
+### 2. Créer les collections Firestore
+
+1. Dans Firebase Console, allez dans **Firestore Database**
+2. Si ce n'est pas déjà fait, créez une base de données en mode **production**
+3. Les collections seront créées automatiquement lors de la première inscription
+
+### 3. Configurer les règles de sécurité Firestore
+
+Dans Firebase Console > Firestore Database > Rules, copiez ces règles :
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users peuvent lire et écrire leur propre profil
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read: if request.auth != null; // Lecture publique pour les profils
+    
+    // Helper function pour vérifier si l'utilisateur est admin
+    function isAdmin() {
+      return request.auth != null && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
     
-    // Events - lecture publique, écriture pour les admins
+    // Users - Les utilisateurs peuvent lire et modifier leur propre profil
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Events - Lecture publique, écriture pour les admins
     match /events/{eventId} {
       allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow create, update, delete: if isAdmin();
       
-      // Registrations - les utilisateurs peuvent gérer leurs propres inscriptions
+      // Registrations - Les utilisateurs peuvent gérer leurs propres inscriptions
       match /registrations/{registrationId} {
         allow read: if request.auth != null;
-        allow create: if request.auth != null && request.auth.uid == resource.data.userId;
-        allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+        allow create: if request.auth != null;
+        allow delete: if request.auth != null && 
+          resource.data.userId == request.auth.uid;
       }
       
-      // Reviews - les utilisateurs peuvent créer, les admins peuvent approuver/supprimer
+      // Reviews - Les utilisateurs peuvent créer, les admins peuvent tout faire
       match /reviews/{reviewId} {
         allow read: if request.auth != null;
-        allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-        allow update, delete: if request.auth != null && 
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+        allow create: if request.auth != null;
+        allow update, delete: if isAdmin();
       }
     }
   }
 }
 ```
 
-### 5. Configuration de l'authentification
+## 📊 Structure des données Firestore
 
-Dans la console Firebase, activez les méthodes d'authentification :
-- Email/Password ✅
-- Google (optionnel)
-
-### 6. Commandes pour tester
-
-```bash
-# Développement
-npm run dev
-
-# Build Android (nécessite le fichier google-services.json)
-npm run build:android
-
-# Build iOS (nécessite le fichier GoogleService-Info.plist)
-expo build:ios
+### Collection `users`
+```typescript
+{
+  id: string,                    // UID Firebase Auth
+  email: string,
+  name: string,
+  photoURL?: string,
+  bio?: string,
+  phone?: string,
+  profession?: string,
+  howDidYouHear?: string,
+  isAdmin: boolean,
+  createdAt: Timestamp,
+  hasCompletedProfile: boolean,
+  subscription?: {
+    id: string,
+    userId: string,
+    plan: 'annual',
+    status: 'active' | 'inactive',
+    startDate: Timestamp,
+    endDate: Timestamp,
+    price: number,
+    paymentMethod: string,
+    autoRenewal: boolean
+  }
+}
 ```
 
-### 7. Vérification de la configuration
-
-Une fois configuré, l'application devrait :
-- ✅ Permettre l'inscription et la connexion
-- ✅ Synchroniser les données avec Firestore
-- ✅ Gérer les inscriptions aux événements
-- ✅ Permettre la création d'avis
-- ✅ Gérer les abonnements utilisateurs
-
-### 8. Troubleshooting
-
-Si vous rencontrez des erreurs :
-
-1. **Erreur "google-services.json not found"** : Vérifiez que le fichier est dans `google-services/google-services.json`
-2. **Erreur d'authentification** : Vérifiez que les méthodes d'auth sont activées dans Firebase Console
-3. **Erreur Firestore** : Vérifiez les règles de sécurité Firestore
-
-### 9. Structure des fichiers
-
+### Collection `events`
+```typescript
+{
+  id: string,
+  title: string,
+  description: string,
+  chef: string,
+  date: Timestamp,
+  location: string,
+  capacity: number,
+  price: number,
+  imageUrl: string,
+  createdBy: string,            // userId de l'admin créateur
+  createdAt: Timestamp,
+  updatedAt: Timestamp,
+  registeredCount: number,
+  waitlistCount: number,
+  ratingAvg: number,
+  ratingCount: number
+}
 ```
-votre-projet/
-├── google-services/
-│   ├── google-services.json (Android)
-│   └── GoogleService-Info.plist (iOS)
-├── config/
-│   └── firebase.ts
-└── app.json (avec plugins Firebase)
+
+### Sous-collection `events/{eventId}/registrations`
+```typescript
+{
+  id: string,
+  userId: string,
+  status: 'confirmed' | 'waitlist',
+  registeredAt: Timestamp
+}
 ```
+
+### Sous-collection `events/{eventId}/reviews`
+```typescript
+{
+  id: string,
+  userId: string,
+  rating: number,               // 1-5
+  comment: string,
+  status: 'pending' | 'approved',
+  createdAt: Timestamp,
+  approvedAt?: Timestamp
+}
+```
+
+## 🚀 Prochaines étapes
+
+1. **Testez l'authentification** avec l'écran `/test-firebase-auth`
+2. **Vérifiez dans Firebase Console** que les utilisateurs sont créés
+3. **Créez un utilisateur admin** :
+   - Inscrivez-vous avec un compte
+   - Allez dans Firestore Console
+   - Trouvez votre document utilisateur
+   - Modifiez `isAdmin` à `true`
+4. **Testez la création d'événements** avec votre compte admin
+5. **Testez les inscriptions** avec un compte utilisateur normal
+
+## 🐛 Dépannage
+
+### Erreur : "Firebase: Error (auth/invalid-api-key)"
+- Vérifiez que l'API key dans `config/firebase.ts` correspond à celle de Firebase Console
+
+### Erreur : "Firebase: Error (auth/network-request-failed)"
+- Vérifiez votre connexion internet
+- Assurez-vous que Firebase Authentication est activé dans la console
+
+### Les données ne s'affichent pas dans Firestore
+- Vérifiez les règles de sécurité Firestore
+- Regardez les logs de la console pour voir les erreurs
+
+### Erreur de package name sur Android
+- Assurez-vous que le package dans `app.json` correspond à celui dans `google-services.json`
+- Rebuild l'application après avoir changé le package name
+
+## 📞 Support
+
+Si vous rencontrez des problèmes :
+
+1. Vérifiez les logs de la console (`console.log`)
+2. Consultez l'écran de test Firebase (`/test-firebase-auth`)
+3. Vérifiez Firebase Console pour les erreurs
+4. Assurez-vous que toutes les règles de sécurité sont correctement configurées
+
+## 🎉 Configuration terminée !
+
+Une fois que vous avez :
+- ✅ Activé l'authentification par email dans Firebase Console
+- ✅ Configuré les règles de sécurité Firestore
+- ✅ Testé l'inscription et la connexion
+- ✅ Créé un compte admin
+
+Votre application est prête à être utilisée ! 🚀

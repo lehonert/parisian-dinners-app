@@ -25,6 +25,9 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(user?.name || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [photo, setPhoto] = useState(user?.photo || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [profession, setProfession] = useState(user?.profession || '');
+  const [howDidYouFindUs, setHowDidYouFindUs] = useState(user?.howDidYouFindUs || '');
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePickImage = async () => {
@@ -110,12 +113,25 @@ export default function EditProfileScreen() {
         return;
       }
 
+      if (bio.length > 200) {
+        Alert.alert('Erreur', 'La bio ne peut pas dépasser 200 caractères.');
+        return;
+      }
+
+      if (phone && !/^[\d\s+\-()]+$/.test(phone)) {
+        Alert.alert('Erreur', 'Le numéro de téléphone n\'est pas valide.');
+        return;
+      }
+
       setIsLoading(true);
 
       await updateProfile({
         name: name.trim(),
         bio: bio.trim() || undefined,
         photo: photo || undefined,
+        phone: phone.trim() || undefined,
+        profession: profession.trim() || undefined,
+        howDidYouFindUs: howDidYouFindUs.trim() || undefined,
       });
 
       Alert.alert(
@@ -172,12 +188,12 @@ export default function EditProfileScreen() {
 
         <GlassView style={styles.form} glassEffectStyle="regular">
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, { color: theme.colors.text }]}>Nom *</Text>
+            <Text style={[styles.label, { color: theme.colors.text }]}>Nom / Prénom *</Text>
             <TextInput
               style={[styles.input, { color: theme.colors.text, backgroundColor: theme.dark ? '#1C1C1E' : '#F2F2F7' }]}
               value={name}
               onChangeText={setName}
-              placeholder="Votre nom"
+              placeholder="Votre nom complet"
               placeholderTextColor={theme.dark ? '#98989D' : '#666'}
               autoCapitalize="words"
             />
@@ -197,16 +213,57 @@ export default function EditProfileScreen() {
           </View>
 
           <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: theme.colors.text }]}>Téléphone</Text>
+            <TextInput
+              style={[styles.input, { color: theme.colors.text, backgroundColor: theme.dark ? '#1C1C1E' : '#F2F2F7' }]}
+              value={phone}
+              onChangeText={setPhone}
+              placeholder="+33 6 12 34 56 78"
+              placeholderTextColor={theme.dark ? '#98989D' : '#666'}
+              keyboardType="phone-pad"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: theme.colors.text }]}>Profession</Text>
+            <TextInput
+              style={[styles.input, { color: theme.colors.text, backgroundColor: theme.dark ? '#1C1C1E' : '#F2F2F7' }]}
+              value={profession}
+              onChangeText={setProfession}
+              placeholder="Votre profession"
+              placeholderTextColor={theme.dark ? '#98989D' : '#666'}
+              autoCapitalize="words"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={[styles.label, { color: theme.colors.text }]}>Comment nous avez-vous connus ?</Text>
+            <TextInput
+              style={[styles.input, { color: theme.colors.text, backgroundColor: theme.dark ? '#1C1C1E' : '#F2F2F7' }]}
+              value={howDidYouFindUs}
+              onChangeText={setHowDidYouFindUs}
+              placeholder="Réseaux sociaux, bouche à oreille, etc."
+              placeholderTextColor={theme.dark ? '#98989D' : '#666'}
+              autoCapitalize="sentences"
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
             <Text style={[styles.label, { color: theme.colors.text }]}>Bio</Text>
             <TextInput
               style={[styles.input, styles.textArea, { color: theme.colors.text, backgroundColor: theme.dark ? '#1C1C1E' : '#F2F2F7' }]}
               value={bio}
-              onChangeText={setBio}
+              onChangeText={(text) => {
+                if (text.length <= 200) {
+                  setBio(text);
+                }
+              }}
               placeholder="Parlez-nous de vous..."
               placeholderTextColor={theme.dark ? '#98989D' : '#666'}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              maxLength={200}
             />
             <Text style={[styles.hint, { color: theme.dark ? '#98989D' : '#666' }]}>
               {bio.length} / 200 caractères

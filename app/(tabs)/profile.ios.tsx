@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IconSymbol } from '@/components/IconSymbol';
@@ -29,6 +30,10 @@ export default function ProfileScreen() {
         { text: 'Déconnexion', style: 'destructive', onPress: signOut },
       ]
     );
+  };
+
+  const handleInstagram = () => {
+    Linking.openURL('https://www.instagram.com/dinersparisiens');
   };
 
   const formatDate = (date: Date) => {
@@ -72,6 +77,17 @@ export default function ProfileScreen() {
           {user.bio && (
             <Text style={[styles.bio, { color: theme.colors.text }]}>{user.bio}</Text>
           )}
+          
+          {/* Instagram Button */}
+          <TouchableOpacity 
+            style={styles.instagramButton}
+            onPress={handleInstagram}
+          >
+            <IconSymbol ios_icon_name="camera.fill" android_material_icon_name="photo-camera" size={20} color="#FFFFFF" />
+            <Text style={styles.instagramButtonText}>
+              Suivez-nous sur Instagram
+            </Text>
+          </TouchableOpacity>
         </GlassView>
 
         {/* Subscription Section */}
@@ -231,6 +247,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  instagramButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#E4405F',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 24,
+    gap: 8,
+    marginTop: 8,
+  },
+  instagramButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   subscriptionCard: {
     borderRadius: 12,

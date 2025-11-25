@@ -10,19 +10,22 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 56 : size === 'medium' ? 72 : 88;
+  const logoSize = size === 'small' ? 80 : size === 'medium' ? 120 : 160;
   const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
 
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <Image 
-          source={require('../assets/images/92510293-455a-4eb0-b08e-b4694dac60f6.png')}
-          style={[styles.logo, { width: logoSize, height: logoSize }]}
+          source={require('../assets/images/a11fa704-6e5d-40f6-b86a-8f03f61c0807.png')}
+          style={{ 
+            width: logoSize, 
+            height: logoSize,
+          }}
           resizeMode="contain"
         />
         {showText && (
-          <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
+          <Text style={[styles.text, { fontSize: textSize, color: textColor, marginTop: 16 }]}>
             Les Dîners Parisiens
           </Text>
         )}
@@ -38,18 +41,13 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   titleContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
-  logo: {
-    marginRight: 12,
-  },
   text: {
     fontWeight: '600',
     textAlign: 'center',
-    flex: 1,
-    marginLeft: 8,
   },
 });

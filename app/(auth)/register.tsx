@@ -1,12 +1,11 @@
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
-import LoadingSpinner from '../../components/LoadingSpinner';
-import React, { useState } from 'react';
+import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from '../../components/Icon';
-import { router } from 'expo-router';
 import { useResponsive } from '../../hooks/useResponsive';
 
 export default function RegisterScreen() {
@@ -14,220 +13,305 @@ export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const { signUp, isLoading } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const { signUp, user } = useAuth();
+  const router = useRouter();
   const { isTablet, spacing } = useResponsive();
 
+  // Redirect when user is authenticated
+  useEffect(() => {
+    console.log('RegisterScreen: User state changed:', user?.email);
+    if (user) {
+      console.log('RegisterScreen: User authenticated, redirecting to profile setup');
+      // After registration, always go to profile setup
+      router.replace('/(auth)/profile-setup');
+    }
+  }, [user]);
+
   const handleRegister = async () => {
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas.');
+      Alert.alert('Erreur', 'Les mots de passe ne correspondent pas');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères.');
+      Alert.alert('Erreur', 'Le mot de passe doit contenir au moins 6 caractères');
       return;
     }
 
+    setIsLoading(true);
     try {
+      console.log('RegisterScreen: Attempting registration for:', email);
       await signUp(email, password, name);
-      Alert.alert(
-        'Inscription réussie !',
-        'Votre compte a été créé avec succès. Pour accéder aux événements, vous devez souscrire à un abonnement.',
-        [
-          {
-            text: 'Découvrir les abonnements',
-            onPress: () => router.replace('/subscription'),
-          },
-        ]
-      );
-    } catch (error) {
-      console.log('Registration error:', error);
-      Alert.alert('Erreur', 'Une erreur est survenue lors de l\'inscription.');
+      console.log('RegisterScreen: Registration successful');
+      // Navigation will be handled by useEffect when user state updates
+    } catch (error: any) {
+      console.error('RegisterScreen: Registration error:', error);
+      Alert.alert('Erreur d\'inscription', error.message || 'Une erreur est survenue');
+      setIsLoading(false);
     }
   };
 
-  const handleGoogleRegister = () => {
-    Alert.alert('Google', 'Inscription avec Google en cours de développement.');
+  const handleGoogleSignIn = async () => {
+    Alert.alert(
+      'Inscription avec Google',
+      'L\'inscription avec Google sera bientôt disponible. Pour le moment, veuillez utiliser votre email et mot de passe.',
+      [{ text: 'OK' }]
+    );
   };
-
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
 
   const contentMaxWidth = isTablet ? 600 : undefined;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ paddingHorizontal: spacing }}>
-        <View style={[styles.header, isTablet && styles.headerTablet]}>
-          <Text style={[styles.title, isTablet && styles.titleTablet]}>Créer un compte</Text>
-          <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
-            Rejoignez la communauté des Dîners Parisiens
-          </Text>
-        </View>
+    <SafeAreaView style={commonStyles.wrapper}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={[styles.content, { paddingHorizontal: spacing, maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
+            {/* Logo and Title */}
+            <View style={styles.logoContainer}>
+              <View style={[styles.logoCircle, isTablet && styles.logoCircleTablet]}>
+                <Image 
+                  source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
+                  style={[styles.logo, isTablet && styles.logoTablet]}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
+              <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
+                Inscription
+              </Text>
+            </View>
 
-        <View style={[styles.form, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Nom complet</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={name}
-              onChangeText={setName}
-              placeholder="Votre nom complet"
-              autoCapitalize="words"
-              autoComplete="name"
-            />
+            {/* Google Sign In Button */}
+            <TouchableOpacity
+              style={[styles.googleButton, isTablet && styles.googleButtonTablet]}
+              onPress={handleGoogleSignIn}
+              disabled={isLoading}
+            >
+              <Icon name="logo-google" size={isTablet ? 24 : 20} color="#DB4437" />
+              <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>
+                S&apos;inscrire avec Google
+              </Text>
+            </TouchableOpacity>
+
+            {/* Divider */}
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={[styles.dividerText, isTablet && styles.dividerTextTablet]}>ou</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            {/* Email/Password Form */}
+            <View style={styles.form}>
+              <View style={styles.inputContainer}>
+                <Text style={[commonStyles.label, isTablet && styles.labelTablet]}>Nom complet</Text>
+                <TextInput
+                  style={[commonStyles.input, isTablet && styles.inputTablet]}
+                  placeholder="Jean Dupont"
+                  placeholderTextColor={colors.textLight}
+                  value={name}
+                  onChangeText={setName}
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={[commonStyles.label, isTablet && styles.labelTablet]}>Email</Text>
+                <TextInput
+                  style={[commonStyles.input, isTablet && styles.inputTablet]}
+                  placeholder="votre@email.com"
+                  placeholderTextColor={colors.textLight}
+                  value={email}
+                  onChangeText={setEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={[commonStyles.label, isTablet && styles.labelTablet]}>Mot de passe</Text>
+                <TextInput
+                  style={[commonStyles.input, isTablet && styles.inputTablet]}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.textLight}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={[commonStyles.label, isTablet && styles.labelTablet]}>Confirmer le mot de passe</Text>
+                <TextInput
+                  style={[commonStyles.input, isTablet && styles.inputTablet]}
+                  placeholder="••••••••"
+                  placeholderTextColor={colors.textLight}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                  editable={!isLoading}
+                />
+              </View>
+
+              <TouchableOpacity
+                style={[buttonStyles.primary, styles.button, isLoading && styles.buttonDisabled, isTablet && styles.buttonTablet]}
+                onPress={handleRegister}
+                disabled={isLoading}
+              >
+                <Text style={[buttonStyles.primaryText, isTablet && styles.buttonTextTablet]}>
+                  {isLoading ? 'Inscription...' : 'S\'inscrire'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[buttonStyles.outline, styles.button, isTablet && styles.buttonTablet]}
+                onPress={() => router.push('/(auth)/login')}
+                disabled={isLoading}
+              >
+                <Text style={[buttonStyles.outlineText, isTablet && styles.buttonTextTablet]}>
+                  J&apos;ai déjà un compte
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => router.back()}
+                disabled={isLoading}
+              >
+                <Icon name="arrow-back" size={isTablet ? 20 : 16} color={colors.textSecondary} />
+                <Text style={[styles.backButtonText, isTablet && styles.backButtonTextTablet]}>
+                  Retour
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Email</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="votre@email.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Mot de passe</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Votre mot de passe"
-              secureTextEntry
-              autoComplete="new-password"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Confirmer le mot de passe</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              placeholder="Confirmez votre mot de passe"
-              secureTextEntry
-              autoComplete="new-password"
-            />
-          </View>
-
-          <TouchableOpacity style={[styles.registerButton, isTablet && styles.registerButtonTablet]} onPress={handleRegister}>
-            <Text style={[styles.registerButtonText, isTablet && styles.registerButtonTextTablet]}>Créer mon compte</Text>
-          </TouchableOpacity>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={[styles.dividerText, isTablet && styles.dividerTextTablet]}>ou</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
-          <TouchableOpacity style={[styles.googleButton, isTablet && styles.googleButtonTablet]} onPress={handleGoogleRegister}>
-            <Icon name="globe" size={isTablet ? 22 : 20} color={colors.text} />
-            <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>Continuer avec Google</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={[styles.footer, isTablet && styles.footerTablet]}>
-          <Text style={[styles.footerText, isTablet && styles.footerTextTablet]}>
-            Vous avez déjà un compte ?{' '}
-            <Text style={styles.loginLink} onPress={() => router.replace('/(auth)/login')}>
-              Se connecter
-            </Text>
-          </Text>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  keyboardView: {
     flex: 1,
-    backgroundColor: colors.background,
   },
-  header: {
-    alignItems: 'center',
+  scrollContent: {
+    flexGrow: 1,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'center',
     paddingVertical: 40,
   },
-  headerTablet: {
-    paddingVertical: 60,
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  logoCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  logoCircleTablet: {
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    marginBottom: 28,
+    borderWidth: 3,
+  },
+  logo: {
+    width: 70,
+    height: 70,
+  },
+  logoTablet: {
+    width: 98,
+    height: 98,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: colors.text,
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary,
     marginBottom: 8,
+    textAlign: 'center',
   },
   titleTablet: {
-    fontSize: 36,
+    fontSize: 32,
   },
   subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
     textAlign: 'center',
   },
   subtitleTablet: {
-    fontSize: 18,
+    fontSize: 22,
   },
-  form: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: 8,
-  },
-  labelTablet: {
-    fontSize: 18,
-  },
-  input: {
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: colors.text,
-    backgroundColor: colors.white,
-  },
-  inputTablet: {
-    fontSize: 18,
-    paddingVertical: 14,
-  },
-  registerButton: {
-    ...buttonStyles.primary,
-    marginTop: 20,
     paddingVertical: 16,
+    paddingHorizontal: 24,
+    gap: 12,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  registerButtonTablet: {
-    marginTop: 30,
+  googleButtonTablet: {
     paddingVertical: 18,
+    paddingHorizontal: 28,
+    borderRadius: 14,
   },
-  registerButtonText: {
-    ...buttonStyles.primaryText,
+  googleButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
   },
-  registerButtonTextTablet: {
+  googleButtonTextTablet: {
     fontSize: 18,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 30,
+    marginVertical: 24,
   },
   dividerLine: {
     flex: 1,
@@ -235,48 +319,51 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   dividerText: {
-    marginHorizontal: 16,
-    fontSize: 14,
     color: colors.textSecondary,
+    paddingHorizontal: 16,
+    fontSize: 14,
   },
   dividerTextTablet: {
     fontSize: 16,
   },
-  googleButton: {
-    ...buttonStyles.secondary,
+  form: {
+    width: '100%',
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  inputTablet: {
+    fontSize: 18,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+  },
+  labelTablet: {
+    fontSize: 16,
+  },
+  button: {
+    marginTop: 8,
+  },
+  buttonTablet: {
+    paddingVertical: 18,
+  },
+  buttonTextTablet: {
+    fontSize: 18,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  backButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 12,
+    marginTop: 24,
+    gap: 8,
   },
-  googleButtonTablet: {
-    paddingVertical: 18,
-  },
-  googleButtonText: {
-    ...buttonStyles.secondaryText,
-    marginLeft: 0,
-  },
-  googleButtonTextTablet: {
-    fontSize: 18,
-  },
-  footer: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  footerTablet: {
-    paddingVertical: 30,
-  },
-  footerText: {
-    fontSize: 14,
+  backButtonText: {
     color: colors.textSecondary,
-  },
-  footerTextTablet: {
-    fontSize: 16,
-  },
-  loginLink: {
     fontSize: 14,
-    color: colors.primary,
-    fontWeight: '600',
+  },
+  backButtonTextTablet: {
+    fontSize: 16,
   },
 });

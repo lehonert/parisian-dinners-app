@@ -99,7 +99,11 @@ export default function HelpSupportScreen() {
   };
 
   const handlePhone = () => {
-    Linking.openURL('tel:+33123456789');
+    Linking.openURL('tel:0611762000');
+  };
+
+  const handleInstagram = () => {
+    Linking.openURL('https://www.instagram.com/dinersparisiens');
   };
 
   const contentMaxWidth = isTablet ? 800 : undefined;
@@ -146,6 +150,15 @@ export default function HelpSupportScreen() {
               <Icon name="call-outline" size={isTablet ? 28 : 24} color={colors.primary} />
               <Text style={[styles.quickContactText, isTablet && styles.quickContactTextTablet]}>
                 Téléphone
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.quickContactButton, styles.instagramButton, isTablet && styles.quickContactButtonTablet]}
+              onPress={handleInstagram}
+            >
+              <Icon name="logo-instagram" size={isTablet ? 28 : 24} color="#E4405F" />
+              <Text style={[styles.quickContactText, styles.instagramText, isTablet && styles.quickContactTextTablet]}>
+                Instagram
               </Text>
             </TouchableOpacity>
           </View>
@@ -238,8 +251,16 @@ export default function HelpSupportScreen() {
             <View style={styles.contactInfoItem}>
               <Icon name="call-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
               <Text style={[styles.contactInfoText, isTablet && styles.contactInfoTextTablet]}>
-                +33 1 23 45 67 89
+                0611762000
               </Text>
+            </View>
+            <View style={styles.contactInfoItem}>
+              <Icon name="logo-instagram" size={isTablet ? 24 : 20} color="#E4405F" style={styles.contactInfoIcon} />
+              <TouchableOpacity onPress={handleInstagram}>
+                <Text style={[styles.contactInfoText, styles.instagramLink, isTablet && styles.contactInfoTextTablet]}>
+                  @dinersparisiens
+                </Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.contactInfoItem}>
               <Icon name="time-outline" size={isTablet ? 24 : 20} color={colors.textSecondary} style={styles.contactInfoIcon} />
@@ -316,6 +337,10 @@ const styles = StyleSheet.create({
     padding: 24,
     borderRadius: 16,
   },
+  instagramButton: {
+    borderColor: '#E4405F',
+    backgroundColor: '#E4405F10',
+  },
   quickContactText: {
     fontSize: 14,
     fontWeight: '600',
@@ -324,6 +349,9 @@ const styles = StyleSheet.create({
   },
   quickContactTextTablet: {
     fontSize: 16,
+  },
+  instagramText: {
+    color: '#E4405F',
   },
   faqSection: {
     marginBottom: 32,
@@ -430,5 +458,9 @@ const styles = StyleSheet.create({
   },
   contactInfoTextTablet: {
     fontSize: 16,
+  },
+  instagramLink: {
+    color: '#E4405F',
+    textDecorationLine: 'underline',
   },
 });
