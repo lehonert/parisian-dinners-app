@@ -10,20 +10,19 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 80 : size === 'medium' ? 120 : 160;
+  const logoSize = size === 'small' ? 56 : size === 'medium' ? 72 : 88;
   const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
 
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Image 
-          source={require('../assets/images/a11fa704-6e5d-40f6-b86a-8f03f61c0807.png')}
-          style={{ 
-            width: logoSize, 
-            height: logoSize,
-          }}
-          resizeMode="contain"
-        />
+        <View style={[styles.logoCircle, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}>
+          <Image 
+            source={require('../assets/images/a11fa704-6e5d-40f6-b86a-8f03f61c0807.png')}
+            style={{ width: logoSize, height: logoSize, borderRadius: logoSize / 2 }}
+            resizeMode="cover"
+          />
+        </View>
         {showText && (
           <Text style={[styles.text, { fontSize: textSize, color: textColor, marginTop: 16 }]}>
             Les Dîners Parisiens
@@ -45,6 +44,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+  },
+  logoCircle: {
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   text: {
     fontWeight: '600',
