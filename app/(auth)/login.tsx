@@ -104,7 +104,17 @@ export default function LoginScreen() {
               </View>
 
               <View style={styles.inputContainer}>
-                <Text style={[commonStyles.label, isTablet && styles.labelTablet]}>Mot de passe</Text>
+                <View style={styles.passwordHeader}>
+                  <Text style={[commonStyles.label, isTablet && styles.labelTablet]}>Mot de passe</Text>
+                  <TouchableOpacity
+                    onPress={() => router.push('/(auth)/forgot-password')}
+                    disabled={isLoading}
+                  >
+                    <Text style={[styles.forgotPasswordText, isTablet && styles.forgotPasswordTextTablet]}>
+                      Mot de passe oublié ?
+                    </Text>
+                  </TouchableOpacity>
+                </View>
                 <TextInput
                   style={[commonStyles.input, isTablet && styles.inputTablet]}
                   placeholder="••••••••"
@@ -257,6 +267,20 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     marginBottom: 20,
+  },
+  passwordHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  forgotPasswordText: {
+    fontSize: 13,
+    color: colors.primary,
+    fontWeight: '500',
+  },
+  forgotPasswordTextTablet: {
+    fontSize: 15,
   },
   inputTablet: {
     fontSize: 18,
