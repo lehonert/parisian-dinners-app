@@ -10,22 +10,21 @@ interface LogoProps {
 }
 
 export default function Logo({ size = 'medium', showText = true, textColor = colors.text }: LogoProps) {
-  const logoSize = size === 'small' ? 80 : size === 'medium' ? 120 : 160;
+  const logoSize = size === 'small' ? 56 : size === 'medium' ? 72 : 88;
   const textSize = size === 'small' ? 14 : size === 'medium' ? 18 : 22;
 
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Image 
-          source={require('../assets/images/a11fa704-6e5d-40f6-b86a-8f03f61c0807.png')}
-          style={{ 
-            width: logoSize, 
-            height: logoSize,
-          }}
-          resizeMode="contain"
-        />
+        <View style={[styles.logoCircle, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}>
+          <Image 
+            source={require('../assets/images/c733bcf2-a7f0-4419-9839-7727c8c74b52.png')}
+            style={[styles.logo, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}
+            resizeMode="cover"
+          />
+        </View>
         {showText && (
-          <Text style={[styles.text, { fontSize: textSize, color: textColor, marginTop: 16 }]}>
+          <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
             Les Dîners Parisiens
           </Text>
         )}
@@ -45,6 +44,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+  },
+  logoCircle: {
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  logo: {
+    // Image will be sized by inline styles
   },
   text: {
     fontWeight: '600',
