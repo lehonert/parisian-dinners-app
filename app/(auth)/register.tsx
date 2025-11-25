@@ -82,12 +82,13 @@ export default function RegisterScreen() {
             {/* Logo and Title */}
             <View style={styles.logoContainer}>
               <Image 
-                source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
+                source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
                 style={[styles.logo, isTablet && styles.logoTablet]}
+                resizeMode="contain"
               />
-              <Text style={[styles.title, isTablet && styles.titleTablet]}>Inscription</Text>
+              <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
               <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
-                Rejoignez Les Dîners Parisiens
+                Inscription
               </Text>
             </View>
 
@@ -221,32 +222,31 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 100,
-    borderRadius: 50,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   logoTablet: {
     width: 140,
     height: 140,
-    borderRadius: 70,
-    marginBottom: 32,
+    marginBottom: 28,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
-    color: colors.text,
+    color: colors.primary,
     marginBottom: 8,
     textAlign: 'center',
   },
   titleTablet: {
-    fontSize: 36,
+    fontSize: 32,
   },
   subtitle: {
-    fontSize: 16,
-    color: colors.textSecondary,
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
     textAlign: 'center',
   },
   subtitleTablet: {
-    fontSize: 20,
+    fontSize: 22,
   },
   googleButton: {
     flexDirection: 'row',

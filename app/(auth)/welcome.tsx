@@ -16,8 +16,9 @@ export default function WelcomeScreen() {
         <View style={[styles.content, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
           <View style={[styles.logoContainer, isTablet && styles.logoContainerTablet]}>
             <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
+              source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
               style={[styles.logo, isTablet && styles.logoTablet]}
+              resizeMode="contain"
             />
             <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
             <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
@@ -72,13 +73,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
-    borderRadius: 60,
     marginBottom: 24,
   },
   logoTablet: {
     width: 160,
     height: 160,
-    borderRadius: 80,
     marginBottom: 32,
   },
   title: {

@@ -17,7 +17,7 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <Image 
-          source={require('../assets/images/92510293-455a-4eb0-b08e-b4694dac60f6.png')}
+          source={require('../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
           style={[styles.logo, { width: logoSize, height: logoSize }]}
           resizeMode="contain"
         />
@@ -38,18 +38,16 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   titleContainer: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
   logo: {
-    marginRight: 12,
+    marginBottom: 16,
   },
   text: {
     fontWeight: '600',
     textAlign: 'center',
-    flex: 1,
-    marginLeft: 8,
   },
 });
