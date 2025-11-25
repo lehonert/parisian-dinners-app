@@ -35,6 +35,10 @@ export default function ProfileScreen() {
     Linking.openURL('https://www.instagram.com/dinersparisiens');
   };
 
+  const handleTestFirebase = () => {
+    router.push('/test-firebase-auth');
+  };
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('fr-FR', {
       year: 'numeric',
@@ -254,6 +258,28 @@ export default function ProfileScreen() {
                 name="chevron-forward" 
                 size={isTablet ? 20 : 16} 
                 color={colors.textSecondary} 
+                style={styles.menuArrow} 
+              />
+            </TouchableOpacity>
+
+            {/* Firebase Test Button - Developer Tool */}
+            <TouchableOpacity 
+              style={[styles.menuItem, styles.testMenuItem, isTablet && styles.menuItemTablet]} 
+              onPress={handleTestFirebase}
+            >
+              <Icon 
+                name="bug-outline" 
+                size={isTablet ? 24 : 20} 
+                color={colors.primary} 
+                style={styles.menuIcon} 
+              />
+              <Text style={[styles.menuText, styles.testMenuText, isTablet && styles.menuTextTablet]}>
+                🧪 Tester Firebase Auth
+              </Text>
+              <Icon 
+                name="chevron-forward" 
+                size={isTablet ? 20 : 16} 
+                color={colors.primary} 
                 style={styles.menuArrow} 
               />
             </TouchableOpacity>
@@ -496,6 +522,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 16,
   },
+  testMenuItem: {
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: 'rgba(139, 0, 0, 0.1)',
+  },
   menuIcon: {
     marginRight: 16,
   },
@@ -503,6 +534,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
     flex: 1,
+  },
+  testMenuText: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   menuTextTablet: {
     fontSize: 18,
