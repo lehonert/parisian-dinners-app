@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
@@ -14,9 +14,19 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signUp } = useAuth();
+  const { signUp, user } = useAuth();
   const router = useRouter();
   const { isTablet, spacing } = useResponsive();
+
+  // Redirect when user is authenticated
+  useEffect(() => {
+    console.log('RegisterScreen: User state changed:', user?.email);
+    if (user) {
+      console.log('RegisterScreen: User authenticated, redirecting to profile setup');
+      // After registration, always go to profile setup
+      router.replace('/(auth)/profile-setup');
+    }
+  }, [user]);
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -36,12 +46,13 @@ export default function RegisterScreen() {
 
     setIsLoading(true);
     try {
+      console.log('RegisterScreen: Attempting registration for:', email);
       await signUp(email, password, name);
-      console.log('Registration successful');
+      console.log('RegisterScreen: Registration successful');
+      // Navigation will be handled by useEffect when user state updates
     } catch (error: any) {
-      console.error('Registration error:', error);
+      console.error('RegisterScreen: Registration error:', error);
       Alert.alert('Erreur d\'inscription', error.message || 'Une erreur est survenue');
-    } finally {
       setIsLoading(false);
     }
   };

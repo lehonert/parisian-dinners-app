@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, KeyboardAvoidingView, Platform, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,9 +12,25 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user } = useAuth();
   const router = useRouter();
   const { isTablet, spacing } = useResponsive();
+
+  // Redirect when user is authenticated
+  useEffect(() => {
+    console.log('LoginScreen: User state changed:', user?.email);
+    if (user) {
+      console.log('LoginScreen: User authenticated, redirecting to events');
+      // Check if profile is complete
+      if (!user.hasCompletedProfile) {
+        console.log('LoginScreen: Profile incomplete, redirecting to profile setup');
+        router.replace('/(auth)/profile-setup');
+      } else {
+        console.log('LoginScreen: Profile complete, redirecting to events');
+        router.replace('/(tabs)/events');
+      }
+    }
+  }, [user]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -24,12 +40,13 @@ export default function LoginScreen() {
 
     setIsLoading(true);
     try {
+      console.log('LoginScreen: Attempting login for:', email);
       await signIn(email, password);
-      console.log('Login successful, navigating to home');
+      console.log('LoginScreen: Login successful');
+      // Navigation will be handled by useEffect when user state updates
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('LoginScreen: Login error:', error);
       Alert.alert('Erreur de connexion', error.message || 'Une erreur est survenue');
-    } finally {
       setIsLoading(false);
     }
   };
