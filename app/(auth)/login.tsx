@@ -75,16 +75,13 @@ export default function LoginScreen() {
           <View style={[styles.content, { paddingHorizontal: spacing, maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
             {/* Logo and Title */}
             <View style={styles.logoContainer}>
-              <View style={[styles.logoCircle, isTablet && styles.logoCircleTablet]}>
-                <Image 
-                  source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
-                  style={[styles.logo, isTablet && styles.logoTablet]}
-                  resizeMode="contain"
-                />
-              </View>
-              <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
+              <Image 
+                source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
+                style={[styles.logo, isTablet && styles.logoTablet]}
+              />
+              <Text style={[styles.title, isTablet && styles.titleTablet]}>Connexion</Text>
               <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
-                Connexion
+                Bienvenue aux Dîners Parisiens
               </Text>
             </View>
 
@@ -200,58 +197,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  logoCircle: {
+  logo: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    marginBottom: 24,
   },
-  logoCircleTablet: {
+  logoTablet: {
     width: 140,
     height: 140,
     borderRadius: 70,
-    marginBottom: 28,
-    borderWidth: 3,
-  },
-  logo: {
-    width: 70,
-    height: 70,
-  },
-  logoTablet: {
-    width: 98,
-    height: 98,
+    marginBottom: 32,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
-    color: colors.primary,
+    color: colors.text,
     marginBottom: 8,
     textAlign: 'center',
   },
   titleTablet: {
-    fontSize: 32,
+    fontSize: 36,
   },
   subtitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
+    fontSize: 16,
+    color: colors.textSecondary,
     textAlign: 'center',
   },
   subtitleTablet: {
-    fontSize: 22,
+    fontSize: 20,
   },
   googleButton: {
     flexDirection: 'row',
