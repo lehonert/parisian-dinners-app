@@ -20,7 +20,9 @@ export default function WelcomeScreen() {
               style={[styles.logo, isTablet && styles.logoTablet]}
             />
             <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
-            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>Il n&apos;y a rien de plus puissant qu&apos;une rencontre. Victor Hugo</Text>
+            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
+              Il n&apos;y a rien de plus puissant qu&apos;une rencontre. <Text style={styles.italicText}>Victor Hugo</Text>
+            </Text>
           </View>
           
           <View style={[styles.description, isTablet && styles.descriptionTablet]}>
@@ -98,6 +100,9 @@ const styles = StyleSheet.create({
   subtitleTablet: {
     fontSize: 20,
   },
+  italicText: {
+    fontStyle: 'italic',
+  },
   description: {
     paddingHorizontal: 20,
   },
@@ -105,15 +110,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   descriptionText: {
-    fontSize: 16,
-    fontWeight: '400',
+    fontSize: 19,
+    fontWeight: '500',
     color: colors.text,
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 28,
   },
   descriptionTextTablet: {
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: 21,
+    lineHeight: 32,
   },
   buttonContainer: {
     gap: 16,
