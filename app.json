@@ -27,7 +27,7 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.ldplehonert.ldp",
+      "package": "com.LDP.LesDinersParisiens",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
