@@ -20,12 +20,12 @@ export default function WelcomeScreen() {
               style={[styles.logo, isTablet && styles.logoTablet]}
             />
             <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
-            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>Découvrez l'art culinaire parisien</Text>
+            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>Il n&apos;y a rien de plus puissant qu&apos;une rencontre. » — Victor Hugo</Text>
           </View>
           
           <View style={[styles.description, isTablet && styles.descriptionTablet]}>
             <Text style={[styles.descriptionText, isTablet && styles.descriptionTextTablet]}>
-              Rejoignez notre communauté de passionnés de gastronomie et participez à des expériences culinaires uniques dans la capitale.
+              Afterwork + Networking + Dîner{'\n'}Un seul mot d&apos;ordre : la rencontre
             </Text>
           </View>
         </View>
