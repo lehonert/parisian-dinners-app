@@ -5,9 +5,6 @@ export interface User {
   name: string;
   bio?: string;
   photo?: string;
-  phone?: string;
-  profession?: string;
-  howDidYouFindUs?: string;
   isAdmin: boolean;
   createdAt: Date;
   subscription?: Subscription;

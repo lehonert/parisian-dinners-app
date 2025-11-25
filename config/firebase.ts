@@ -7,12 +7,12 @@ import { Platform } from 'react-native';
 
 // Configuration Firebase - Les Dîners Parisiens
 const firebaseConfig = {
-  apiKey: "AIzaSyDE8DStLjqrrEM54fkuh67kctzxeafiggM",
-  authDomain: "les-diners-parisiens-4bb9c.firebaseapp.com",
-  projectId: "les-diners-parisiens-4bb9c",
-  storageBucket: "les-diners-parisiens-4bb9c.firebasestorage.app",
-  messagingSenderId: "494305117412",
-  appId: "1:494305117412:ios:bb8f702a80b8cf078d18f1"
+  apiKey: "AIzaSyAPJQ-KaudBnAQRcDe70IEuFa9nKort-6s",
+  authDomain: "les-diners-parisiens-70cd4.firebaseapp.com",
+  projectId: "les-diners-parisiens-70cd4",
+  storageBucket: "les-diners-parisiens-70cd4.firebasestorage.app",
+  messagingSenderId: "198421275271",
+  appId: "1:198421275271:android:2df5e598f84801a553ce22"
 };
 
 // Initialiser Firebase seulement si pas déjà initialisé

@@ -25,9 +25,6 @@ export default function EditProfileScreen() {
   const [name, setName] = useState(user?.name || '');
   const [bio, setBio] = useState(user?.bio || '');
   const [photo, setPhoto] = useState(user?.photo || '');
-  const [phone, setPhone] = useState(user?.phone || '');
-  const [profession, setProfession] = useState(user?.profession || '');
-  const [howDidYouFindUs, setHowDidYouFindUs] = useState(user?.howDidYouFindUs || '');
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePickImage = async () => {
@@ -118,20 +115,12 @@ export default function EditProfileScreen() {
         return;
       }
 
-      if (phone && !/^[\d\s+\-()]+$/.test(phone)) {
-        Alert.alert('Erreur', 'Le numéro de téléphone n\'est pas valide.');
-        return;
-      }
-
       setIsLoading(true);
 
       await updateProfile({
         name: name.trim(),
         bio: bio.trim() || undefined,
         photo: photo || undefined,
-        phone: phone.trim() || undefined,
-        profession: profession.trim() || undefined,
-        howDidYouFindUs: howDidYouFindUs.trim() || undefined,
       });
 
       Alert.alert(
@@ -193,12 +182,12 @@ export default function EditProfileScreen() {
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Nom / Prénom *</Text>
+            <Text style={[styles.label, isTablet && styles.labelTablet]}>Nom *</Text>
             <TextInput
               style={[styles.input, isTablet && styles.inputTablet]}
               value={name}
               onChangeText={setName}
-              placeholder="Votre nom complet"
+              placeholder="Votre nom"
               placeholderTextColor={colors.textSecondary}
               autoCapitalize="words"
             />
@@ -215,42 +204,6 @@ export default function EditProfileScreen() {
             <Text style={[styles.hint, isTablet && styles.hintTablet]}>
               L&apos;email ne peut pas être modifié
             </Text>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Téléphone</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="+33 6 12 34 56 78"
-              placeholderTextColor={colors.textSecondary}
-              keyboardType="phone-pad"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Profession</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={profession}
-              onChangeText={setProfession}
-              placeholder="Votre profession"
-              placeholderTextColor={colors.textSecondary}
-              autoCapitalize="words"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={[styles.label, isTablet && styles.labelTablet]}>Comment nous avez-vous connus ?</Text>
-            <TextInput
-              style={[styles.input, isTablet && styles.inputTablet]}
-              value={howDidYouFindUs}
-              onChangeText={setHowDidYouFindUs}
-              placeholder="Réseaux sociaux, bouche à oreille, etc."
-              placeholderTextColor={colors.textSecondary}
-              autoCapitalize="sentences"
-            />
           </View>
 
           <View style={styles.inputGroup}>

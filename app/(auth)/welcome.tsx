@@ -16,19 +16,16 @@ export default function WelcomeScreen() {
         <View style={[styles.content, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
           <View style={[styles.logoContainer, isTablet && styles.logoContainerTablet]}>
             <Image 
-              source={require('../../assets/images/b040efb1-306b-4cdb-8258-4fa30b1b1047.jpeg')}
+              source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
               style={[styles.logo, isTablet && styles.logoTablet]}
-              resizeMode="contain"
             />
             <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
-            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
-              Il n&apos;y a rien de plus puissant qu&apos;une rencontre. <Text style={styles.italicText}>Victor Hugo</Text>
-            </Text>
+            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>Découvrez l'art culinaire parisien</Text>
           </View>
           
           <View style={[styles.description, isTablet && styles.descriptionTablet]}>
             <Text style={[styles.descriptionText, isTablet && styles.descriptionTextTablet]}>
-              Afterwork + Networking + Dîner{'\n'}Un seul mot d&apos;ordre : la rencontre
+              Rejoignez notre communauté de passionnés de gastronomie et participez à des expériences culinaires uniques dans la capitale.
             </Text>
           </View>
         </View>
@@ -73,11 +70,13 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     height: 120,
+    borderRadius: 60,
     marginBottom: 24,
   },
   logoTablet: {
     width: 160,
     height: 160,
+    borderRadius: 80,
     marginBottom: 32,
   },
   title: {
@@ -99,9 +98,6 @@ const styles = StyleSheet.create({
   subtitleTablet: {
     fontSize: 20,
   },
-  italicText: {
-    fontStyle: 'italic',
-  },
   description: {
     paddingHorizontal: 20,
   },
@@ -109,15 +105,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
   },
   descriptionText: {
-    fontSize: 19,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '400',
     color: colors.text,
     textAlign: 'center',
-    lineHeight: 28,
+    lineHeight: 24,
   },
   descriptionTextTablet: {
-    fontSize: 21,
-    lineHeight: 32,
+    fontSize: 18,
+    lineHeight: 28,
   },
   buttonContainer: {
     gap: 16,

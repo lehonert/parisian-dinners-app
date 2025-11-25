@@ -4,7 +4,7 @@ import { colors, commonStyles, buttonStyles } from '../../styles/commonStyles';
 import { useAuth } from '../../contexts/AuthContext';
 import React from 'react';
 import Icon from '../../components/Icon';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ScrollView, Linking } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { router } from 'expo-router';
 import { useResponsive } from '../../hooks/useResponsive';
 
@@ -29,14 +29,6 @@ export default function ProfileScreen() {
 
   const handleManageSubscription = () => {
     router.push('/subscription');
-  };
-
-  const handleInstagram = () => {
-    Linking.openURL('https://www.instagram.com/dinersparisiens');
-  };
-
-  const handleTestFirebase = () => {
-    router.push('/test-firebase-auth');
   };
 
   const formatDate = (date: Date) => {
@@ -83,17 +75,6 @@ export default function ProfileScreen() {
               {user.bio}
             </Text>
           )}
-          
-          {/* Instagram Button */}
-          <TouchableOpacity 
-            style={[styles.instagramButton, isTablet && styles.instagramButtonTablet]}
-            onPress={handleInstagram}
-          >
-            <Icon name="logo-instagram" size={isTablet ? 24 : 20} color="#FFFFFF" />
-            <Text style={[styles.instagramButtonText, isTablet && styles.instagramButtonTextTablet]}>
-              Suivez-nous sur Instagram
-            </Text>
-          </TouchableOpacity>
         </View>
 
         <View style={[styles.content, { paddingHorizontal: spacing, maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
@@ -261,28 +242,6 @@ export default function ProfileScreen() {
                 style={styles.menuArrow} 
               />
             </TouchableOpacity>
-
-            {/* Firebase Test Button - Developer Tool */}
-            <TouchableOpacity 
-              style={[styles.menuItem, styles.testMenuItem, isTablet && styles.menuItemTablet]} 
-              onPress={handleTestFirebase}
-            >
-              <Icon 
-                name="bug-outline" 
-                size={isTablet ? 24 : 20} 
-                color={colors.primary} 
-                style={styles.menuIcon} 
-              />
-              <Text style={[styles.menuText, styles.testMenuText, isTablet && styles.menuTextTablet]}>
-                🧪 Tester Firebase Auth
-              </Text>
-              <Icon 
-                name="chevron-forward" 
-                size={isTablet ? 20 : 16} 
-                color={colors.primary} 
-                style={styles.menuArrow} 
-              />
-            </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
@@ -343,34 +302,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
     paddingHorizontal: 20,
-    marginBottom: 16,
   },
   bioTablet: {
     fontSize: 18,
     lineHeight: 26,
-  },
-  instagramButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E4405F',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
-    gap: 8,
-    marginTop: 8,
-  },
-  instagramButtonTablet: {
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    borderRadius: 28,
-  },
-  instagramButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  instagramButtonTextTablet: {
-    fontSize: 16,
   },
   content: {
     flex: 1,
@@ -522,11 +457,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 16,
   },
-  testMenuItem: {
-    borderWidth: 1,
-    borderColor: colors.primary,
-    backgroundColor: 'rgba(139, 0, 0, 0.1)',
-  },
   menuIcon: {
     marginRight: 16,
   },
@@ -534,10 +464,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
     flex: 1,
-  },
-  testMenuText: {
-    color: colors.primary,
-    fontWeight: '600',
   },
   menuTextTablet: {
     fontSize: 18,
