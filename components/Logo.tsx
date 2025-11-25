@@ -18,7 +18,7 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
       <View style={styles.titleContainer}>
         <View style={[styles.logoCircle, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}>
           <Image 
-            source={require('../assets/images/final_quest_240x240__.png')}
+            source={require('../assets/images/c733bcf2-a7f0-4419-9839-7727c8c74b52.png')}
             style={[styles.logo, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}
             resizeMode="cover"
           />
