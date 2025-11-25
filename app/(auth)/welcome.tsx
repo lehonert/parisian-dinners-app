@@ -15,11 +15,13 @@ export default function WelcomeScreen() {
       <ScrollView style={styles.container} contentContainerStyle={{ paddingHorizontal: spacing }}>
         <View style={[styles.content, { maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
           <View style={[styles.logoContainer, isTablet && styles.logoContainerTablet]}>
-            <Image 
-              source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
-              style={[styles.logo, isTablet && styles.logoTablet]}
-              resizeMode="contain"
-            />
+            <View style={[styles.logoCircle, isTablet && styles.logoCircleTablet]}>
+              <Image 
+                source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
+                style={[styles.logo, isTablet && styles.logoTablet]}
+                resizeMode="contain"
+              />
+            </View>
             <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
             <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
               Il n&apos;y a rien de plus puissant qu&apos;une rencontre. <Text style={styles.italicText}>Victor Hugo</Text>
@@ -70,15 +72,39 @@ const styles = StyleSheet.create({
   logoContainerTablet: {
     marginBottom: 80,
   },
-  logo: {
+  logoCircle: {
     width: 120,
     height: 120,
+    borderRadius: 60,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 24,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  logoTablet: {
+  logoCircleTablet: {
     width: 160,
     height: 160,
+    borderRadius: 80,
     marginBottom: 32,
+    borderWidth: 3,
+  },
+  logo: {
+    width: 84,
+    height: 84,
+  },
+  logoTablet: {
+    width: 112,
+    height: 112,
   },
   title: {
     fontSize: 32,

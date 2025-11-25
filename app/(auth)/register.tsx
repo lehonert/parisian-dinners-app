@@ -81,11 +81,13 @@ export default function RegisterScreen() {
           <View style={[styles.content, { paddingHorizontal: spacing, maxWidth: contentMaxWidth, alignSelf: 'center', width: '100%' }]}>
             {/* Logo and Title */}
             <View style={styles.logoContainer}>
-              <Image 
-                source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
-                style={[styles.logo, isTablet && styles.logoTablet]}
-                resizeMode="contain"
-              />
+              <View style={[styles.logoCircle, isTablet && styles.logoCircleTablet]}>
+                <Image 
+                  source={require('../../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
+                  style={[styles.logo, isTablet && styles.logoTablet]}
+                  resizeMode="contain"
+                />
+              </View>
               <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
               <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
                 Inscription
@@ -219,15 +221,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 40,
   },
-  logo: {
+  logoCircle: {
     width: 100,
     height: 100,
+    borderRadius: 50,
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 20,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  logoTablet: {
+  logoCircleTablet: {
     width: 140,
     height: 140,
+    borderRadius: 70,
     marginBottom: 28,
+    borderWidth: 3,
+  },
+  logo: {
+    width: 70,
+    height: 70,
+  },
+  logoTablet: {
+    width: 98,
+    height: 98,
   },
   title: {
     fontSize: 24,

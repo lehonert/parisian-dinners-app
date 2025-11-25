@@ -16,11 +16,13 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Image 
-          source={require('../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
-          style={[styles.logo, { width: logoSize, height: logoSize }]}
-          resizeMode="contain"
-        />
+        <View style={[styles.logoCircle, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}>
+          <Image 
+            source={require('../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
+            style={[styles.logo, { width: logoSize * 0.7, height: logoSize * 0.7 }]}
+            resizeMode="contain"
+          />
+        </View>
         {showText && (
           <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
             Les Dîners Parisiens
@@ -43,8 +45,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
-  logo: {
+  logoCircle: {
+    backgroundColor: colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  logo: {
+    // Image will be sized by inline styles
   },
   text: {
     fontWeight: '600',
