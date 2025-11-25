@@ -17,7 +17,7 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
     <View style={styles.container}>
       <View style={styles.titleContainer}>
         <Image 
-          source={require('../assets/images/92510293-455a-4eb0-b08e-b4694dac60f6.png')}
+          source={require('../assets/images/b040efb1-306b-4cdb-8258-4fa30b1b1047.jpeg')}
           style={[styles.logo, { width: logoSize, height: logoSize }]}
           resizeMode="contain"
         />

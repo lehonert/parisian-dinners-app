@@ -82,8 +82,9 @@ export default function RegisterScreen() {
             {/* Logo and Title */}
             <View style={styles.logoContainer}>
               <Image 
-                source={{ uri: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=120&h=120&fit=crop' }}
+                source={require('../../assets/images/b040efb1-306b-4cdb-8258-4fa30b1b1047.jpeg')}
                 style={[styles.logo, isTablet && styles.logoTablet]}
+                resizeMode="contain"
               />
               <Text style={[styles.title, isTablet && styles.titleTablet]}>Inscription</Text>
               <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>
@@ -221,13 +222,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 100,
-    borderRadius: 50,
     marginBottom: 24,
   },
   logoTablet: {
     width: 140,
     height: 140,
-    borderRadius: 70,
     marginBottom: 32,
   },
   title: {
