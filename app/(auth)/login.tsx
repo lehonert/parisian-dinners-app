@@ -91,7 +91,10 @@ export default function LoginScreen() {
               onPress={handleGoogleSignIn}
               disabled={isLoading}
             >
-              <Icon name="logo-google" size={isTablet ? 24 : 20} color="#DB4437" />
+              <Image 
+                source={{ uri: 'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg' }}
+                style={styles.googleLogo}
+              />
               <Text style={[styles.googleButtonText, isTablet && styles.googleButtonTextTablet]}>
                 Se connecter avec Google
               </Text>
@@ -252,6 +255,10 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 28,
     borderRadius: 14,
+  },
+  googleLogo: {
+    width: 20,
+    height: 20,
   },
   googleButtonText: {
     fontSize: 16,
