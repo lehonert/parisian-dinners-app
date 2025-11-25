@@ -1,3 +1,4 @@
+
 {
   "expo": {
     "name": "Parisian Dinners",
@@ -14,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.Natively",
+      "bundleIdentifier": "com.ldplehonert.ldp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       },
@@ -26,7 +27,7 @@
         "backgroundColor": "#000000"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.Natively",
+      "package": "com.ldplehonert.ldp",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
