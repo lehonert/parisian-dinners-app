@@ -20,7 +20,7 @@ export default function WelcomeScreen() {
               style={[styles.logo, isTablet && styles.logoTablet]}
             />
             <Text style={[styles.title, isTablet && styles.titleTablet]}>Les Dîners Parisiens</Text>
-            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>Il n&apos;y a rien de plus puissant qu&apos;une rencontre. » — Victor Hugo</Text>
+            <Text style={[styles.subtitle, isTablet && styles.subtitleTablet]}>Il n&apos;y a rien de plus puissant qu&apos;une rencontre. Victor Hugo</Text>
           </View>
           
           <View style={[styles.description, isTablet && styles.descriptionTablet]}>
