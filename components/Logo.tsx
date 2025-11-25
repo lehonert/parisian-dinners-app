@@ -16,13 +16,15 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-        <Image 
-          source={require('../assets/images/c733bcf2-a7f0-4419-9839-7727c8c74b52.png')}
-          style={{ width: logoSize, height: logoSize, marginBottom: 16 }}
-          resizeMode="contain"
-        />
+        <View style={[styles.logoCircle, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}>
+          <Image 
+            source={require('../assets/images/a11fa704-6e5d-40f6-b86a-8f03f61c0807.png')}
+            style={{ width: logoSize, height: logoSize, borderRadius: logoSize / 2 }}
+            resizeMode="cover"
+          />
+        </View>
         {showText && (
-          <Text style={[styles.text, { fontSize: textSize, color: textColor }]}>
+          <Text style={[styles.text, { fontSize: textSize, color: textColor, marginTop: 16 }]}>
             Les Dîners Parisiens
           </Text>
         )}
@@ -42,6 +44,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+  },
+  logoCircle: {
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
   },
   text: {
     fontWeight: '600',
