@@ -19,7 +19,7 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
         <View style={[styles.logoCircle, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}>
           <Image 
             source={require('../assets/images/c733bcf2-a7f0-4419-9839-7727c8c74b52.png')}
-            style={[styles.logo, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}
+            style={{ width: logoSize, height: logoSize }}
             resizeMode="cover"
           />
         </View>
@@ -59,9 +59,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  logo: {
-    // Image will be sized by inline styles
   },
   text: {
     fontWeight: '600',
