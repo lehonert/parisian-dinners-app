@@ -18,9 +18,9 @@ export default function Logo({ size = 'medium', showText = true, textColor = col
       <View style={styles.titleContainer}>
         <View style={[styles.logoCircle, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}>
           <Image 
-            source={require('../assets/images/8a1bc83c-cbbc-4d4c-9c70-01cd7f76a731.jpeg')}
-            style={[styles.logo, { width: logoSize * 0.7, height: logoSize * 0.7 }]}
-            resizeMode="contain"
+            source={require('../assets/images/3a4eee2e-d383-44d7-8aa0-b389dc58d0e5.png')}
+            style={[styles.logo, { width: logoSize, height: logoSize, borderRadius: logoSize / 2 }]}
+            resizeMode="cover"
           />
         </View>
         {showText && (
@@ -50,8 +50,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
-    borderWidth: 2,
-    borderColor: colors.primary,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
