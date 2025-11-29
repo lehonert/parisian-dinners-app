@@ -6,12 +6,25 @@ import { setupErrorLogging } from '../utils/errorLogger';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AuthProvider } from '../contexts/AuthContext';
 import { DataProvider } from '../contexts/DataContext';
+import { Platform, View } from 'react-native';
+import OnlineStatusBanner from '../components/OnlineStatusBanner';
+import { registerServiceWorker } from '../utils/registerServiceWorker';
 
 export default function RootLayout() {
   useEffect(() => {
     // Set up global error logging
     console.log('RootLayout: Setting up error logging');
     setupErrorLogging();
+
+    // Log platform information
+    console.log('Platform:', Platform.OS);
+    console.log('Running on web:', Platform.OS === 'web');
+
+    // Register service worker for PWA functionality (web only)
+    if (Platform.OS === 'web') {
+      console.log('RootLayout: Registering service worker');
+      registerServiceWorker();
+    }
   }, []);
 
   console.log('RootLayout: Rendering');
@@ -21,12 +34,15 @@ export default function RootLayout() {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <AuthProvider>
           <DataProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                animation: 'default',
-              }}
-            />
+            <View style={{ flex: 1 }}>
+              {Platform.OS === 'web' && <OnlineStatusBanner />}
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'default',
+                }}
+              />
+            </View>
           </DataProvider>
         </AuthProvider>
       </GestureHandlerRootView>
