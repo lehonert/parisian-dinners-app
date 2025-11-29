@@ -9,6 +9,12 @@ import { DataProvider } from '../contexts/DataContext';
 import { Platform, View } from 'react-native';
 import OnlineStatusBanner from '../components/OnlineStatusBanner';
 import { registerServiceWorker } from '../utils/registerServiceWorker';
+import * as SplashScreen from 'expo-splash-screen';
+
+// Empêcher le splash screen de se cacher automatiquement
+SplashScreen.preventAutoHideAsync().catch(() => {
+  console.log('SplashScreen.preventAutoHideAsync failed');
+});
 
 export default function RootLayout() {
   useEffect(() => {
@@ -25,6 +31,15 @@ export default function RootLayout() {
       console.log('RootLayout: Registering service worker');
       registerServiceWorker();
     }
+
+    // Cacher le splash screen après un court délai
+    const timer = setTimeout(() => {
+      SplashScreen.hideAsync().catch(() => {
+        console.log('SplashScreen.hideAsync failed');
+      });
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   console.log('RootLayout: Rendering');
