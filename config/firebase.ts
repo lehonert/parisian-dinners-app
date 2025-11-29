@@ -50,11 +50,14 @@ if (getApps().length === 0) {
   console.log('✅ Firebase déjà initialisé');
 }
 
-// Initialiser Auth avec persistence pour React Native
+// Initialiser Auth avec persistence appropriée selon la plateforme
 let auth;
 if (Platform.OS === 'web') {
+  // Pour le web, utiliser la persistence du navigateur
   auth = getAuth(app);
+  console.log('Firebase Auth initialized for web with browser persistence');
 } else {
+  // Pour React Native, utiliser AsyncStorage
   try {
     auth = initializeAuth(app, {
       persistence: getReactNativePersistence(AsyncStorage)
