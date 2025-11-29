@@ -262,7 +262,7 @@ export default function ProfileScreen() {
               />
             </TouchableOpacity>
 
-            {/* Firebase Test Button - Developer Tool */}
+            {/* Firebase Test Buttons - Developer Tools */}
             <TouchableOpacity 
               style={[styles.menuItem, styles.testMenuItem, isTablet && styles.menuItemTablet]} 
               onPress={handleTestFirebase}
@@ -275,6 +275,27 @@ export default function ProfileScreen() {
               />
               <Text style={[styles.menuText, styles.testMenuText, isTablet && styles.menuTextTablet]}>
                 🧪 Tester Firebase Auth
+              </Text>
+              <Icon 
+                name="chevron-forward" 
+                size={isTablet ? 20 : 16} 
+                color={colors.primary} 
+                style={styles.menuArrow} 
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.menuItem, styles.testMenuItem, isTablet && styles.menuItemTablet]} 
+              onPress={() => router.push('/test-firebase-config')}
+            >
+              <Icon 
+                name="construct-outline" 
+                size={isTablet ? 24 : 20} 
+                color={colors.primary} 
+                style={styles.menuIcon} 
+              />
+              <Text style={[styles.menuText, styles.testMenuText, isTablet && styles.menuTextTablet]}>
+                🔧 Tester Configuration Firebase
               </Text>
               <Icon 
                 name="chevron-forward" 
